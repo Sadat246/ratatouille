@@ -32,7 +32,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Nothing (first phase)
 **Research**: Likely (free-tier deploy + Postgres provider selection)
 **Research topics**: Next.js App Router patterns for this stack, Postgres host choice (Neon vs Supabase) on free tier, Vercel deploy config, PWA manifest + service-worker baseline, initial schema for users/businesses/listings/auctions/bids
-**Plans**: TBD
+**Plans**:
+- 01-01 — Bootstrap foundation and toolchain — Complete
+- 01-02 — Core schema and migrations — Planned
+- 01-03 — Branded shell, PWA baseline, and deployment — Planned
 
 ### Phase 2: Auth & Onboarding
 **Goal**: Users can sign in with Google as either a business or a consumer, with role persisted and protected routes enforced.
@@ -90,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 1/3 | In progress | - |
 | 2. Auth & Onboarding | 0/TBD | Not started | - |
 | 3. Listing Creation | 0/TBD | Not started | - |
 | 4. Auction Engine | 0/TBD | Not started | - |
