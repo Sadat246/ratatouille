@@ -60,5 +60,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-18
-Stopped at: 01-01 bootstrap complete; 01-02 ready
-Resume file: .planning/phases/01-foundation/01-02-PLAN.md
+Stopped at: Phase 5 context gathered
+Resume file: .planning/phases/05-consumer-feed/05-CONTEXT.md
