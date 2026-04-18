@@ -7,7 +7,7 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type SetupIntentResponse =
   | { ok: true; clientSecret: string }
@@ -24,20 +24,19 @@ type StripeCardSetupProps = {
 
 export function StripeCardSetup({ onCardAttached }: StripeCardSetupProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [bootstrapError, setBootstrapError] = useState<string | null>(null);
-  const [isFetching, setIsFetching] = useState(false);
+  const [bootstrapError, setBootstrapError] = useState<string | null>(() =>
+    publishableKey
+      ? null
+      : "Stripe is not configured. Add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to .env.local.",
+  );
+  const fetchStartedRef = useRef(false);
 
   useEffect(() => {
-    if (clientSecret || isFetching) return;
-    if (!publishableKey) {
-      setBootstrapError(
-        "Stripe is not configured. Add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to .env.local.",
-      );
-      return;
-    }
+    if (!publishableKey) return;
+    if (fetchStartedRef.current) return;
+    fetchStartedRef.current = true;
 
     let cancelled = false;
-    setIsFetching(true);
 
     (async () => {
       try {
@@ -57,15 +56,13 @@ export function StripeCardSetup({ onCardAttached }: StripeCardSetupProps) {
         if (!cancelled) {
           setBootstrapError("Network error while starting card setup.");
         }
-      } finally {
-        if (!cancelled) setIsFetching(false);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [clientSecret, isFetching]);
+  }, []);
 
   if (bootstrapError) {
     return (
