@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-04-18)
 
 **Core value:** Auctions actually clear at-risk inventory before expiry — bids land, winners pay, items get to buyers.
-**Current focus:** Phase 8 — Notifications & Demo Polish (implementation is in place; next step is the real human walkthrough with VAPID-enabled seller/shopper browsers)
+**Current focus:** Phase 9 landed locally; the next project-level step is still the outstanding human walkthrough for Phase 8 plus the live UAT passes for Phases 6 and 7.
 
 ## Current Position
 
-Phase: 8 of 8 (Notifications & Demo Polish)
-Plan: Human walkthrough pending after 08-02..08-04 implementation
-Status: Human verification needed
-Last activity: 2026-04-18 — Plans 08-02 through 08-04 landed: deterministic demo prep services, guarded operator endpoints, seller-side demo tools, and the Phase 8 runbook are all in place; only the real walkthrough approval remains.
+Phase: 9 of 9 (Error Logging & Bug Reports)
+Plan: 09-03 complete
+Status: Phase 9 complete locally; broader project still awaits live UAT/human walkthrough work from Phases 6-8
+Last activity: 2026-04-18 — Plans 09-01 through 09-03 landed: immutable bug-report persistence, global client telemetry, a floating preview-first widget, and the terminal `list`/`get` retrieval loop are all in place. The bug-report schema was migrated to the configured Neon database, and a synthetic report was used to smoke-test the CLI end to end before cleanup.
 
-Progress: █████████▓ 98%
+Progress: ██████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
+- Total plans completed: 31
 - Average duration: Partially tracked
 - Total execution time: 31 min recorded in Phase 1; later phases completed in the same session but did not capture per-plan timings
 
@@ -35,6 +35,7 @@ Progress: █████████▓ 98%
 | 6. Payments (Stripe Test) | 6 | Timing not captured | n/a |
 | 7. Fulfillment | 3 | Timing not captured | n/a |
 | 8. Notifications & Demo Polish | 2 | 22 min | 11 min |
+| 9. Error Logging & Bug Reports | 3 | Timing not captured | n/a |
 
 **Recent Trend:**
 - Last 5 plans: Timing not captured at plan granularity
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - Demo tooling is gated behind `DEMO_MODE_ENABLED`, with optional `DEMO_CONTROL_TOKEN` access for curl/VM-driven operator flows while real seller session auth remains the default path
 - The scripted demo now runs through a seller-only in-app control lane plus lightweight shopper alert guidance instead of exposing a general admin surface or cross-role shortcuts
 - Phase 8 is not marked complete until a human verifies the push/browser walkthrough, especially the iPhone/iPad Home Screen constraint and the one-shot ending-soon beat
+- Phase 9 stores immutable bug-report rows with short public IDs, canonical Markdown, and separately stored screenshot payloads so the terminal retrieval loop stays readable
+- Phase 9 bootstraps client-side telemetry through `instrumentation-client`, capturing only metadata-level actions/outcomes and excluding raw field values or request bodies by default
+- Phase 9 intentionally exposes exactly two retrieval verbs — `list` and `get` — via a plain Node CLI instead of an in-app admin surface
 
 ### Deferred Issues
 
@@ -100,6 +104,12 @@ Recent decisions affecting current work:
 - **Phase 6 nice-to-have:** `setup_intent.succeeded` handler currently sets `hasMockCardOnFile=true` with placeholder `mockCardBrand`/`mockCardLast4`; can be enriched with real PaymentMethod metadata in a follow-up
 - **Phase 7 UAT:** add `UBER_DIRECT_CLIENT_ID`, `UBER_DIRECT_CLIENT_SECRET`, `UBER_DIRECT_CUSTOMER_ID`, and `UBER_DIRECT_WEBHOOK_SIGNING_KEY`, then walk the README fulfillment demo for both pickup and delivery. Confirm a real webhook can advance `delivery_requested` → `out_for_delivery`/`delivered` and that seller pickup verification marks the settlement completed.
 - **Phase 8 UAT:** set `DEMO_MODE_ENABLED=1`, configure the VAPID env vars, opt a seller and shopper browser into alerts, then walk the README Phase 8 runbook end to end. On iPhone/iPad, verify the shopper is using the installed Home Screen web app before expecting push delivery.
+- **Phase 9 QA:** perform one live browser click-through of the floating bug-report widget to confirm the preview panel clears the mobile bottom nav and the screenshot preview looks correct on a real device size.
+
+### Roadmap Evolution
+
+- 2026-04-18 — Phase 9 added: Error Logging & Bug Reports (user action/outcome telemetry + floating bottom-right bug-report widget — support-chat style, screenshot + last-10-actions buffer + description; reports persisted as Markdown retrievable by LLM CLI)
+- 2026-04-18 — Phase 9 planned and executed: 09-01..09-03 shipped immutable bug-report persistence, the root-mounted widget, and the `list`/`get` CLI loop.
 
 ### Blockers/Concerns
 
@@ -107,9 +117,10 @@ Recent decisions affecting current work:
 - Local/runtime verification still lacks real Uber Direct credentials, so quote/create/webhook round-trips are currently proven only through the built-in stub path
 - Auction closing still relies on the single-process safety sweep plus request-triggered refreshes; a durable per-auction scheduler remains a future hardening path if deployment topology changes
 - Phase 8 implementation is ready, but the final demo claim still depends on a human walkthrough confirming push delivery in real browsers and the iOS Home Screen constraint
+- Phase 9 is locally verified through lint/test/build plus a synthetic Neon-backed CLI smoke path, but it still lacks a live browser click-through of the widget from this terminal session
 
 ## Session Continuity
 
 Last session: 2026-04-18
-Stopped at: Phase 8 implementation complete through Plans 08-02..08-04. Phase 6 remains `human_needed` until live Stripe MV walk-through; Phase 7 awaits live Uber/Stripe UAT; Phase 8 now awaits the real seller/shopper walkthrough before it can be marked complete.
+Stopped at: Phase 9 complete through Plans 09-01..09-03. Phase 6 still needs live Stripe MV UAT, Phase 7 still needs live Uber/Stripe UAT, and Phase 8 still needs the real seller/shopper push walkthrough before the broader demo can be called fully human-verified.
 Resume file: .planning/ROADMAP.md

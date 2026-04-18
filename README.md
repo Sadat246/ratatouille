@@ -393,3 +393,63 @@ For direct database inspection:
 ```bash
 docker exec -it mile-buy-club-postgres psql -U mbc -d milebuyclub
 ```
+
+## Phase 9 bug reports
+
+Phase 9 adds a global, support-style bug-report bubble that is visible on every
+route. It captures a redacted current-screen preview plus the last 10
+high-signal client actions before the report is submitted.
+
+### What gets captured
+
+- The current URL and route path
+- Viewport size and browser user agent
+- The latest 10 high-signal client events:
+  page opens, router transitions, click/tap intents, form submits, same-origin
+  mutation/API outcomes, and uncaught client errors
+- A viewport-only DOM screenshot captured on demand via `html2canvas`
+
+### What does not get captured by default
+
+- Raw form field values
+- Request or response bodies
+- The bug-report widget itself
+
+Inputs and textareas are blanked in the screenshot preview before capture, and
+any element marked with `data-bug-report-redact` is replaced with `[redacted]`
+in the captured preview.
+
+### Using the retrieval CLI
+
+List recent reports:
+
+```bash
+npm run bug-reports -- list
+```
+
+Fetch one full Markdown report:
+
+```bash
+npm run bug-reports -- get BR-20260418-ABC12345
+```
+
+The CLI reads `DATABASE_URL_UNPOOLED` first and falls back to `DATABASE_URL`.
+It loads `.env.local` and `.env` automatically, so it can run from a normal
+repo checkout without booting the Next.js app server.
+
+### Applying the schema
+
+Phase 9 adds a new bug-report table and enum. Apply the latest migration before
+using the widget or CLI against a fresh database:
+
+```bash
+npm run db:migrate
+```
+
+### Production/VM note
+
+If you want to inspect production bug reports from the Google Cloud VM, run the
+same CLI from an environment that has the deployed database URL available. If
+you are operating directly inside the app container, use the same `list`/`get`
+commands there so the CLI inherits the deployed env configuration instead of
+guessing at connection details.

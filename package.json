@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio",
+    "bug-reports": "node tools/bug-reports.mjs",
     "test": "vitest run"
   },
   "dependencies": {

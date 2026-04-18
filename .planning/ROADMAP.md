@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Payments (Stripe Test)** — Stripe test-mode auth/capture for bids, buyouts, settlement *(code complete 2026-04-18; awaiting user-supplied secrets for MV walk-through)*
 - [x] **Phase 7: Fulfillment** — Pickup codes + Uber Direct delivery *(code complete 2026-04-18; live Uber/Stripe walkthrough still requires user-supplied secrets)*
 - [ ] **Phase 8: Notifications & Demo Polish** — Push notifications + deterministic demo tooling *(implementation landed 2026-04-18; final human walkthrough still pending with VAPID-enabled browsers)*
-- [ ] **Phase 9: Error Logging & Bug Reports** — User action/outcome telemetry + floating bottom-right bug-report widget (support-chat style: screenshot + last 10 actions + description) persisted as LLM-retrievable Markdown
+- [x] **Phase 9: Error Logging & Bug Reports** — User action/outcome telemetry + floating bottom-right bug-report widget (support-chat style: screenshot + last 10 actions + description) persisted as LLM-retrievable Markdown *(implemented 2026-04-18; local widget/build verification plus CLI `list`/`get` smoke path complete)*
 
 ## Phase Details
 
@@ -122,9 +122,9 @@ Plans:
 **Research**: Complete (see `phases/09-error-logging-and-bug-reports/DISCOVERY.md`)
 **Research topics**: action-log buffer design (ring buffer of last N events, PII scrubbing), floating support-chat-style widget patterns (fixed-position FAB + expandable panel, z-index + mobile safe-area handling, shell integration so it appears on every consumer/seller route), DOM/canvas screenshot options in a PWA (html2canvas vs native MediaDevices/getDisplayMedia), storage format for bug-report Markdown (Postgres text column vs bytea vs blob), CLI surface shape for LLM consumption (list/get/search), privacy + auth gating for report retrieval
 **Plans**:
-- 09-01 — Bug report schema, Markdown persistence service, and anonymous-or-signed-in submission API
-- 09-02 — Global action trail capture, screenshot preview, and floating report widget
-- 09-03 — LLM-facing CLI, operator docs, and phase verification
+- 09-01 — Bug report schema, Markdown persistence service, and anonymous-or-signed-in submission API — Complete
+- 09-02 — Global action trail capture, screenshot preview, and floating report widget — Complete
+- 09-03 — LLM-facing CLI, operator docs, and phase verification — Complete
 
 ## Progress
 
@@ -141,4 +141,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Payments (Stripe Test) | 6/6 | Code complete (awaiting user UAT) | 2026-04-18 |
 | 7. Fulfillment | 3/3 | Code complete (awaiting live Uber/Stripe UAT) | 2026-04-18 |
 | 8. Notifications & Demo Polish | 2/4 complete (+2 pending verify) | Implementation complete; awaiting human walkthrough | - |
-| 9. Error Logging & Bug Reports | 0/3 | Planned | - |
+| 9. Error Logging & Bug Reports | 3/3 | Complete | 2026-04-18 |
