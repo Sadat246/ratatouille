@@ -14,6 +14,7 @@ import {
   getSettlementAmounts,
   hasMockCardOnFile,
 } from "@/lib/auctions/pricing";
+import { triggerAuctionPaymentIfCloseResult } from "@/lib/payments/auction-trigger";
 import { notifyAuctionMutation } from "@/lib/push/notify";
 
 type InteractiveTransaction = Parameters<
@@ -629,6 +630,7 @@ export async function buyoutAuction({
   });
 
   await notifyAuctionMutation(result);
+  await triggerAuctionPaymentIfCloseResult(result);
 
   return result;
 }
@@ -718,6 +720,7 @@ export async function refreshAuctionIfOverdue(auctionId: string) {
 
   if (result) {
     await notifyAuctionMutation(result);
+    await triggerAuctionPaymentIfCloseResult(result);
   }
 
   return result;
@@ -763,6 +766,9 @@ export async function sweepOverdueAuctions(limit = 12) {
   });
 
   await Promise.all(results.map((result) => notifyAuctionMutation(result)));
+  await Promise.all(
+    results.map((result) => triggerAuctionPaymentIfCloseResult(result)),
+  );
 
   return results;
 }
