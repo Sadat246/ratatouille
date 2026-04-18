@@ -3,34 +3,31 @@ import { describe, expect, it } from "vitest";
 import { filterByCategories, sortItems } from "@/lib/auctions/feed-utils";
 import type { AuctionFeedItem } from "@/lib/auctions/queries";
 
-function makeItem(
-  overrides: Partial<AuctionFeedItem> & {
-    scheduledEndAt?: Date | string;
-    reservePriceCents?: number;
-    category?: string;
-    distanceMiles?: number | null;
-  },
-): AuctionFeedItem {
+function makeItem(opts: {
+  id?: string;
+  scheduledEndAt?: string;
+  reservePriceCents?: number;
+  category?: string;
+  distanceMiles?: number | null;
+}): AuctionFeedItem {
   return {
-    id: "test-id",
+    id: opts.id ?? "test-id",
     status: "active",
     result: "pending",
-    reservePriceCents: overrides.reservePriceCents ?? 1000,
+    reservePriceCents: opts.reservePriceCents ?? 1000,
     buyoutPriceCents: null,
     currentBidAmountCents: null,
     currentLeaderUserId: null,
     bidCount: 0,
     lastBidAt: null,
-    scheduledEndAt: overrides.scheduledEndAt
-      ? new Date(overrides.scheduledEndAt)
-      : new Date("2026-05-01T12:00:00Z"),
+    scheduledEndAt: new Date(opts.scheduledEndAt ?? "2026-05-01T12:00:00Z"),
     viewerIsLeading: false,
-    distanceMiles: overrides.distanceMiles ?? null,
+    distanceMiles: opts.distanceMiles ?? null,
     listing: {
       id: "listing-id",
       title: "Test Item",
       description: null,
-      category: overrides.category ?? "other",
+      category: opts.category ?? "other",
       packageDate: null,
       expiresAt: null,
       imageUrl: null,
@@ -41,8 +38,7 @@ function makeItem(
       city: "San Francisco",
       state: "CA",
     },
-    ...overrides,
-  } as AuctionFeedItem;
+  };
 }
 
 const item1 = makeItem({
