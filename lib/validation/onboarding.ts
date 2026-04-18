@@ -8,7 +8,7 @@ const optionalText = z
 
 const optionalNumber = z.preprocess((value) => {
   if (typeof value === "number") {
-    return value;
+    return Number.isFinite(value) ? value : undefined;
   }
 
   if (typeof value !== "string" || value.trim() === "") {
@@ -16,7 +16,7 @@ const optionalNumber = z.preprocess((value) => {
   }
 
   const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : value;
+  return Number.isFinite(parsed) ? parsed : undefined;
 }, z.number().finite().optional());
 
 export const consumerOnboardingSchema = z
