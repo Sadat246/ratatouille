@@ -257,6 +257,8 @@ export type AuctionDetail = {
     name: string;
     city: string | null;
     state: string | null;
+    latitude: number | null;
+    longitude: number | null;
     pickupHours: string | null;
     pickupInstructions: string | null;
   };
@@ -302,6 +304,8 @@ export async function getAuctionDetail(
       businessName: businesses.name,
       businessCity: businesses.city,
       businessState: businesses.state,
+      businessLatitude: businesses.latitude,
+      businessLongitude: businesses.longitude,
       businessPickupHours: businesses.pickupHours,
       businessPickupInstructions: businesses.pickupInstructions,
     })
@@ -365,7 +369,7 @@ export async function getAuctionDetail(
       myTopBidAmountCents:
         stats?.myTopBidAmountCents === null || stats?.myTopBidAmountCents === undefined
           ? null
-          : Number(stats.myTopBidAmountCents),
+          : toNumber(stats.myTopBidAmountCents),
       minimumNextBidAmountCents: getNextBidAmountCents({
         currentBidAmountCents: row.currentBidAmountCents,
         reservePriceCents: row.reservePriceCents,
@@ -403,6 +407,8 @@ export async function getAuctionDetail(
       name: row.businessName,
       city: row.businessCity,
       state: row.businessState,
+      latitude: row.businessLatitude,
+      longitude: row.businessLongitude,
       pickupHours: row.businessPickupHours,
       pickupInstructions: row.businessPickupInstructions,
     },
@@ -525,7 +531,7 @@ export async function getMyBidAuctions(
       myTopBidAmountCents:
         entry.myTopBidAmountCents === null || entry.myTopBidAmountCents === undefined
           ? null
-          : Number(entry.myTopBidAmountCents),
+          : toNumber(entry.myTopBidAmountCents),
       myLastBidAt: entry.myLastBidAt,
       participationState,
       listing: {

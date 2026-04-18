@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { AuctionCountdown } from "@/components/auction/auction-countdown";
 
 type AuctionCardMetric = {
@@ -81,10 +83,16 @@ export function AuctionCard({
         </div>
 
         <div className="relative">
-          <div
-            className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]"
-            style={imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
-          />
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt=""
+              aria-hidden="true"
+              className="aspect-[4/3] w-full rounded-[1.6rem] object-cover border border-[#f4ddcf]"
+            />
+          ) : (
+            <div className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]" />
+          )}
           {categoryBadge ? (
             <span
               aria-hidden="true"

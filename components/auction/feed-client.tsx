@@ -7,13 +7,18 @@ import { FeedCardSkeleton } from "@/components/auction/feed-card-skeleton";
 import { FilterChipRow } from "@/components/auction/filter-chip-row";
 import { InstallPromptBanner } from "@/components/pwa/install-prompt-banner";
 import { formatCurrency, formatLocationLabel, formatPackageLabel } from "@/lib/auctions/display";
-import type { AuctionFeedItem } from "@/lib/auctions/queries";
-
-type SortBy = "ending_soon" | "nearest" | "lowest_price";
+import type { AuctionFeedItem, SortBy } from "@/lib/auctions/queries";
 
 type FeedClientProps = {
   initialItems: AuctionFeedItem[];
 };
+
+function haveSameCategories(nextCategories: string[], currentCategories: string[]) {
+  return (
+    nextCategories.length === currentCategories.length &&
+    nextCategories.every((category, index) => category === currentCategories[index])
+  );
+}
 
 export function FeedClient({ initialItems }: FeedClientProps) {
   const [items, setItems] = useState<AuctionFeedItem[]>(initialItems);
@@ -26,7 +31,8 @@ export function FeedClient({ initialItems }: FeedClientProps) {
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const installSentinelRef = useRef<HTMLDivElement>(null);
-  const skipNextFilterReset = useRef(true);
+  const isLoadingRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const loadMore = useCallback(
     async (
@@ -35,7 +41,10 @@ export function FeedClient({ initialItems }: FeedClientProps) {
       currentCategories: string[],
       append: boolean,
     ) => {
-      if (isLoading) return;
+      if (isLoadingRef.current) return;
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      isLoadingRef.current = true;
       setIsLoading(true);
 
       try {
@@ -49,6 +58,7 @@ export function FeedClient({ initialItems }: FeedClientProps) {
 
         const res = await fetch(`/api/auctions/feed?${params.toString()}`, {
           cache: "no-store",
+          signal: controller.signal,
         });
         const data = (await res.json()) as
           | { ok: true; items: AuctionFeedItem[]; nextOffset: number | null; hasMore: boolean }
@@ -65,13 +75,58 @@ export function FeedClient({ initialItems }: FeedClientProps) {
         }
         setOffset(data.nextOffset ?? currentOffset + data.items.length);
         setHasMore(data.hasMore);
-      } catch {
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
         // silent — no crash on network error
       } finally {
-        setIsLoading(false);
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
+          isLoadingRef.current = false;
+          setIsLoading(false);
+        }
       }
     },
-    [isLoading],
+    [],
+  );
+
+  const resetFeed = useCallback(
+    (nextSortBy: SortBy, nextCategories: string[]) => {
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = null;
+      isLoadingRef.current = false;
+      setIsLoading(false);
+      setItems([]);
+      setOffset(0);
+      setHasMore(true);
+      void loadMore(0, nextSortBy, nextCategories, false);
+    },
+    [loadMore],
+  );
+
+  const handleSortChange = useCallback(
+    (nextSortBy: SortBy) => {
+      if (nextSortBy === sortBy) {
+        return;
+      }
+
+      setSortBy(nextSortBy);
+      resetFeed(nextSortBy, categories);
+    },
+    [categories, resetFeed, sortBy],
+  );
+
+  const handleCategoryChange = useCallback(
+    (nextCategories: string[]) => {
+      if (haveSameCategories(nextCategories, categories)) {
+        return;
+      }
+
+      setCategories(nextCategories);
+      resetFeed(sortBy, nextCategories);
+    },
+    [categories, resetFeed, sortBy],
   );
 
   // Infinite scroll sentinel
@@ -80,7 +135,7 @@ export function FeedClient({ initialItems }: FeedClientProps) {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isLoading && hasMore) {
+        if (entry.isIntersecting && hasMore && !isLoadingRef.current) {
           void loadMore(offset, sortBy, categories, true);
         }
       },
@@ -88,8 +143,14 @@ export function FeedClient({ initialItems }: FeedClientProps) {
     );
     observer.observe(el);
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [offset, hasMore, isLoading, sortBy, categories]);
+  }, [categories, hasMore, loadMore, offset, sortBy]);
+
+  useEffect(
+    () => () => {
+      abortControllerRef.current?.abort();
+    },
+    [],
+  );
 
   // Install banner sentinel — show after 3rd card
   useEffect(() => {
@@ -105,35 +166,15 @@ export function FeedClient({ initialItems }: FeedClientProps) {
     return () => observer.disconnect();
   }, []);
 
-  // Reset on filter/sort change (skip initial mount — server already provided `initialItems`)
-  useEffect(() => {
-    if (skipNextFilterReset.current) {
-      skipNextFilterReset.current = false;
-      return;
-    }
-    let cancelled = false;
-    void Promise.resolve().then(() => {
-      if (cancelled) return;
-      setItems([]);
-      setOffset(0);
-      setHasMore(true);
-      void loadMore(0, sortBy, categories, false);
-    });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, categories]);
-
   const isEmpty = !isLoading && items.length === 0;
 
   return (
     <>
       <FilterChipRow
         sortBy={sortBy}
-        onSortChange={setSortBy}
+        onSortChange={handleSortChange}
         selectedCategories={categories}
-        onCategoryChange={setCategories}
+        onCategoryChange={handleCategoryChange}
       />
 
       <main className="px-4 pb-32">

@@ -81,6 +81,16 @@ describe("sortItems", () => {
     expect(sorted[1].id).toBe("a"); // 500 cents
     expect(sorted[2].id).toBe("b"); // 2000 cents
   });
+
+  it('Test 9: sortBy "nearest" puts closest distanceMiles first, nulls last', () => {
+    const nullDistanceItem = makeItem({
+      id: "d",
+      distanceMiles: null,
+    });
+    const items = [item1, nullDistanceItem, item2, item3];
+    const sorted = sortItems(items, "nearest");
+    expect(sorted.map((item) => item.id)).toEqual(["c", "a", "b", "d"]);
+  });
 });
 
 describe("filterByCategories", () => {

@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -35,12 +37,11 @@ export function ListingPhotoCarousel({ images }: ListingPhotoCarouselProps) {
       <div className="overflow-hidden rounded-[2rem]" ref={emblaRef}>
         <div className="flex touch-pan-y">
           {images.map((url, i) => (
-            <div key={i} className="min-w-0 flex-[0_0_100%]">
-              <div
-                className="aspect-[4/3] w-full bg-cover bg-center"
-                style={{ backgroundImage: `url(${url})` }}
-                role="img"
-                aria-label={`Photo ${i + 1} of ${images.length}`}
+            <div key={url} className="min-w-0 flex-[0_0_100%]">
+              <img
+                src={url}
+                alt={`Photo ${i + 1} of ${images.length}`}
+                className="aspect-[4/3] w-full object-cover"
               />
             </div>
           ))}
@@ -52,9 +53,9 @@ export function ListingPhotoCarousel({ images }: ListingPhotoCarouselProps) {
           aria-label="Photo navigation"
           className="mt-2 flex justify-center gap-1.5"
         >
-          {images.map((_, i) => (
+          {images.map((url, i) => (
             <button
-              key={i}
+              key={url}
               type="button"
               role="tab"
               aria-label={`Photo ${i + 1} of ${images.length}`}

@@ -48,7 +48,7 @@ export async function GET(request: Request) {
       );
     }
 
-    await sweepOverdueAuctions(AUCTION_SWEEP_BATCH_SIZE);
+    void sweepOverdueAuctions(AUCTION_SWEEP_BATCH_SIZE);
 
     const items = await getAuctionFeed({
       lat: profile.latitude,

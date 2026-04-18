@@ -1,10 +1,8 @@
-import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 import { AuctionDetailClient } from "@/components/auction/auction-detail-client";
 import { ConsumerShell } from "@/components/auction/consumer-shell";
 import { db } from "@/db/client";
-import { auctions as auctionsTable, businesses } from "@/db/schema";
 import { computeHaversine } from "@/lib/auctions/geo";
 import { getAuctionDetail } from "@/lib/auctions/queries";
 import { refreshAuctionIfOverdue } from "@/lib/auctions/service";
@@ -46,23 +44,16 @@ export default async function AuctionDetailPage({
   if (
     consumerLat != null &&
     consumerLng != null &&
+    auction.business.latitude != null &&
+    auction.business.longitude != null &&
     !(consumerLat === 0 && consumerLng === 0)
   ) {
-    const [businessGeo] = await db
-      .select({ lat: businesses.latitude, lng: businesses.longitude })
-      .from(auctionsTable)
-      .innerJoin(businesses, eq(businesses.id, auctionsTable.businessId))
-      .where(eq(auctionsTable.id, auctionId))
-      .limit(1);
-
-    if (businessGeo?.lat != null && businessGeo?.lng != null) {
-      distanceMiles = computeHaversine(
-        consumerLat,
-        consumerLng,
-        businessGeo.lat,
-        businessGeo.lng,
-      );
-    }
+    distanceMiles = computeHaversine(
+      consumerLat,
+      consumerLng,
+      auction.business.latitude,
+      auction.business.longitude,
+    );
   }
 
   const locationLabel = profile?.city

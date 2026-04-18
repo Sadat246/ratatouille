@@ -1,6 +1,4 @@
-import type { AuctionFeedItem } from "@/lib/auctions/queries";
-
-export type SortByOption = "ending_soon" | "nearest" | "lowest_price";
+import type { AuctionFeedItem, SortBy } from "@/lib/auctions/queries";
 
 /**
  * Sorts an array of AuctionFeedItems by the given sort key.
@@ -8,7 +6,7 @@ export type SortByOption = "ending_soon" | "nearest" | "lowest_price";
  */
 export function sortItems(
   items: AuctionFeedItem[],
-  sortBy: SortByOption,
+  sortBy: SortBy,
 ): AuctionFeedItem[] {
   const copy = [...items];
 

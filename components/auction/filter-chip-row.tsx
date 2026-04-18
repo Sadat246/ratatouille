@@ -1,8 +1,7 @@
 "use client";
 
+import type { SortBy } from "@/lib/auctions/queries";
 import { listingCategoryLabels, listingCategoryValues } from "@/lib/listings/categories";
-
-type SortBy = "ending_soon" | "nearest" | "lowest_price";
 
 type FilterChipRowProps = {
   sortBy: SortBy;
@@ -54,7 +53,6 @@ export function FilterChipRow({
           <button
             key={option.value}
             type="button"
-            role="button"
             aria-pressed={sortBy === option.value}
             onClick={() => onSortChange(option.value)}
             className={sortBy === option.value ? CHIP_ACTIVE : CHIP_INACTIVE}
@@ -69,7 +67,6 @@ export function FilterChipRow({
         {/* All chip */}
         <button
           type="button"
-          role="button"
           aria-pressed={allActive}
           onClick={handleAllCategories}
           className={allActive ? CHIP_ACTIVE : CHIP_INACTIVE}
@@ -84,7 +81,6 @@ export function FilterChipRow({
             <button
               key={cat}
               type="button"
-              role="button"
               aria-pressed={active}
               onClick={() => handleCategoryToggle(cat)}
               className={active ? CHIP_ACTIVE : CHIP_INACTIVE}
