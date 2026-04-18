@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 
+import { ReportWidget } from "@/components/bug-report/report-widget";
 import { PwaBoot } from "@/components/pwa/pwa-boot";
 
 import "./globals.css";
@@ -62,6 +63,7 @@ export default function RootLayout({
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`}>
       <body className="antialiased">
         <PwaBoot />
+        <ReportWidget />
         {children}
       </body>
     </html>
