@@ -43,3 +43,7 @@ Apply migrations to the configured database:
 ```bash
 npm run db:migrate
 ```
+
+If your Postgres provider exposes separate pooled and direct URLs, keep the
+runtime on `DATABASE_URL` and place the direct connection in
+`DATABASE_URL_UNPOOLED` so migrations can run without a pooler in the middle.

@@ -16,7 +16,7 @@ None (no relevant expertise skills installed).
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** — Next.js + Postgres scaffold, schema, deploy pipeline, PWA shell
+- [x] **Phase 1: Foundation** — Next.js + Postgres scaffold, schema, deploy pipeline, PWA shell
 - [ ] **Phase 2: Auth & Onboarding** — Google OAuth for business and consumer roles
 - [ ] **Phase 3: Listing Creation (Snap-to-List)** — 3-photo capture, OCR expiry, reserve/buyout/end-time
 - [ ] **Phase 4: Auction Engine** — Bidding, buyout, timed settlement, commission modeling
@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**:
 - 01-01 — Bootstrap foundation and toolchain — Complete
 - 01-02 — Core schema and migrations — Complete
-- 01-03 — Branded shell, PWA baseline, and deployment — In progress (live shell deployed; DB attach blocked)
+- 01-03 — Branded shell, PWA baseline, and deployment — Complete
 
 ### Phase 2: Auth & Onboarding
 **Goal**: Users can sign in with Google as either a business or a consumer, with role persisted and protected routes enforced.
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/3 | Blocked | - |
+| 1. Foundation | 3/3 | Complete | 2026-04-18 |
 | 2. Auth & Onboarding | 0/TBD | Not started | - |
 | 3. Listing Creation | 0/TBD | Not started | - |
 | 4. Auction Engine | 0/TBD | Not started | - |

@@ -1,6 +1,6 @@
 # Phase 1: Schema Summary
 
-**Modular Drizzle schema for the full auction marketplace, with generated SQL migrations and a hosted verification path queued behind provider setup**
+**Modular Drizzle schema for the full auction marketplace, with generated SQL migrations and the hosted Neon migration path verified**
 
 ## Performance
 
@@ -38,11 +38,11 @@ None - the planned schema and migration work was implemented directly. The remai
 
 ## Issues Encountered
 - Local fresh-database migration verification could not run because no usable local Postgres runtime was available on this machine: Docker was installed but its daemon was not running, and the standard Postgres CLI tools were absent
-- Hosted Neon attachment is available through the Vercel integration flow, but the account has not accepted the Neon marketplace terms yet, so the final migration-apply proof must resume after that external gate is cleared
+- Hosted verification ultimately completed against Neon once the project environment was attached: the initial migration applied successfully, the Drizzle migration record was created, and all expected public tables were present
 
 ## Next Phase Readiness
 - The schema and migration artifacts are ready for the branded shell and deployment work
-- The remaining hosted migration application step depends on accepting the Neon integration terms and attaching the database to the linked Vercel project
+- The database backbone is now proven locally and on the hosted Postgres target
 
 ---
 *Phase: 01-foundation*

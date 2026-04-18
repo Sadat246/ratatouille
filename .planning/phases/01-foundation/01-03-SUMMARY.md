@@ -1,6 +1,6 @@
 # Phase 1: Shell and Deploy Summary
 
-**Branded mobile-first landing and dual-role shells, installable PWA baseline, and a live Vercel deployment awaiting database attachment**
+**Branded mobile-first landing and dual-role shells, installable PWA baseline, and a live database-backed Vercel deployment**
 
 ## Performance
 
@@ -13,7 +13,7 @@
 ## Accomplishments
 - Built a branded landing page with a single role pivot and separate shopper and business shell routes
 - Added the PWA baseline with manifest metadata, generated install icons, install guidance, service-worker registration, and deployment-safe headers
-- Deployed the shell live on Vercel and verified the landing page, both role routes, the manifest, the service worker, and the icon endpoint over HTTPS
+- Deployed the shell live on Vercel, attached the Neon environment, applied the committed migration, and verified the landing page, both role routes, the manifest, the service worker, and the icon endpoint over HTTPS
 
 ## Files Created/Modified
 - `app/page.tsx` - Replaced the placeholder home page with the branded landing experience
@@ -53,14 +53,13 @@
 **Impact on plan:** The icon-route fallback preserved the intended PWA behavior without expanding scope.
 
 ## Issues Encountered
-- The linked Vercel project currently has no environment variables or database resources attached, so the deployment is live but not yet database-backed
-- Attempting to install the Neon integration through the Vercel CLI stops at a human account gate because the Neon marketplace terms have not been accepted yet
+- The first deploy landed before the database environment was attached, so a second production deploy was required after the Neon variables were available
 - The yolo run skipped the human visual phone-review checkpoint; deployment verification was completed through live route and header checks instead
 
 ## Next Phase Readiness
 - Live URL: `https://ratatouille-xi.vercel.app`
-- The branded shell, manifest, service worker, and deployment path are proven end-to-end
-- Phase 1 still needs the Neon terms accepted, the hosted database attached, and the committed migration applied before it can be marked complete
+- The branded shell, manifest, service worker, database environment, and committed migration path are proven end-to-end
+- Phase 1 is complete and ready to hand off to Phase 2 planning
 
 ---
 *Phase: 01-foundation*
