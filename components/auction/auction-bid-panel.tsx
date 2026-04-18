@@ -2,6 +2,7 @@
 
 import { startTransition, useState } from "react";
 
+import { StripeCardSetup } from "@/components/auction/stripe-card-setup";
 import { formatCurrency } from "@/lib/auctions/display";
 
 type AuctionViewerSnapshot = {
@@ -45,6 +46,7 @@ export function AuctionBidPanel({
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [cardJustAttached, setCardJustAttached] = useState(false);
 
   async function submit(kind: "bid" | "buyout") {
     setError(null);
@@ -84,7 +86,7 @@ export function AuctionBidPanel({
   }
 
   const auctionOpen = status === "active" || status === "scheduled";
-  const cardReady = viewer?.hasMockCardOnFile ?? false;
+  const cardReady = (viewer?.hasMockCardOnFile ?? false) || cardJustAttached;
   const canBid = auctionOpen && cardReady && !viewer?.isLeading;
   const canBuyout = auctionOpen && cardReady && buyoutPriceCents !== null;
 
@@ -137,9 +139,14 @@ export function AuctionBidPanel({
       </div>
 
       {!cardReady && auctionOpen ? (
-        <p className="mt-4 text-sm font-medium text-[#a8481d]">
-          Add the mock card below before you can bid or buy out.
-        </p>
+        <div className="mt-4">
+          <StripeCardSetup
+            onCardAttached={() => {
+              setCardJustAttached(true);
+              setFeedback("Card saved. You can place a bid now.");
+            }}
+          />
+        </div>
       ) : null}
 
       {viewer?.isLeading && auctionOpen ? (

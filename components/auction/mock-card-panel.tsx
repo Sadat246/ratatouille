@@ -25,6 +25,10 @@ export function MockCardPanel({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startPendingTransition] = useTransition();
 
+  if (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+    return null;
+  }
+
   async function updateMockCard(enabled: boolean) {
     setError(null);
     setFeedback(null);
