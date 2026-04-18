@@ -1,7 +1,7 @@
 import "server-only";
 
 export const AUCTION_BID_INCREMENT_CENTS = 50;
-export const AUCTION_PLATFORM_FEE_BPS = 1_500;
+export const AUCTION_PLATFORM_FEE_BPS = 1_000;
 export const AUCTION_SWEEP_INTERVAL_MS = 15_000;
 export const AUCTION_SWEEP_BATCH_SIZE = 12;
 
