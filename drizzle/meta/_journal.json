@@ -8,6 +8,20 @@
       "when": 1776491065156,
       "tag": "0000_black_mephisto",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776494392593,
+      "tag": "0001_rich_fabian_cortez",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776496652414,
+      "tag": "0002_ancient_zaran",
+      "breakpoints": true
     }
   ]
 }

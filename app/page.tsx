@@ -1,7 +1,10 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
+import { AuthLaneCard } from "@/components/auth/auth-lane-card";
 import { Wordmark } from "@/components/brand/wordmark";
 import { InstallCard } from "@/components/pwa/install-card";
+import { getSession } from "@/lib/auth/session";
+import { getRoleHome } from "@/lib/auth/roles";
 
 const quickHits = [
   {
@@ -24,24 +27,35 @@ const quickHits = [
 
 const previewCards = [
   {
-    title: "Consumer lane",
-    copy: "Nearby sealed deals, ending soon cards, and a bottom-nav shell tuned for thumb reach.",
-    href: "/shop",
-    cta: "Preview shopper shell",
+    eyebrow: "Consumer lane",
+    title: "Shopper sign-in",
+    copy: "Nearby sealed deals, ending-soon cards, and a dedicated Google entry that lands in the shopper setup flow.",
+    href: "/signin/consumer",
+    cta: "Continue as shopper",
     accent:
       "from-[#ff6a44] via-[#ff7f59] to-[#ffad74] text-white shadow-[0_30px_90px_rgba(247,93,54,0.28)]",
   },
   {
-    title: "Business lane",
-    copy: "Recovery metrics, auction status snapshots, and handoff workflows for store staff.",
-    href: "/sell",
-    cta: "Preview business shell",
+    eyebrow: "Business lane",
+    title: "Seller sign-in",
+    copy: "Recovery metrics, auction status snapshots, and a separate Google lane reserved for store accounts.",
+    href: "/signin/business",
+    cta: "Continue as seller",
     accent:
       "from-[#244f3f] via-[#2f624f] to-[#4a8b71] text-white shadow-[0_30px_90px_rgba(32,74,61,0.22)]",
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await getSession();
+
+  if (
+    session?.user?.role &&
+    session.user.onboardingCompletedAt
+  ) {
+    redirect(getRoleHome(session.user.role));
+  }
+
   return (
     <main className="min-h-screen px-4 pb-20 pt-5 sm:px-6 sm:pb-12">
       <div className="mx-auto flex max-w-md flex-col gap-4 sm:max-w-lg">
@@ -71,28 +85,15 @@ export default function Home() {
             </p>
             <div className="mt-6 grid gap-3">
               {previewCards.map((card) => (
-                <Link
+                <AuthLaneCard
                   key={card.href}
                   href={card.href}
-                  className={`group rounded-[1.9rem] bg-gradient-to-br p-4 transition-transform duration-200 hover:-translate-y-0.5 ${card.accent}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white/72">
-                        {card.title}
-                      </p>
-                      <p className="mt-3 text-base leading-7 text-white/92">
-                        {card.copy}
-                      </p>
-                    </div>
-                    <span className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xl transition-transform duration-200 group-hover:translate-x-0.5">
-                      →
-                    </span>
-                  </div>
-                  <p className="mt-4 text-sm font-semibold text-white/88">
-                    {card.cta}
-                  </p>
-                </Link>
+                  eyebrow={card.eyebrow}
+                  title={card.title}
+                  copy={card.copy}
+                  cta={card.cta}
+                  accent={card.accent}
+                />
               ))}
             </div>
           </div>

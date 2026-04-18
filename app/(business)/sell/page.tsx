@@ -1,12 +1,9 @@
 import type { ReactNode } from "react";
 
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ShellFrame } from "@/components/shell/shell-frame";
-
-const recoveryMetrics = [
-  { label: "Active auctions", value: "06" },
-  { label: "Ready for pickup", value: "03" },
-  { label: "Recovered today", value: "$184" },
-];
+import { requireCompletedRole } from "@/lib/auth/onboarding";
+import { getSellerDeskData } from "@/lib/listings/queries";
 
 const laneCards = [
   {
@@ -57,7 +54,30 @@ function SectionCard({
   );
 }
 
-export default function SellPage() {
+export default async function SellPage() {
+  const session = await requireCompletedRole("business");
+  const sellerDesk = await getSellerDeskData(session.user.id);
+  const recoveryMetrics = [
+    {
+      label: "Draft listings",
+      value: String(sellerDesk?.metrics.draftCount ?? 0).padStart(2, "0"),
+    },
+    {
+      label: "Ready to run",
+      value: String(sellerDesk?.metrics.readyCount ?? 0).padStart(2, "0"),
+    },
+    {
+      label: "Published today",
+      value: String(sellerDesk?.metrics.publishedTodayCount ?? 0).padStart(2, "0"),
+    },
+  ];
+  const attention = sellerDesk?.recentListings.length
+    ? sellerDesk.recentListings.slice(0, 3).map((listing) => ({
+        label: listing.status === "draft" ? "Needs pricing" : "Recent listing",
+        value: listing.title,
+      }))
+    : attentionItems;
+
   return (
     <ShellFrame
       badge="Business shell"
@@ -65,9 +85,15 @@ export default function SellPage() {
       description="The seller side already centers store operations: what needs pricing, what is ending soon, and what needs a clean pickup handoff."
       heroClassName="bg-[linear-gradient(145deg,#1d3e32_0%,#2d5b49_48%,#5ea381_100%)] text-white shadow-[0_35px_110px_rgba(33,77,61,0.28)]"
       heroAside={
-        <span className="rounded-full border border-white/18 bg-white/12 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-[#e7f7ef]">
-          Sell inventory
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span className="rounded-full border border-white/18 bg-white/12 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-[#e7f7ef]">
+            {sellerDesk?.businessName ?? "Sell inventory"}
+          </span>
+          <SignOutButton
+            className="inline-flex items-center justify-center rounded-full border border-white/26 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white"
+            label="Sign out"
+          />
+        </div>
       }
       activeHref="/sell"
       navItems={[
@@ -124,7 +150,7 @@ export default function SellPage() {
         tone="border-[#f0ddbf] bg-[rgba(255,247,234,0.88)] text-[#2d2414]"
       >
         <div className="grid gap-3">
-          {attentionItems.map((item) => (
+          {attention.map((item) => (
             <div
               key={item.label}
               className="flex items-center justify-between gap-3 rounded-[1.4rem] border border-[#ead3b3] bg-white/85 px-4 py-3"

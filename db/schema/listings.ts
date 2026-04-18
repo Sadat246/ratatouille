@@ -11,6 +11,11 @@ import {
 
 import { businesses } from "./businesses";
 import { users } from "./identity";
+import { listingCategoryValues } from "@/lib/listings/categories";
+import {
+  listingImageStorageProviderValues,
+  packageDateKindValues,
+} from "@/lib/listings/shared";
 
 export const listingStatusEnum = pgEnum("listing_status", [
   "draft",
@@ -28,6 +33,28 @@ export const listingImageKindEnum = pgEnum("listing_image_kind", [
   "other",
 ]);
 
+export const listingCategoryEnum = pgEnum(
+  "listing_category",
+  listingCategoryValues,
+);
+
+export const packageDateKindEnum = pgEnum(
+  "package_date_kind",
+  packageDateKindValues,
+);
+
+export const listingOcrStatusEnum = pgEnum("listing_ocr_status", [
+  "not_requested",
+  "succeeded",
+  "manual_required",
+  "unavailable",
+]);
+
+export const listingImageStorageProviderEnum = pgEnum(
+  "listing_image_storage_provider",
+  listingImageStorageProviderValues,
+);
+
 export const listings = pgTable(
   "listings",
   {
@@ -41,12 +68,25 @@ export const listings = pgTable(
     status: listingStatusEnum("status").notNull().default("draft"),
     title: text("title").notNull(),
     description: text("description"),
+    category: listingCategoryEnum("category").notNull().default("other"),
+    customCategory: text("custom_category"),
     quantity: integer("quantity").notNull().default(1),
     currency: text("currency").notNull().default("usd"),
     reservePriceCents: integer("reserve_price_cents"),
     buyoutPriceCents: integer("buyout_price_cents"),
     expiryText: text("expiry_text"),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
+    packageDateLabel: text("package_date_label"),
+    packageDateKind: packageDateKindEnum("package_date_kind")
+      .notNull()
+      .default("other"),
+    packageDateConfirmedAt: timestamp("package_date_confirmed_at", {
+      withTimezone: true,
+    }),
+    ocrStatus: listingOcrStatusEnum("ocr_status")
+      .notNull()
+      .default("not_requested"),
+    ocrRawText: text("ocr_raw_text"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -70,6 +110,11 @@ export const listingImages = pgTable(
       .references(() => listings.id, { onDelete: "cascade" }),
     kind: listingImageKindEnum("kind").notNull().default("other"),
     imageUrl: text("image_url").notNull(),
+    storageProvider: listingImageStorageProviderEnum("storage_provider")
+      .notNull()
+      .default("local"),
+    storageKey: text("storage_key").notNull().default(""),
+    originalFilename: text("original_filename"),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()

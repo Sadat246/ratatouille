@@ -17,7 +17,7 @@ None (no relevant expertise skills installed).
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** — Next.js + Postgres scaffold, schema, deploy pipeline, PWA shell
-- [ ] **Phase 2: Auth & Onboarding** — Google OAuth for business and consumer roles
+- [x] **Phase 2: Auth & Onboarding** — Google OAuth for business and consumer roles
 - [ ] **Phase 3: Listing Creation (Snap-to-List)** — 3-photo capture, OCR expiry, reserve/buyout/end-time
 - [ ] **Phase 4: Auction Engine** — Bidding, buyout, timed settlement, commission modeling
 - [ ] **Phase 5: Consumer Feed & Discovery** — Endless-scroll geo-filtered feed, listing detail, PWA install
@@ -42,14 +42,21 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Phase 1
 **Research**: Likely (auth library + role model)
 **Research topics**: Auth.js (NextAuth) v5 patterns with Google provider, role-selection flow at first sign-in, session/role persistence in Postgres, middleware-based route protection for business vs consumer areas
-**Plans**: TBD
+**Plans**:
+- 02-01 — Auth foundation and onboarding state — Complete
+- 02-02 — Consumer sign-in and onboarding lane — Complete
+- 02-03 — Business sign-in and onboarding lane — Complete
+- 02-04 — Route protection and shell enforcement — Complete
 
 ### Phase 3: Listing Creation (Snap-to-List)
 **Goal**: A signed-in business can create a listing with 3 photos (product, seal, expiry), auto-extract the expiry date via OCR, and set reserve price, buyout price, and auction end time.
 **Depends on**: Phase 2
 **Research**: Likely (camera capture + OCR pipeline)
 **Research topics**: PWA camera capture patterns (getUserMedia vs input[capture]), image upload + storage on free tier, OCR options for expiry dates (Tesseract.js client-side vs server-side vs Google Vision API free tier), date-parsing heuristics for printed expiry formats, validation that end-time precedes expiry
-**Plans**: TBD
+**Plans**:
+- 03-01 — Listing model and publish boundary — Planned
+- 03-02 — Capture and OCR plumbing — Planned
+- 03-03 — Seller listing desk — Planned
 
 ### Phase 4: Auction Engine
 **Goal**: Listings go live as timed auctions where consumers can bid above reserve or buy out instantly; auctions end on schedule with a winner (or no sale), and platform commission is correctly modeled in settlement records.
@@ -94,8 +101,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-04-18 |
-| 2. Auth & Onboarding | 0/TBD | Not started | - |
-| 3. Listing Creation | 0/TBD | Not started | - |
+| 2. Auth & Onboarding | 4/4 | Complete | 2026-04-18 |
+| 3. Listing Creation | 0/3 | Planned | - |
 | 4. Auction Engine | 0/TBD | Not started | - |
 | 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
 | 6. Payments (Stripe Test) | 0/TBD | Not started | - |

@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ShellFrame } from "@/components/shell/shell-frame";
+import { db } from "@/db/client";
+import { requireCompletedRole } from "@/lib/auth/onboarding";
 
 const heroMetrics = [
   { label: "Nearby stores", value: "08" },
@@ -57,7 +60,17 @@ function SectionCard({
   );
 }
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  const session = await requireCompletedRole("consumer");
+  const profile = await db.query.consumerProfiles.findFirst({
+    columns: {
+      city: true,
+      state: true,
+      locationLabel: true,
+    },
+    where: (table, { eq }) => eq(table.userId, session.user.id),
+  });
+
   return (
     <ShellFrame
       badge="Consumer shell"
@@ -65,9 +78,17 @@ export default function ShopPage() {
       description="This stub already reads like a marketplace: rapid highlights, ending-soon signal, and clear movement between browsing, bids, and pickup."
       heroClassName="bg-[linear-gradient(145deg,#f75d36_0%,#ff8660_46%,#ffc483_100%)] text-white shadow-[0_35px_110px_rgba(247,93,54,0.3)]"
       heroAside={
-        <span className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-[#fff1df]">
-          Shop deals
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-[#fff1df]">
+            {profile?.city
+              ? `${profile.city}${profile.state ? `, ${profile.state}` : ""}`
+              : profile?.locationLabel || session.user.name || "Shop deals"}
+          </span>
+          <SignOutButton
+            className="inline-flex items-center justify-center rounded-full border border-white/26 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white"
+            label="Sign out"
+          />
+        </div>
       }
       activeHref="/shop"
       navItems={[
