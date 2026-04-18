@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-04-18)
 ## Current Position
 
 Phase: 4 of 8 (Auction Engine)
-Plan: 04-02
+Plan: 04-03
 Status: Executing
-Last activity: 2026-04-18 — Completed the Phase 4 server-authoritative auction engine foundation and advanced to the consumer UI plan
+Last activity: 2026-04-18 — Completed the Phase 4 consumer auction experience and advanced to the seller board plus push plan
 
-Progress: █████░░░░░ 42%
+Progress: ██████░░░░ 47%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Recent decisions affecting current work:
 - Phase 4 now uses an interactive Neon transaction path for bids, buyouts, and auction finalization while the existing HTTP client remains the default read/auth path
 - Auction close semantics now live in one shared service, with a 15-second server-started safety sweep and deterministic settlement snapshots
 - Consumers now have persisted mock card-on-file state, and push subscriptions have a dedicated table for upcoming notification delivery
+- The consumer shell now exposes real live-auction Home, My Bids, and Alerts routes, while detail pages poll the server every two seconds for authoritative state refresh
 
 ### Deferred Issues
 

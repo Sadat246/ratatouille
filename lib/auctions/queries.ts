@@ -49,9 +49,11 @@ export type AuctionFeedItem = {
   reservePriceCents: number;
   buyoutPriceCents: number | null;
   currentBidAmountCents: number | null;
+  currentLeaderUserId: string | null;
   bidCount: number;
   lastBidAt: Date | null;
   scheduledEndAt: Date;
+  viewerIsLeading: boolean;
   listing: {
     id: string;
     title: string;
@@ -69,7 +71,10 @@ export type AuctionFeedItem = {
   };
 };
 
-export async function getAuctionFeed(limit = 24): Promise<AuctionFeedItem[]> {
+export async function getAuctionFeed(
+  limit = 24,
+  viewerUserId?: string,
+): Promise<AuctionFeedItem[]> {
   const rows = await db
     .select({
       id: auctions.id,
@@ -78,6 +83,7 @@ export async function getAuctionFeed(limit = 24): Promise<AuctionFeedItem[]> {
       reservePriceCents: auctions.reservePriceCents,
       buyoutPriceCents: auctions.buyoutPriceCents,
       currentBidAmountCents: auctions.currentBidAmountCents,
+      currentLeaderUserId: auctions.currentLeaderUserId,
       bidCount: auctions.bidCount,
       lastBidAt: auctions.lastBidAt,
       scheduledEndAt: auctions.scheduledEndAt,
@@ -108,9 +114,11 @@ export async function getAuctionFeed(limit = 24): Promise<AuctionFeedItem[]> {
     reservePriceCents: row.reservePriceCents,
     buyoutPriceCents: row.buyoutPriceCents,
     currentBidAmountCents: row.currentBidAmountCents,
+    currentLeaderUserId: row.currentLeaderUserId,
     bidCount: row.bidCount,
     lastBidAt: row.lastBidAt,
     scheduledEndAt: row.scheduledEndAt,
+    viewerIsLeading: Boolean(viewerUserId && row.currentLeaderUserId === viewerUserId),
     listing: {
       id: row.listingId,
       title: row.listingTitle,
@@ -310,4 +318,139 @@ export async function getAuctionDetail(
     },
     viewer,
   };
+}
+
+export type MyBidAuctionItem = {
+  id: string;
+  status: string;
+  result: string;
+  currentBidAmountCents: number | null;
+  buyoutPriceCents: number | null;
+  scheduledEndAt: Date;
+  endedAt: Date | null;
+  myBidCount: number;
+  myTopBidAmountCents: number | null;
+  myLastBidAt: Date | null;
+  participationState:
+    | "winning"
+    | "outbid"
+    | "won"
+    | "lost"
+    | "cancelled";
+  listing: {
+    id: string;
+    title: string;
+    category: string;
+    packageDate: string | null;
+    imageUrl: string | null;
+  };
+  business: {
+    id: string;
+    name: string;
+    city: string | null;
+    state: string | null;
+  };
+};
+
+export async function getMyBidAuctions(
+  userId: string,
+  limit = 24,
+): Promise<MyBidAuctionItem[]> {
+  const participation = await db
+    .select({
+      auctionId: bids.auctionId,
+      myBidCount: sql<number>`count(*)`,
+      myTopBidAmountCents: sql<number | null>`max(${bids.amountCents})`,
+      myLastBidAt: sql<Date | null>`max(${bids.placedAt})`,
+    })
+    .from(bids)
+    .where(eq(bids.consumerUserId, userId))
+    .groupBy(bids.auctionId)
+    .orderBy(desc(sql`max(${bids.placedAt})`))
+    .limit(limit);
+
+  if (participation.length === 0) {
+    return [];
+  }
+
+  const auctionIds = participation.map((entry) => entry.auctionId);
+  const auctionRows = await db
+    .select({
+      id: auctions.id,
+      status: auctions.status,
+      result: auctions.result,
+      currentBidAmountCents: auctions.currentBidAmountCents,
+      currentLeaderUserId: auctions.currentLeaderUserId,
+      buyoutPriceCents: auctions.buyoutPriceCents,
+      scheduledEndAt: auctions.scheduledEndAt,
+      endedAt: auctions.endedAt,
+      listingId: listings.id,
+      listingTitle: listings.title,
+      listingCategory: listings.category,
+      listingPackageDate: listings.expiryText,
+      businessId: businesses.id,
+      businessName: businesses.name,
+      businessCity: businesses.city,
+      businessState: businesses.state,
+    })
+    .from(auctions)
+    .innerJoin(listings, eq(listings.id, auctions.listingId))
+    .innerJoin(businesses, eq(businesses.id, auctions.businessId))
+    .where(inArray(auctions.id, auctionIds));
+
+  const imageMap = await getPrimaryImageUrls(auctionRows.map((row) => row.listingId));
+  const auctionMap = new Map(auctionRows.map((row) => [row.id, row]));
+
+  return participation.flatMap((entry) => {
+    const auction = auctionMap.get(entry.auctionId);
+
+    if (!auction) {
+      return [];
+    }
+
+    let participationState: MyBidAuctionItem["participationState"] = "lost";
+
+    if (auction.status === "active" || auction.status === "scheduled") {
+      participationState =
+        auction.currentLeaderUserId === userId ? "winning" : "outbid";
+    } else if (
+      auction.result === "winning_bid" ||
+      auction.result === "buyout"
+    ) {
+      participationState =
+        auction.currentLeaderUserId === userId ? "won" : "lost";
+    } else if (auction.status === "cancelled" || auction.result === "cancelled") {
+      participationState = "cancelled";
+    }
+
+    return {
+      id: auction.id,
+      status: auction.status,
+      result: auction.result,
+      currentBidAmountCents: auction.currentBidAmountCents,
+      buyoutPriceCents: auction.buyoutPriceCents,
+      scheduledEndAt: auction.scheduledEndAt,
+      endedAt: auction.endedAt,
+      myBidCount: toNumber(entry.myBidCount),
+      myTopBidAmountCents:
+        entry.myTopBidAmountCents === null || entry.myTopBidAmountCents === undefined
+          ? null
+          : Number(entry.myTopBidAmountCents),
+      myLastBidAt: entry.myLastBidAt,
+      participationState,
+      listing: {
+        id: auction.listingId,
+        title: auction.listingTitle,
+        category: auction.listingCategory,
+        packageDate: auction.listingPackageDate,
+        imageUrl: imageMap.get(auction.listingId) ?? null,
+      },
+      business: {
+        id: auction.businessId,
+        name: auction.businessName,
+        city: auction.businessCity,
+        state: auction.businessState,
+      },
+    } satisfies MyBidAuctionItem;
+  });
 }
