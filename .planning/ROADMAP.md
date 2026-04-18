@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Listing Creation (Snap-to-List)** — 3-photo capture, OCR expiry, reserve/buyout/end-time
 - [ ] **Phase 4: Auction Engine** — Bidding, buyout, timed settlement, commission modeling
 - [ ] **Phase 5: Consumer Feed & Discovery** — Endless-scroll geo-filtered feed, listing detail, PWA install
-- [ ] **Phase 6: Payments (Stripe Test)** — Stripe test-mode auth/capture for bids, buyouts, settlement
+- [x] **Phase 6: Payments (Stripe Test)** — Stripe test-mode auth/capture for bids, buyouts, settlement *(code complete 2026-04-18; awaiting user-supplied secrets for MV walk-through)*
 - [ ] **Phase 7: Fulfillment** — Pickup codes + Uber Direct delivery
 - [ ] **Phase 8: Notifications & Demo Polish** — Push notifications + seeded demo data
 
@@ -114,6 +114,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. Listing Creation | 3/3 | Complete | 2026-04-18 |
 | 4. Auction Engine | 3/3 | Complete | 2026-04-18 |
 | 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
-| 6. Payments (Stripe Test) | 0/6 | Planned | - |
+| 6. Payments (Stripe Test) | 6/6 | Code complete (awaiting user UAT) | 2026-04-18 |
 | 7. Fulfillment | 0/TBD | Not started | - |
 | 8. Notifications & Demo Polish | 0/TBD | Not started | - |
