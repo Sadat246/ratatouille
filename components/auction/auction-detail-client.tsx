@@ -4,6 +4,7 @@ import { startTransition, useEffect, useEffectEvent, useState } from "react";
 
 import { AuctionBidPanel } from "@/components/auction/auction-bid-panel";
 import { AuctionCountdown } from "@/components/auction/auction-countdown";
+import { ListingPhotoCarousel } from "@/components/auction/listing-photo-carousel";
 import { MockCardPanel } from "@/components/auction/mock-card-panel";
 import {
   formatAuctionResultLabel,
@@ -50,6 +51,7 @@ type AuctionDetailState = {
 
 type AuctionDetailClientProps = {
   initialAuction: AuctionDetailState;
+  distanceMiles?: number | null;
 };
 
 function buildResultNote(auction: AuctionDetailState) {
@@ -70,6 +72,7 @@ function buildResultNote(auction: AuctionDetailState) {
 
 export function AuctionDetailClient({
   initialAuction,
+  distanceMiles,
 }: AuctionDetailClientProps) {
   const [auction, setAuction] = useState(initialAuction);
   const [refreshError, setRefreshError] = useState<string | null>(null);
@@ -114,12 +117,11 @@ export function AuctionDetailClient({
 
     const timer = window.setInterval(() => {
       void refreshAuction();
-    }, 2_000);
+    }, 12_000);
 
     return () => window.clearInterval(timer);
   }, [auction.id, auction.status]);
 
-  const heroImage = auction.listing.images[0] ?? null;
   const resultLabel = formatAuctionResultLabel(auction.status, auction.result);
 
   return (
@@ -143,18 +145,9 @@ export function AuctionDetailClient({
           />
         </div>
 
-        <div
-          className="mt-5 h-56 rounded-[2rem] border border-white/40 bg-[rgba(255,255,255,0.2)]"
-          style={
-            heroImage
-              ? {
-                  backgroundImage: `url(${heroImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }
-              : undefined
-          }
-        />
+        <div className="mt-5">
+          <ListingPhotoCarousel images={auction.listing.images} />
+        </div>
 
         <div className="mt-5 grid grid-cols-3 gap-2">
           <div className="rounded-[1.5rem] bg-white/80 p-3">
@@ -210,6 +203,11 @@ export function AuctionDetailClient({
           <span className="rounded-full border border-[#ebd9ce] px-3 py-1.5 text-xs text-[#6e5142]">
             {formatPackageLabel(auction.listing.packageDate)}
           </span>
+          {distanceMiles != null && (
+            <span className="rounded-full border border-[#ebd9ce] px-3 py-1.5 text-xs text-[#6e5142]">
+              {distanceMiles.toFixed(1)} mi away
+            </span>
+          )}
         </div>
       </section>
 
