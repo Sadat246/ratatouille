@@ -1,10 +1,17 @@
 import "server-only";
 
-import { and, asc, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lte, or, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
 import { auctions, bids, businesses, listingImages, listings, settlements } from "@/db/schema";
+import { type ListingCategory, listingCategoryValues } from "@/lib/listings/categories";
 import { getNextBidAmountCents, hasMockCardOnFile } from "@/lib/auctions/pricing";
+
+export type SortBy = "ending_soon" | "nearest" | "lowest_price";
+
+const EARTH_RADIUS_MILES = 3959;
+const MILES_PER_LAT_DEGREE = 69.0;
+const FEED_RADIUS_MILES = 5.0;
 
 function toNumber(value: unknown) {
   return Number(value ?? 0);
@@ -48,6 +55,7 @@ export type AuctionFeedItem = {
   lastBidAt: Date | null;
   scheduledEndAt: Date;
   viewerIsLeading: boolean;
+  distanceMiles: number | null;
   listing: {
     id: string;
     title: string;
@@ -66,9 +74,87 @@ export type AuctionFeedItem = {
 };
 
 export async function getAuctionFeed(
-  limit = 24,
-  viewerUserId?: string,
+  params:
+    | {
+        limit?: number;
+        offset?: number;
+        viewerUserId?: string;
+        lat?: number | null;
+        lng?: number | null;
+        sortBy?: SortBy;
+        categories?: string[];
+      }
+    | number = {},
+  legacyViewerUserId?: string,
 ): Promise<AuctionFeedItem[]> {
+  // Backward compat: if called as getAuctionFeed(24, userId) still works
+  const normalizedParams =
+    typeof params === "number"
+      ? { limit: params, viewerUserId: legacyViewerUserId }
+      : params;
+
+  const {
+    limit = 24,
+    offset = 0,
+    viewerUserId,
+    lat,
+    lng,
+    sortBy = "ending_soon",
+    categories = [],
+  } = normalizedParams;
+
+  const hasGeo = lat != null && lng != null && !(lat === 0 && lng === 0);
+
+  const distanceMilesExpr = hasGeo
+    ? sql<number>`${EARTH_RADIUS_MILES} * acos(least(1.0,
+        cos(radians(${lat}))
+        * cos(radians(${businesses.latitude}))
+        * cos(radians(${businesses.longitude}) - radians(${lng}))
+        + sin(radians(${lat}))
+        * sin(radians(${businesses.latitude}))
+      ))`.as("distance_miles")
+    : sql<number>`null`.as("distance_miles");
+
+  const latDelta = FEED_RADIUS_MILES / MILES_PER_LAT_DEGREE;
+  const lngDelta = hasGeo
+    ? FEED_RADIUS_MILES /
+      (MILES_PER_LAT_DEGREE * Math.cos(((lat as number) * Math.PI) / 180))
+    : 0;
+
+  const geoConditions = hasGeo
+    ? [
+        gte(businesses.latitude, (lat as number) - latDelta),
+        lte(businesses.latitude, (lat as number) + latDelta),
+        gte(businesses.longitude, (lng as number) - lngDelta),
+        lte(businesses.longitude, (lng as number) + lngDelta),
+        sql`${EARTH_RADIUS_MILES} * acos(least(1.0,
+          cos(radians(${lat}))
+          * cos(radians(${businesses.latitude}))
+          * cos(radians(${businesses.longitude}) - radians(${lng}))
+          + sin(radians(${lat}))
+          * sin(radians(${businesses.latitude}))
+        )) <= ${FEED_RADIUS_MILES}`,
+      ]
+    : [];
+
+  // Only include businesses that have been geocoded
+  const nullLocationGuard = sql`${businesses.latitude} IS NOT NULL AND ${businesses.longitude} IS NOT NULL`;
+
+  const validCategories = categories.filter((c) =>
+    listingCategoryValues.includes(c as ListingCategory),
+  ) as ListingCategory[];
+  const categoryCondition =
+    validCategories.length > 0
+      ? inArray(listings.category, validCategories)
+      : undefined;
+
+  const orderByClause =
+    sortBy === "nearest" && hasGeo
+      ? asc(distanceMilesExpr)
+      : sortBy === "lowest_price"
+        ? asc(auctions.reservePriceCents)
+        : asc(auctions.scheduledEndAt); // ending_soon default
+
   const rows = await db
     .select({
       id: auctions.id,
@@ -91,13 +177,22 @@ export async function getAuctionFeed(
       businessName: businesses.name,
       businessCity: businesses.city,
       businessState: businesses.state,
+      distanceMiles: distanceMilesExpr,
     })
     .from(auctions)
     .innerJoin(listings, eq(listings.id, auctions.listingId))
     .innerJoin(businesses, eq(businesses.id, auctions.businessId))
-    .where(eq(auctions.status, "active"))
-    .orderBy(asc(auctions.scheduledEndAt), desc(auctions.lastBidAt))
-    .limit(limit);
+    .where(
+      and(
+        eq(auctions.status, "active"),
+        nullLocationGuard,
+        ...geoConditions,
+        categoryCondition,
+      ),
+    )
+    .orderBy(orderByClause)
+    .limit(limit)
+    .offset(offset);
 
   const imageMap = await getPrimaryImageUrls(rows.map((row) => row.listingId));
 
@@ -113,6 +208,7 @@ export async function getAuctionFeed(
     lastBidAt: row.lastBidAt,
     scheduledEndAt: row.scheduledEndAt,
     viewerIsLeading: Boolean(viewerUserId && row.currentLeaderUserId === viewerUserId),
+    distanceMiles: row.distanceMiles ?? null,
     listing: {
       id: row.listingId,
       title: row.listingTitle,

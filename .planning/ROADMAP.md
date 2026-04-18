@@ -19,8 +19,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** — Next.js + Postgres scaffold, schema, deploy pipeline, PWA shell
 - [x] **Phase 2: Auth & Onboarding** — Google OAuth for business and consumer roles
 - [x] **Phase 3: Listing Creation (Snap-to-List)** — 3-photo capture, OCR expiry, reserve/buyout/end-time
-- [ ] **Phase 4: Auction Engine** — Bidding, buyout, timed settlement, commission modeling
-- [ ] **Phase 5: Consumer Feed & Discovery** — Endless-scroll geo-filtered feed, listing detail, PWA install
+- [x] **Phase 4: Auction Engine** — Bidding, buyout, timed settlement, commission modeling
+- [x] **Phase 5: Consumer Feed & Discovery** — Endless-scroll geo-filtered feed, listing detail, PWA install
 - [x] **Phase 6: Payments (Stripe Test)** — Stripe test-mode auth/capture for bids, buyouts, settlement *(code complete 2026-04-18; awaiting user-supplied secrets for MV walk-through)*
 - [ ] **Phase 7: Fulfillment** — Pickup codes + Uber Direct delivery
 - [ ] **Phase 8: Notifications & Demo Polish** — Push notifications + seeded demo data
@@ -73,7 +73,13 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Phase 4
 **Research**: Likely (geo filtering + PWA install UX)
 **Research topics**: geo query approaches on Postgres free tiers (PostGIS vs haversine on lat/lng), endless-scroll + pagination patterns in Next.js App Router, listing-detail design for auctions (live time-left, current bid), PWA installability checklist and install-prompt UX
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [x] 05-01-PLAN.md — Geo query layer: extend getAuctionFeed with haversine + pagination, update feed route handler, vitest + unit tests — Complete
+- [x] 05-02-PLAN.md — New UI atoms: FilterChipRow, FeedCardSkeleton, ListingPhotoCarousel, InstallPromptBanner — Complete
+- [x] 05-03-PLAN.md — Feed page composition: FeedClient infinite scroll + chips, extend AuctionCard, wire shop/page.tsx — Complete
+- [x] 05-04-PLAN.md — Detail page: photo carousel + polling interval change + distance display — Complete
 
 ### Phase 6: Payments (Stripe Test)
 **Goal**: Bids hold funds and buyouts/winning bids capture funds via Stripe in test mode, with commission split modeled in the settlement record (no real money).
@@ -113,7 +119,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 2. Auth & Onboarding | 4/4 | Complete | 2026-04-18 |
 | 3. Listing Creation | 3/3 | Complete | 2026-04-18 |
 | 4. Auction Engine | 3/3 | Complete | 2026-04-18 |
-| 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
+| 5. Consumer Feed & Discovery | 4/4 | Complete | 2026-04-18 |
 | 6. Payments (Stripe Test) | 6/6 | Code complete (awaiting user UAT) | 2026-04-18 |
 | 7. Fulfillment | 0/TBD | Not started | - |
 | 8. Notifications & Demo Polish | 0/TBD | Not started | - |

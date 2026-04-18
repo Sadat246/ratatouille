@@ -3,7 +3,7 @@ import "server-only";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db/client";
-import { consumerProfiles, settlements } from "@/db/schema";
+import { settlements } from "@/db/schema";
 import { getOptionalEnv } from "@/lib/env";
 
 import type { AuctionMutationResult } from "@/lib/auctions/service";
