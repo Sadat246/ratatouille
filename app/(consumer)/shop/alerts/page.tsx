@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ConsumerShell } from "@/components/auction/consumer-shell";
 import { MockCardPanel } from "@/components/auction/mock-card-panel";
 import { PushOptInPanel } from "@/components/auction/push-opt-in-panel";
@@ -95,6 +97,47 @@ export default async function ShopAlertsPage() {
               </p>
             </div>
           ))}
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Walkthrough cue"
+        tone="border-[#dad7f3] bg-[rgba(246,247,255,0.92)] text-[#20183f]"
+      >
+        <p className="text-sm leading-6 text-[#4d4671]">
+          Enable alerts here before the seller starts the scripted demo. On
+          iPhone or iPad, install the app to the Home Screen first, then grant
+          notification permission from the button below.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <Link
+            href="/shop/bids"
+            className="rounded-[1.5rem] border border-[#d8dcf2] bg-white/90 p-4"
+          >
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#665b99]">
+              My bids
+            </p>
+            <h3 className="mt-2 text-base font-semibold tracking-[-0.03em] text-[#1d1737]">
+              Keep the live bidding lane open
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[#55507a]">
+              Watch the real shopper bid, then stay ready for the outbid beat.
+            </p>
+          </Link>
+          <Link
+            href="/shop/orders"
+            className="rounded-[1.5rem] border border-[#ddd6cb] bg-white/90 p-4"
+          >
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#8a6f58]">
+              Orders
+            </p>
+            <h3 className="mt-2 text-base font-semibold tracking-[-0.03em] text-[#241b14]">
+              Jump to the post-win lane
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[#685a4d]">
+              Use this after the close beat to confirm the win and fulfillment follow-through.
+            </p>
+          </Link>
         </div>
       </SectionCard>
 

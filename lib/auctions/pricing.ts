@@ -4,6 +4,7 @@ export const AUCTION_BID_INCREMENT_CENTS = 50;
 export const AUCTION_PLATFORM_FEE_BPS = 1_000;
 export const AUCTION_SWEEP_INTERVAL_MS = 15_000;
 export const AUCTION_SWEEP_BATCH_SIZE = 12;
+export const AUCTION_ENDING_SOON_WINDOW_MS = 10 * 60 * 1_000;
 
 export function getNextBidAmountCents({
   currentBidAmountCents,

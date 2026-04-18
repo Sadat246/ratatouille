@@ -22,8 +22,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Auction Engine** — Bidding, buyout, timed settlement, commission modeling
 - [x] **Phase 5: Consumer Feed & Discovery** — Endless-scroll geo-filtered feed, listing detail, PWA install
 - [x] **Phase 6: Payments (Stripe Test)** — Stripe test-mode auth/capture for bids, buyouts, settlement *(code complete 2026-04-18; awaiting user-supplied secrets for MV walk-through)*
-- [ ] **Phase 7: Fulfillment** — Pickup codes + Uber Direct delivery
-- [ ] **Phase 8: Notifications & Demo Polish** — Push notifications + seeded demo data
+- [x] **Phase 7: Fulfillment** — Pickup codes + Uber Direct delivery *(code complete 2026-04-18; live Uber/Stripe walkthrough still requires user-supplied secrets)*
+- [ ] **Phase 8: Notifications & Demo Polish** — Push notifications + deterministic demo tooling *(implementation landed 2026-04-18; final human walkthrough still pending with VAPID-enabled browsers)*
 
 ## Phase Details
 
@@ -97,16 +97,23 @@ Plans:
 ### Phase 7: Fulfillment
 **Goal**: After a sale clears, the buyer can choose in-store pickup (with a verification code) or Uber Direct delivery, and the business sees the corresponding fulfillment state.
 **Depends on**: Phase 6
-**Research**: Likely (external API — Uber Direct)
+**Research**: Complete (see `phases/07-fulfillment/07-RESEARCH.md`)
 **Research topics**: Uber Direct API onboarding + sandbox availability, delivery request lifecycle and webhooks, pickup-code generation + business-side verification UX, fulfillment state machine for both paths
-**Plans**: TBD
+**Plans**:
+- 07-01 — Fulfillment backend foundation, consumer APIs, and Uber webhook handling — Complete
+- 07-02 — Consumer Orders lane for pickup and delivery choice — Complete
+- 07-03 — Seller Fulfillment lane, pickup verification, docs, and phase closeout — Complete
 
 ### Phase 8: Notifications & Demo Polish
-**Goal**: Push notifications fire for outbid, auction-ending-soon, win confirmation, and business-item-sold events, and the app is seeded with multiple fake businesses plus ~20+ listings so the demo feels populated.
+**Goal**: Push notifications fire for outbid, auction-ending-soon, win confirmation, and business-item-sold events, and the app exposes a tiny deterministic demo world plus scripted controls so the pitch flow can be reset and replayed on cue.
 **Depends on**: Phase 7
 **Research**: Likely (Web Push for PWAs)
 **Research topics**: Web Push + VAPID setup for Next.js PWAs, cross-browser push support (iOS Safari caveats), trigger points wired to auction engine events, seed-data strategy that exercises every UI state
-**Plans**: TBD
+**Plans**:
+- 08-01 — Notification backend completion: ending-soon dedup state, push builder refactor, runtime sweep — Complete
+- 08-02 — Deterministic demo prep services and guarded internal operator endpoints — Complete
+- 08-03 — Seller demo tools surface and navigation polish — Implemented; human verify checkpoint pending
+- 08-04 — Demo runbook, walkthrough verification, and phase closeout — Runbook and tracker closeout complete; final walkthrough approval pending
 
 ## Progress
 
@@ -121,5 +128,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 4. Auction Engine | 3/3 | Complete | 2026-04-18 |
 | 5. Consumer Feed & Discovery | 4/4 | Complete | 2026-04-18 |
 | 6. Payments (Stripe Test) | 6/6 | Code complete (awaiting user UAT) | 2026-04-18 |
-| 7. Fulfillment | 0/TBD | Not started | - |
-| 8. Notifications & Demo Polish | 0/TBD | Not started | - |
+| 7. Fulfillment | 3/3 | Code complete (awaiting live Uber/Stripe UAT) | 2026-04-18 |
+| 8. Notifications & Demo Polish | 2/4 complete (+2 pending verify) | Implementation complete; awaiting human walkthrough | - |

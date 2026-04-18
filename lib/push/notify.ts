@@ -1,24 +1,28 @@
 import "server-only";
 
 import webpush from "web-push";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
+import { getInteractiveDb } from "@/db/interactive";
 import { auctions, businessMemberships, businesses, listings } from "@/db/schema";
+import {
+  AUCTION_ENDING_SOON_WINDOW_MS,
+} from "@/lib/auctions/pricing";
 import type { AuctionMutationResult } from "@/lib/auctions/service";
-import { formatCurrency } from "@/lib/auctions/display";
+import {
+  buildAuctionEndingSoonNotifications,
+  buildAuctionMutationNotifications,
+  shouldNotifyAuctionEndingSoon,
+  type AuctionNotificationContext,
+  type NotificationDispatch,
+  type NotificationPayload,
+} from "@/lib/push/notify-shared";
 import {
   deletePushSubscriptionByEndpoint,
   listPushSubscriptionsForUsers,
 } from "@/lib/push/subscriptions";
 import { configureWebPush } from "@/lib/push/vapid";
-
-type NotificationPayload = {
-  title: string;
-  body: string;
-  url: string;
-  tag: string;
-};
 
 async function sendNotificationToUsers(userIds: string[], payload: NotificationPayload) {
   if (!configureWebPush()) {
@@ -60,7 +64,9 @@ async function sendNotificationToUsers(userIds: string[], payload: NotificationP
   );
 }
 
-async function getAuctionNotificationContext(auctionId: string) {
+async function getAuctionNotificationContext(
+  auctionId: string,
+): Promise<AuctionNotificationContext | null> {
   const [auction] = await db
     .select({
       id: auctions.id,
@@ -68,6 +74,7 @@ async function getAuctionNotificationContext(auctionId: string) {
       result: auctions.result,
       currentBidAmountCents: auctions.currentBidAmountCents,
       bidCount: auctions.bidCount,
+      scheduledEndAt: auctions.scheduledEndAt,
       listingTitle: listings.title,
       businessName: businesses.name,
     })
@@ -94,6 +101,14 @@ async function getAuctionNotificationContext(auctionId: string) {
   };
 }
 
+async function dispatchNotifications(dispatches: NotificationDispatch[]) {
+  await Promise.all(
+    dispatches.map((dispatch) =>
+      sendNotificationToUsers(dispatch.userIds, dispatch.payload),
+    ),
+  );
+}
+
 export async function notifyAuctionMutation(result: AuctionMutationResult) {
   const context = await getAuctionNotificationContext(result.auctionId);
 
@@ -101,94 +116,66 @@ export async function notifyAuctionMutation(result: AuctionMutationResult) {
     return;
   }
 
-  const saleAmount = formatCurrency(context.currentBidAmountCents);
-
-  switch (result.action) {
-    case "bid_accepted": {
-      await Promise.all([
-        result.outbidUserId
-          ? sendNotificationToUsers([result.outbidUserId], {
-              title: "You were outbid",
-              body: `${context.listingTitle} just moved to ${saleAmount}.`,
-              url: `/shop/${context.id}`,
-              tag: `auction:${context.id}:outbid`,
-            })
-          : Promise.resolve(),
-        sendNotificationToUsers(context.sellerUserIds, {
-          title: "New high bid",
-          body: `${context.listingTitle} is now at ${saleAmount} across ${context.bidCount} bids.`,
-          url: "/sell/auctions",
-          tag: `auction:${context.id}:seller-high-bid`,
-        }),
-      ]);
-      return;
-    }
-    case "auction_bought_out": {
-      await Promise.all([
-        result.outbidUserId
-          ? sendNotificationToUsers([result.outbidUserId], {
-              title: "Buyout ended this auction",
-              body: `${context.listingTitle} was bought out at ${saleAmount}.`,
-              url: `/shop/${context.id}`,
-              tag: `auction:${context.id}:buyout-outbid`,
-            })
-          : Promise.resolve(),
-        result.winningBidUserId
-          ? sendNotificationToUsers([result.winningBidUserId], {
-              title: "You bought it",
-              body: `${context.listingTitle} is yours at ${saleAmount}.`,
-              url: `/shop/${context.id}`,
-              tag: `auction:${context.id}:won`,
-            })
-          : Promise.resolve(),
-        sendNotificationToUsers(context.sellerUserIds, {
-          title: "Auction bought out",
-          body: `${context.listingTitle} closed instantly at ${saleAmount}.`,
-          url: "/sell/outcomes",
-          tag: `auction:${context.id}:seller-buyout`,
-        }),
-      ]);
-      return;
-    }
-    case "auction_closed": {
-      await Promise.all([
-        result.winningBidUserId
-          ? sendNotificationToUsers([result.winningBidUserId], {
-              title: "You won",
-              body: `${context.listingTitle} closed at ${saleAmount}.`,
-              url: `/shop/${context.id}`,
-              tag: `auction:${context.id}:won`,
-            })
-          : Promise.resolve(),
-        sendNotificationToUsers(context.sellerUserIds, {
-          title: "Auction closed",
-          body: `${context.listingTitle} sold for ${saleAmount}.`,
-          url: "/sell/outcomes",
-          tag: `auction:${context.id}:seller-outcome`,
-        }),
-      ]);
-      return;
-    }
-    case "auction_no_sale": {
-      await sendNotificationToUsers(context.sellerUserIds, {
-        title: "Auction ended with no sale",
-        body: `${context.listingTitle} closed without any bids.`,
-        url: "/sell/outcomes",
-        tag: `auction:${context.id}:seller-no-sale`,
-      });
-      return;
-    }
-    case "auction_expired":
-    case "auction_cancelled": {
-      await sendNotificationToUsers(context.sellerUserIds, {
-        title: result.action === "auction_expired" ? "Auction expired" : "Auction cancelled",
-        body:
-          result.action === "auction_expired"
-            ? `${context.listingTitle} reached product expiry before settlement.`
-            : `${context.listingTitle} was cancelled before settlement.`,
-        url: "/sell/outcomes",
-        tag: `auction:${context.id}:seller-cancelled`,
-      });
-    }
-  }
+  await dispatchNotifications(buildAuctionMutationNotifications(result, context));
 }
+
+export async function notifyAuctionsEndingSoon(limit = 12, now = new Date()) {
+  const windowEnd = new Date(now.getTime() + AUCTION_ENDING_SOON_WINDOW_MS);
+
+  const auctionIds = await getInteractiveDb().transaction(async (tx) => {
+    const endingSoonRows = await tx.execute(sql<{ id: string }>`
+      select a.id
+      from auctions a
+      inner join listings l on l.id = a.listing_id
+      where a.status = 'active'
+        and a.ending_soon_notified_at is null
+        and a.scheduled_end_at > ${now}
+        and a.scheduled_end_at <= ${windowEnd}
+        and (l.expires_at is null or l.expires_at > ${now})
+      for update of a skip locked
+      limit ${limit}
+    `);
+
+    const ids: string[] = [];
+
+    for (const row of endingSoonRows.rows as Array<{ id: string }>) {
+      const [updatedAuction] = await tx
+        .update(auctions)
+        .set({
+          endingSoonNotifiedAt: now,
+          updatedAt: now,
+        })
+        .where(eq(auctions.id, row.id))
+        .returning({
+          id: auctions.id,
+          status: auctions.status,
+          scheduledEndAt: auctions.scheduledEndAt,
+          endingSoonNotifiedAt: auctions.endingSoonNotifiedAt,
+        });
+
+      if (updatedAuction) {
+        ids.push(updatedAuction.id);
+      }
+    }
+
+    return ids;
+  });
+
+  const contexts = await Promise.all(
+    auctionIds.map((auctionId) => getAuctionNotificationContext(auctionId)),
+  );
+
+  const dispatches = contexts
+    .filter((context): context is AuctionNotificationContext => context !== null)
+    .flatMap((context) => buildAuctionEndingSoonNotifications(context, now));
+
+  await dispatchNotifications(dispatches);
+
+  return auctionIds;
+}
+
+export {
+  buildAuctionEndingSoonNotifications,
+  buildAuctionMutationNotifications,
+  shouldNotifyAuctionEndingSoon,
+};

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ShellFrame } from "@/components/shell/shell-frame";
+import { isDemoModeEnabled } from "@/lib/demo/config";
 
 type SellerShellProps = {
   activeHref: string;
@@ -16,6 +17,7 @@ type SellerShellProps = {
 const sellerNavItems = [
   { href: "/sell", label: "Desk", icon: "chart" as const },
   { href: "/sell/auctions", label: "Live", icon: "spark" as const },
+  { href: "/sell/fulfillment", label: "Fulfillment", icon: "truck" as const },
   { href: "/sell/outcomes", label: "Outcomes", icon: "box" as const },
 ];
 
@@ -28,6 +30,13 @@ export function SellerShell({
   heroClassName = "bg-[linear-gradient(145deg,#1d3e32_0%,#2d5b49_48%,#5ea381_100%)] text-white shadow-[0_35px_110px_rgba(33,77,61,0.28)]",
   children,
 }: SellerShellProps) {
+  const navItems = isDemoModeEnabled()
+    ? [
+        ...sellerNavItems,
+        { href: "/sell/demo", label: "Demo", icon: "users" as const },
+      ]
+    : sellerNavItems;
+
   return (
     <ShellFrame
       badge={badge}
@@ -46,7 +55,7 @@ export function SellerShell({
         </div>
       }
       activeHref={activeHref}
-      navItems={sellerNavItems}
+      navItems={navItems}
     >
       {children}
     </ShellFrame>

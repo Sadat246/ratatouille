@@ -7,6 +7,7 @@ import { ListingComposer } from "@/components/listing/listing-composer";
 import { RecentListingsPanel } from "@/components/listing/recent-listings-panel";
 import { requireCompletedRole } from "@/lib/auth/onboarding";
 import { getSellerLiveAuctions, getSellerOutcomes } from "@/lib/auctions/queries";
+import { isDemoModeEnabled } from "@/lib/demo/config";
 import { getSellerDeskData } from "@/lib/listings/queries";
 
 import { publishListing } from "./actions";
@@ -14,6 +15,7 @@ import { publishListing } from "./actions";
 export default async function SellPage() {
   const session = await requireCompletedRole("business");
   const sellerDesk = await getSellerDeskData(session.user.id);
+  const demoModeEnabled = isDemoModeEnabled();
 
   if (!sellerDesk) {
     return (
@@ -99,6 +101,22 @@ export default async function SellPage() {
         tone="border-[#d7e6de] bg-[rgba(240,248,244,0.92)] text-[#163025]"
       >
         <div className="grid gap-3">
+          {demoModeEnabled ? (
+            <Link
+              href="/sell/demo"
+              className="rounded-[1.7rem] border border-[#d8dff5] bg-[rgba(248,248,255,0.92)] p-4"
+            >
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#675da0]">
+                Demo rail
+              </p>
+              <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[#1f1b3d]">
+                Drive the walkthrough
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#5a5577]">
+                Reset the ambient world, prep the hero auction, and keep the scripted controls inside the product.
+              </p>
+            </Link>
+          ) : null}
           <Link
             href="/sell/auctions"
             className="rounded-[1.7rem] border border-[#cbe0d4] bg-white/88 p-4"
@@ -125,6 +143,20 @@ export default async function SellPage() {
             </h3>
             <p className="mt-2 text-sm leading-6 text-[#69574b]">
               Final price, commission, seller net, and settlement state.
+            </p>
+          </Link>
+          <Link
+            href="/sell/fulfillment"
+            className="rounded-[1.7rem] border border-[#d6e7df] bg-white/88 p-4"
+          >
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#5b7f6f]">
+              Fulfillment lane
+            </p>
+            <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[#1d2b24]">
+              Verify pickup and track delivery
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[#5a6f65]">
+              One place for store staff to close pickup codes and watch delivery runs.
             </p>
           </Link>
         </div>

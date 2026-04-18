@@ -5,6 +5,7 @@ import {
   AUCTION_SWEEP_INTERVAL_MS,
 } from "@/lib/auctions/pricing";
 import { sweepOverdueAuctions } from "@/lib/auctions/service";
+import { notifyAuctionsEndingSoon } from "@/lib/push/notify";
 
 const globalForAuctionSweep = globalThis as typeof globalThis & {
   __auctionSweepTimer?: ReturnType<typeof setInterval>;
@@ -13,6 +14,7 @@ const globalForAuctionSweep = globalThis as typeof globalThis & {
 async function runSweep() {
   try {
     await sweepOverdueAuctions(AUCTION_SWEEP_BATCH_SIZE);
+    await notifyAuctionsEndingSoon(AUCTION_SWEEP_BATCH_SIZE);
   } catch (error) {
     console.error("auction sweep failed", error);
   }

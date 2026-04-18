@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-04-18)
 
 **Core value:** Auctions actually clear at-risk inventory before expiry — bids land, winners pay, items get to buyers.
-**Current focus:** Phase 7 — Fulfillment (Phase 6 code complete; awaiting user UAT with live Stripe/Neon secrets)
+**Current focus:** Phase 8 — Notifications & Demo Polish (implementation is in place; next step is the real human walkthrough with VAPID-enabled seller/shopper browsers)
 
 ## Current Position
 
-Phase: 7 of 8 (Fulfillment) — next scheduled
-Plan: TBD
-Status: Ready for planning
-Last activity: 2026-04-18 — Phase 5 (Consumer Feed) merged from `origin/main`; Phase 6 (Payments) code-complete (6/6 plans, 34/36 automated must-haves in `06-VERIFICATION.md`, 2 runtime checks + MV-1..MV-8 UAT deferred until `DATABASE_URL` + `STRIPE_*` are configured).
+Phase: 8 of 8 (Notifications & Demo Polish)
+Plan: Human walkthrough pending after 08-02..08-04 implementation
+Status: Human verification needed
+Last activity: 2026-04-18 — Plans 08-02 through 08-04 landed: deterministic demo prep services, guarded operator endpoints, seller-side demo tools, and the Phase 8 runbook are all in place; only the real walkthrough approval remains.
 
-Progress: ████████░░ 75%
+Progress: █████████▓ 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23
+- Total plans completed: 28
 - Average duration: Partially tracked
 - Total execution time: 31 min recorded in Phase 1; later phases completed in the same session but did not capture per-plan timings
 
@@ -33,6 +33,8 @@ Progress: ████████░░ 75%
 | 4. Auction Engine | 3 | Timing not captured | n/a |
 | 5. Consumer Feed & Discovery | 4 | Timing not captured | n/a |
 | 6. Payments (Stripe Test) | 6 | Timing not captured | n/a |
+| 7. Fulfillment | 3 | Timing not captured | n/a |
+| 8. Notifications & Demo Polish | 2 | 22 min | 11 min |
 
 **Recent Trend:**
 - Last 5 plans: Timing not captured at plan granularity
@@ -73,9 +75,19 @@ Recent decisions affecting current work:
 - Stripe calls are never issued inside Drizzle transactions; direct post-commit path marks `paymentStatus='capture_requested'` and the webhook flips it to `'captured'`
 - Fallback bidder loop is called from both the direct post-commit path (fast) and the `payment_intent.payment_failed` webhook (durability net) — settlement row FOR UPDATE serializes them
 - First-bid card gate uses inline Stripe Payment Element; `MockCardPanel` is retained as a demo fallback when `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is unset
+- Phase 7 fulfillment rows are initialized on payment capture with pickup-first defaults: 6-digit code, 48-hour expiry, and buyer-facing recipient data
+- Buyers now finish paid wins from a dedicated Orders lane, where they can switch to pickup, request delivery quotes, confirm delivery, and follow tracking links
+- Uber Direct uses OAuth client credentials with `eats.deliveries`, self-serve customer endpoints, signed raw-body webhooks, and a silent local stub fallback when Uber credentials are absent
+- Sellers now have a dedicated Fulfillment lane where pickup codes can be verified in-app and delivery progress is visible without using the outcomes screen
+- Phase 8 now persists `endingSoonNotifiedAt` directly on auctions so the server sweep can emit the ending-soon beat exactly once per auction without a broader notification-event ledger
+- Auction push payload construction now lives in a pure shared module, letting notification routing stay testable without booting env-bound database clients
+- Demo tooling is gated behind `DEMO_MODE_ENABLED`, with optional `DEMO_CONTROL_TOKEN` access for curl/VM-driven operator flows while real seller session auth remains the default path
+- The scripted demo now runs through a seller-only in-app control lane plus lightweight shopper alert guidance instead of exposing a general admin surface or cross-role shortcuts
+- Phase 8 is not marked complete until a human verifies the push/browser walkthrough, especially the iPhone/iPad Home Screen constraint and the one-shot ending-soon beat
 
 ### Deferred Issues
 
+- Perform the real Phase 8 browser walkthrough with VAPID enabled before calling the product demo-ready
 - Perform a manual phone-sized visual review if you want a human sign-off beyond the yolo run
 
 ### Pending Todos
@@ -86,14 +98,18 @@ Recent decisions affecting current work:
 - **Phase 6 UAT:** add `DATABASE_URL(_UNPOOLED)` + `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` + `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` to `.env.local`, run `npm run db:migrate` (applies `drizzle/0004_conscious_gressill.sql`), then walk MV-1..MV-8 in README `## Demo walk-through`
 - **Phase 6 nice-to-have:** `/consumer/card-return` page referenced by `confirmSetup` only on 3DS-required cards (not hit by test card 4242); stub for future hardening
 - **Phase 6 nice-to-have:** `setup_intent.succeeded` handler currently sets `hasMockCardOnFile=true` with placeholder `mockCardBrand`/`mockCardLast4`; can be enriched with real PaymentMethod metadata in a follow-up
+- **Phase 7 UAT:** add `UBER_DIRECT_CLIENT_ID`, `UBER_DIRECT_CLIENT_SECRET`, `UBER_DIRECT_CUSTOMER_ID`, and `UBER_DIRECT_WEBHOOK_SIGNING_KEY`, then walk the README fulfillment demo for both pickup and delivery. Confirm a real webhook can advance `delivery_requested` → `out_for_delivery`/`delivered` and that seller pickup verification marks the settlement completed.
+- **Phase 8 UAT:** set `DEMO_MODE_ENABLED=1`, configure the VAPID env vars, opt a seller and shopper browser into alerts, then walk the README Phase 8 runbook end to end. On iPhone/iPad, verify the shopper is using the installed Home Screen web app before expecting push delivery.
 
 ### Blockers/Concerns
 
 - Local runtime verification still lacks real Google OAuth, Cloudinary, and Vision credentials, so third-party sign-in plus managed upload/OCR provider round-trips remain unproven until those secrets are configured
+- Local/runtime verification still lacks real Uber Direct credentials, so quote/create/webhook round-trips are currently proven only through the built-in stub path
 - Auction closing still relies on the single-process safety sweep plus request-triggered refreshes; a durable per-auction scheduler remains a future hardening path if deployment topology changes
+- Phase 8 implementation is ready, but the final demo claim still depends on a human walkthrough confirming push delivery in real browsers and the iOS Home Screen constraint
 
 ## Session Continuity
 
 Last session: 2026-04-18
-Stopped at: `main` merged with `origin/main` (Phase 5) plus Phase 6 payments work; Phase 7 (Fulfillment) is next. Phase 6 remains `human_needed` in `06-VERIFICATION.md` until live secrets and MV walk-through.
+Stopped at: Phase 8 implementation complete through Plans 08-02..08-04. Phase 6 remains `human_needed` until live Stripe MV walk-through; Phase 7 awaits live Uber/Stripe UAT; Phase 8 now awaits the real seller/shopper walkthrough before it can be marked complete.
 Resume file: .planning/ROADMAP.md

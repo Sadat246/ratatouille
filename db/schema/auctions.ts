@@ -60,6 +60,9 @@ export const auctions = pgTable(
     lastBidAt: timestamp("last_bid_at", { withTimezone: true }),
     scheduledStartAt: timestamp("scheduled_start_at", { withTimezone: true }),
     scheduledEndAt: timestamp("scheduled_end_at", { withTimezone: true }).notNull(),
+    endingSoonNotifiedAt: timestamp("ending_soon_notified_at", {
+      withTimezone: true,
+    }),
     endedAt: timestamp("ended_at", { withTimezone: true }),
     winningBidId: uuid("winning_bid_id"),
     createdAt: timestamp("created_at", { withTimezone: true })

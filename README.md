@@ -177,3 +177,219 @@ No real money is ever charged — Stripe is in test mode.
   `pi:{settlementId}:attempt:{n}`) rather than creating a duplicate.
 - No live-mode charges exist. If you see one, stop the demo — an env var
   is wrong.
+
+## Fulfillment setup and demo
+
+Phase 7 adds dual-path fulfillment after payment capture: buyers can choose
+pickup or delivery from the Orders lane, and sellers manage handoff from the
+Fulfillment lane.
+
+### Uber Direct configuration
+
+Set these env vars when you want live Uber Direct quotes, delivery creation,
+and signed webhook processing:
+
+- `UBER_DIRECT_CLIENT_ID`
+- `UBER_DIRECT_CLIENT_SECRET`
+- `UBER_DIRECT_CUSTOMER_ID`
+- `UBER_DIRECT_WEBHOOK_SIGNING_KEY`
+
+When those credentials are present, the app requests an OAuth access token with
+the `eats.deliveries` scope, creates quotes and deliveries against the
+self-serve customer endpoints, and expects Uber Direct to POST status updates to
+`/api/webhooks/uber-direct`.
+
+If the Uber Direct credentials are absent, the fulfillment flow stays usable:
+quote requests return a deterministic local stub, delivery confirmation stores a
+demo tracking URL, and the UI still exercises the full Orders/Fulfillment handoff
+without contacting Uber. That fallback is intentional for demos and local
+development.
+
+### Demo path: pickup
+
+1. Complete a paid sale so a fulfillment row exists. Buyout works immediately;
+   auction-winner fulfillment appears after the Stripe success webhook lands.
+2. Sign in as the buyer and open the Orders lane.
+3. On the order card, use `Pickup in store`. The card updates to show a 6-digit
+   pickup code and its expiry.
+4. Sign in as the seller and open the Fulfillment lane.
+5. Enter the buyer's 6-digit code into `Verify pickup`.
+6. Successful verification marks the handoff complete: the fulfillment moves to
+   `picked_up`, and the linked settlement is closed out as completed.
+
+### Demo path: delivery
+
+1. From the buyer's Orders lane, fill in recipient name, phone, and delivery
+   address.
+2. Use `Get delivery quote`, then `Start delivery`.
+3. With live Uber credentials, the quote and delivery come from Uber Direct and
+   the order stores the real delivery reference plus tracking URL. Without those
+   credentials, the app returns a stub quote and a demo tracking URL so the rest
+   of the flow still works.
+4. The buyer sees the tracking link from Orders, and the seller sees the same
+   delivery state from the Fulfillment lane.
+5. Uber Direct webhook deliveries to `/api/webhooks/uber-direct` advance the
+   fulfillment status without regressing newer states if events arrive out of
+   order.
+
+### Failure and manual fallback
+
+If delivery fails, both buyer and seller surfaces call that out clearly and
+direct the handoff back to manual pickup coordination. The failure state is
+terminal for the automated delivery flow until store staff arrange the next step
+offline.
+
+## Phase 8 demo runbook
+
+Phase 8 adds deterministic demo prep plus the missing notification beats for the
+scripted pitch flow. Do not edit database rows by hand for this demo. Use the
+in-app demo tools or the guarded internal endpoints below so the app stays on
+its real auction, payment, fulfillment, and push paths.
+
+### One-time VAPID setup
+
+Generate VAPID keys once and reuse them across local and hosted runs:
+
+```bash
+npx web-push generate-vapid-keys --json
+```
+
+Copy the generated values into your env file or deployment config:
+
+- `VAPID_SUBJECT`
+- `VAPID_PUBLIC_KEY`
+- `VAPID_PRIVATE_KEY`
+
+### Demo-control env
+
+Enable the scripted controls with:
+
+- `DEMO_MODE_ENABLED=1`
+- `DEMO_CONTROL_TOKEN=<random secret>` if you want curl or VM-triggered access
+
+Generate the optional token with:
+
+```bash
+openssl rand -hex 24
+```
+
+### Push prerequisites
+
+- Desktop browsers: open the seller desk or shopper alerts lane and tap the
+  alert opt-in button directly from the page.
+- iPhone/iPad: the shopper or seller must install the app to the Home Screen,
+  open that installed web app, and then grant notification permission from a
+  tap-driven opt-in flow. Push will not work from a normal Safari tab.
+- If VAPID env vars are missing, the app still runs but browser push becomes a
+  graceful no-op.
+
+### Preferred operator flow (in-app)
+
+1. Start the app with `npm run dev`, or open the target deployment with the
+   Phase 8 env vars configured.
+2. Sign in as the seller in one browser/app session and as a shopper in another.
+3. In the seller session:
+   - Open `/sell`
+   - Enable seller alerts if you want to demo the ending-soon and item-sold
+     push beats
+   - Open `/sell/demo`
+4. In the shopper session:
+   - Open `/shop/alerts`
+   - Add a mock card or save a Stripe test card if needed
+   - Enable shopper alerts
+5. Back in the seller demo tools:
+   - `Reset ambient world`
+   - `Prepare hero auction`
+6. In the shopper session:
+   - Open the prepared hero auction from the feed
+   - Place one real bid
+7. Back in the seller demo tools:
+   - `Inject competitor outbid`
+8. In the shopper session:
+   - Confirm the outbid notification lands
+   - Open the hero auction or My Bids and place one more bid so the shopper is
+     leading again before the close beat
+9. Back in the seller demo tools:
+   - `Trigger ending soon`
+   - Confirm the seller-side ending-soon beat lands exactly once
+10. Back in the seller demo tools:
+    - `Force close now`
+11. Verify the finish:
+    - Shopper receives the win notification and sees the order in `/shop/orders`
+    - Seller receives the item-sold beat and sees the finished result in
+      `/sell/outcomes`
+
+### Curl / VM fallback
+
+If you need to drive the demo from a terminal instead of the in-app controls,
+use the guarded internal endpoints. When calling with a bearer or `x-demo-token`
+header instead of a signed-in seller session, include a real seller user id.
+
+Replace `<base-url>` with `http://localhost:3000` or the deployed origin:
+
+```bash
+curl -X POST <base-url>/api/internal/demo/seed \
+  -H "x-demo-token: $DEMO_CONTROL_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"sellerUserId":"<seller-user-id>"}'
+```
+
+```bash
+curl -X POST <base-url>/api/internal/demo/hero \
+  -H "x-demo-token: $DEMO_CONTROL_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"sellerUserId":"<seller-user-id>"}'
+```
+
+```bash
+curl "<base-url>/api/internal/demo/hero?sellerUserId=<seller-user-id>" \
+  -H "x-demo-token: $DEMO_CONTROL_TOKEN"
+```
+
+```bash
+curl -X POST <base-url>/api/internal/demo/hero/outbid \
+  -H "x-demo-token: $DEMO_CONTROL_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"auctionId":"<auction-id>","sellerUserId":"<seller-user-id>"}'
+```
+
+```bash
+curl -X POST <base-url>/api/internal/demo/hero/ending-soon \
+  -H "x-demo-token: $DEMO_CONTROL_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"auctionId":"<auction-id>"}'
+```
+
+```bash
+curl -X POST <base-url>/api/internal/demo/hero/close \
+  -H "x-demo-token: $DEMO_CONTROL_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"auctionId":"<auction-id>"}'
+```
+
+### Production troubleshooting on the VM
+
+Production runs on a single Google Compute Engine VM with the app, web, Redis,
+Postgres, and Neo4j containers on the same Docker network. If the demo misbehaves
+in production, inspect the VM logs first instead of guessing from the browser.
+
+SSH into the VM:
+
+```bash
+gcloud compute ssh mile-buy-club-api --zone=us-central1-a
+```
+
+Useful checks once connected:
+
+```bash
+docker ps
+docker logs mile-buy-club-api-app --tail 200
+docker logs mile-buy-club-web --tail 200
+docker logs mile-buy-club-postgres --tail 200
+```
+
+For direct database inspection:
+
+```bash
+docker exec -it mile-buy-club-postgres psql -U mbc -d milebuyclub
+```
