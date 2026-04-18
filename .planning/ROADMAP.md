@@ -66,7 +66,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**:
 - 04-01 — Auction engine foundation, settlement service, and bid APIs — Complete
 - 04-02 — Consumer bidding feed, detail, and My Bids lanes — Complete
-- 04-03 — Seller auction board, push notifications, and phase completion — Planned
+- 04-03 — Seller auction board, push notifications, and phase completion — Complete
 
 ### Phase 5: Consumer Feed & Discovery
 **Goal**: Consumers land on an endless-scroll feed of nearby active listings, filter/sort by distance and time-left, open a listing detail page, and install the PWA on their device.
@@ -106,7 +106,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 1. Foundation | 3/3 | Complete | 2026-04-18 |
 | 2. Auth & Onboarding | 4/4 | Complete | 2026-04-18 |
 | 3. Listing Creation | 3/3 | Complete | 2026-04-18 |
-| 4. Auction Engine | 2/3 | In progress | - |
+| 4. Auction Engine | 3/3 | Complete | 2026-04-18 |
 | 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
 | 6. Payments (Stripe Test) | 0/TBD | Not started | - |
 | 7. Fulfillment | 0/TBD | Not started | - |

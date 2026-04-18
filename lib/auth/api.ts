@@ -23,6 +23,43 @@ export type ApiRoleAuthorization =
       };
     };
 
+export async function authorizeAnyOnboardedApiUser(): Promise<ApiRoleAuthorization> {
+  const session = await getSession();
+
+  if (!session?.user) {
+    return {
+      ok: false,
+      status: 401,
+      body: {
+        ok: false,
+        error: {
+          code: "AUTH_REQUIRED",
+          message: "Sign in before using this endpoint.",
+        },
+      },
+    };
+  }
+
+  if (!isOnboardingComplete(session.user.onboardingCompletedAt) || !session.user.role) {
+    return {
+      ok: false,
+      status: 403,
+      body: {
+        ok: false,
+        error: {
+          code: "ONBOARDING_REQUIRED",
+          message: "Finish onboarding before using this endpoint.",
+        },
+      },
+    };
+  }
+
+  return {
+    ok: true,
+    session,
+  };
+}
+
 export async function authorizeApiRole(role: AppRole): Promise<ApiRoleAuthorization> {
   const session = await getSession();
 

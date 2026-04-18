@@ -9,6 +9,10 @@ type RecentListing = {
   category: string;
   reservePriceCents: number | null;
   buyoutPriceCents: number | null;
+  currentBidAmountCents: number | null;
+  auctionStatus: string | null;
+  auctionResult: string | null;
+  auctionBidCount: number | null;
   auctionEndsAt: Date | null;
   packageDate: string | null;
   updatedAt: Date;
@@ -44,6 +48,12 @@ function getStatusTone(status: string) {
       return "bg-[#fceac8] text-[#755124]";
     case "draft":
       return "bg-[#efe6dd] text-[#6b4c30]";
+    case "sold":
+      return "bg-[#d8efe3] text-[#20543f]";
+    case "cancelled":
+      return "bg-[#f5dfd7] text-[#7b3d28]";
+    case "expired":
+      return "bg-[#e8edf1] text-[#43515e]";
     default:
       return "bg-[#e8edf1] text-[#43515e]";
   }
@@ -86,6 +96,18 @@ export function RecentListingsPanel({ listings }: RecentListingsPanelProps) {
               Reserve {formatCurrency(listing.reservePriceCents)}. Buyout{" "}
               {formatCurrency(listing.buyoutPriceCents)}.
             </p>
+            {listing.auctionStatus === "active" ? (
+              <p>
+                Live at {formatCurrency(listing.currentBidAmountCents)} across{" "}
+                {listing.auctionBidCount ?? 0} bids.
+              </p>
+            ) : null}
+            {listing.auctionResult === "winning_bid" || listing.auctionResult === "buyout" ? (
+              <p>Sold for {formatCurrency(listing.currentBidAmountCents)}.</p>
+            ) : null}
+            {listing.auctionResult === "cancelled" ? (
+              <p>Auction cancelled before settlement.</p>
+            ) : null}
             <p>
               Package date {listing.packageDate ?? "Pending confirmation"}.
             </p>

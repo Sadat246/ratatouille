@@ -1,15 +1,9 @@
 import "server-only";
 
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, or, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
-import {
-  auctions,
-  bids,
-  businesses,
-  listingImages,
-  listings,
-} from "@/db/schema";
+import { auctions, bids, businesses, listingImages, listings, settlements } from "@/db/schema";
 import { getNextBidAmountCents, hasMockCardOnFile } from "@/lib/auctions/pricing";
 
 function toNumber(value: unknown) {
@@ -453,4 +447,158 @@ export async function getMyBidAuctions(
       },
     } satisfies MyBidAuctionItem;
   });
+}
+
+export type SellerLiveAuctionItem = {
+  id: string;
+  status: string;
+  result: string;
+  reservePriceCents: number;
+  buyoutPriceCents: number | null;
+  currentBidAmountCents: number | null;
+  bidCount: number;
+  lastBidAt: Date | null;
+  scheduledEndAt: Date;
+  listing: {
+    id: string;
+    title: string;
+    category: string;
+    packageDate: string | null;
+    imageUrl: string | null;
+  };
+};
+
+export async function getSellerLiveAuctions(
+  businessId: string,
+  limit = 24,
+): Promise<SellerLiveAuctionItem[]> {
+  const rows = await db
+    .select({
+      id: auctions.id,
+      status: auctions.status,
+      result: auctions.result,
+      reservePriceCents: auctions.reservePriceCents,
+      buyoutPriceCents: auctions.buyoutPriceCents,
+      currentBidAmountCents: auctions.currentBidAmountCents,
+      bidCount: auctions.bidCount,
+      lastBidAt: auctions.lastBidAt,
+      scheduledEndAt: auctions.scheduledEndAt,
+      listingId: listings.id,
+      listingTitle: listings.title,
+      listingCategory: listings.category,
+      listingPackageDate: listings.expiryText,
+    })
+    .from(auctions)
+    .innerJoin(listings, eq(listings.id, auctions.listingId))
+    .where(
+      and(eq(auctions.businessId, businessId), eq(auctions.status, "active")),
+    )
+    .orderBy(asc(auctions.scheduledEndAt), desc(auctions.lastBidAt))
+    .limit(limit);
+
+  const imageMap = await getPrimaryImageUrls(rows.map((row) => row.listingId));
+
+  return rows.map((row) => ({
+    id: row.id,
+    status: row.status,
+    result: row.result,
+    reservePriceCents: row.reservePriceCents,
+    buyoutPriceCents: row.buyoutPriceCents,
+    currentBidAmountCents: row.currentBidAmountCents,
+    bidCount: row.bidCount,
+    lastBidAt: row.lastBidAt,
+    scheduledEndAt: row.scheduledEndAt,
+    listing: {
+      id: row.listingId,
+      title: row.listingTitle,
+      category: row.listingCategory,
+      packageDate: row.listingPackageDate,
+      imageUrl: imageMap.get(row.listingId) ?? null,
+    },
+  }));
+}
+
+export type SellerOutcomeItem = {
+  id: string;
+  status: string;
+  result: string;
+  currentBidAmountCents: number | null;
+  bidCount: number;
+  endedAt: Date | null;
+  listing: {
+    id: string;
+    title: string;
+    category: string;
+    packageDate: string | null;
+    imageUrl: string | null;
+  };
+  settlement: null | {
+    grossAmountCents: number | null;
+    platformFeeCents: number;
+    sellerNetAmountCents: number | null;
+    status: string;
+    paymentStatus: string;
+  };
+};
+
+export async function getSellerOutcomes(
+  businessId: string,
+  limit = 24,
+): Promise<SellerOutcomeItem[]> {
+  const rows = await db
+    .select({
+      id: auctions.id,
+      status: auctions.status,
+      result: auctions.result,
+      currentBidAmountCents: auctions.currentBidAmountCents,
+      bidCount: auctions.bidCount,
+      endedAt: auctions.endedAt,
+      listingId: listings.id,
+      listingTitle: listings.title,
+      listingCategory: listings.category,
+      listingPackageDate: listings.expiryText,
+      settlementGrossAmountCents: settlements.grossAmountCents,
+      settlementPlatformFeeCents: settlements.platformFeeCents,
+      settlementSellerNetAmountCents: settlements.sellerNetAmountCents,
+      settlementStatus: settlements.status,
+      settlementPaymentStatus: settlements.paymentStatus,
+    })
+    .from(auctions)
+    .innerJoin(listings, eq(listings.id, auctions.listingId))
+    .leftJoin(settlements, eq(settlements.auctionId, auctions.id))
+    .where(
+      and(
+        eq(auctions.businessId, businessId),
+        or(eq(auctions.status, "closed"), eq(auctions.status, "cancelled")),
+      ),
+    )
+    .orderBy(desc(auctions.endedAt))
+    .limit(limit);
+
+  const imageMap = await getPrimaryImageUrls(rows.map((row) => row.listingId));
+
+  return rows.map((row) => ({
+    id: row.id,
+    status: row.status,
+    result: row.result,
+    currentBidAmountCents: row.currentBidAmountCents,
+    bidCount: row.bidCount,
+    endedAt: row.endedAt,
+    listing: {
+      id: row.listingId,
+      title: row.listingTitle,
+      category: row.listingCategory,
+      packageDate: row.listingPackageDate,
+      imageUrl: imageMap.get(row.listingId) ?? null,
+    },
+    settlement: row.settlementStatus
+      ? {
+          grossAmountCents: row.settlementGrossAmountCents,
+          platformFeeCents: row.settlementPlatformFeeCents ?? 0,
+          sellerNetAmountCents: row.settlementSellerNetAmountCents,
+          status: row.settlementStatus,
+          paymentStatus: row.settlementPaymentStatus ?? "pending_authorization",
+        }
+      : null,
+  }));
 }

@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-04-18)
 
 **Core value:** Auctions actually clear at-risk inventory before expiry — bids land, winners pay, items get to buyers.
-**Current focus:** Phase 4 — Auction Engine
+**Current focus:** Phase 5 — Consumer Feed & Discovery
 
 ## Current Position
 
-Phase: 4 of 8 (Auction Engine)
-Plan: 04-03
-Status: Executing
-Last activity: 2026-04-18 — Completed the Phase 4 consumer auction experience and advanced to the seller board plus push plan
+Phase: 5 of 8 (Consumer Feed & Discovery)
+Plan: TBD
+Status: Ready for planning
+Last activity: 2026-04-18 — Completed Phase 4 with seller monitoring, push plumbing, and final auction-phase bookkeeping
 
-Progress: ██████░░░░ 47%
+Progress: ███████░░░ 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 13
 - Average duration: Partially tracked
-- Total execution time: 31 min recorded in Phase 1; Phase 2 completed in the same session but did not capture per-plan timings
+- Total execution time: 31 min recorded in Phase 1; later phases completed in the same session but did not capture per-plan timings
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: ██████░░░░ 47%
 | 1. Foundation | 3 | 31 min | 10 min |
 | 2. Auth & Onboarding | 4 | Timing not captured | n/a |
 | 3. Listing Creation | 3 | Timing not captured | n/a |
+| 4. Auction Engine | 3 | Timing not captured | n/a |
 
 **Recent Trend:**
-- Last 5 plans: Phase 2 timing not captured at plan granularity
+- Last 5 plans: Timing not captured at plan granularity
 - Trend: Unclear
 
 ## Accumulated Context
@@ -64,6 +65,7 @@ Recent decisions affecting current work:
 - Auction close semantics now live in one shared service, with a 15-second server-started safety sweep and deterministic settlement snapshots
 - Consumers now have persisted mock card-on-file state, and push subscriptions have a dedicated table for upcoming notification delivery
 - The consumer shell now exposes real live-auction Home, My Bids, and Alerts routes, while detail pages poll the server every two seconds for authoritative state refresh
+- Seller operations now live in dedicated Desk, Live, and Outcomes surfaces, and optional push delivery hooks fire only after auction commits succeed
 
 ### Deferred Issues
 
@@ -73,13 +75,15 @@ Recent decisions affecting current work:
 
 - `npm audit` reports 4 moderate transitive vulnerabilities in the current dependency graph; not blocking current roadmap execution
 - Rotate the Neon credentials that were pasted into chat and written to ignored local env files during setup
+- Generate VAPID keys and configure `VAPID_SUBJECT`, `VAPID_PUBLIC_KEY`, and `VAPID_PRIVATE_KEY` if you want browser push delivery to run outside graceful no-op mode
 
 ### Blockers/Concerns
 
 - Local runtime verification still lacks real Google OAuth, Cloudinary, and Vision credentials, so third-party sign-in plus managed upload/OCR provider round-trips remain unproven until those secrets are configured
+- Auction closing still relies on the single-process safety sweep plus request-triggered refreshes; a durable per-auction scheduler remains a future hardening path if deployment topology changes
 
 ## Session Continuity
 
 Last session: 2026-04-18
-Stopped at: Phase 3 complete; Phase 4 is ready for planning
+Stopped at: Phase 4 complete; Phase 5 is ready for planning
 Resume file: .planning/ROADMAP.md

@@ -1,5 +1,6 @@
 import { ConsumerShell } from "@/components/auction/consumer-shell";
 import { MockCardPanel } from "@/components/auction/mock-card-panel";
+import { PushOptInPanel } from "@/components/auction/push-opt-in-panel";
 import { SectionCard } from "@/components/auction/section-card";
 import { db } from "@/db/client";
 import { getMyBidAuctions } from "@/lib/auctions/queries";
@@ -24,7 +25,25 @@ export default async function ShopAlertsPage() {
   ]);
 
   if (!profile) {
-    return null;
+    return (
+      <ConsumerShell
+        activeHref="/shop/alerts"
+        badge="Shopper setup issue"
+        title="Shopper profile missing."
+        description="Finish consumer onboarding again before managing bid setup and alerts."
+        locationLabel={session.user.name || "Shop deals"}
+      >
+        <SectionCard
+          title="Shopper setup issue"
+          tone="border-[#ead1cb] bg-[rgba(255,241,237,0.88)] text-[#41231c]"
+        >
+          <p className="text-sm leading-7">
+            This shopper account is signed in, but the consumer profile needed
+            for bid settings is missing.
+          </p>
+        </SectionCard>
+      </ConsumerShell>
+    );
   }
 
   const locationLabel = profile.city
@@ -88,18 +107,7 @@ export default async function ShopAlertsPage() {
         }}
       />
 
-      <SectionCard
-        title="Outbid alerts"
-        tone="border-[#d9ddf6] bg-[rgba(243,245,255,0.9)] text-[#20183f]"
-      >
-        <div className="rounded-[1.5rem] border border-[#d9def6] bg-white/90 p-4">
-          <p className="text-sm leading-7 text-[#433a67]">
-            Browser push delivery lands in the next plan. This screen is already
-            the home for that opt-in, so the shopper mental model is fixed now:
-            qualify to bid here, then let outbid alerts keep you in the fight.
-          </p>
-        </div>
-      </SectionCard>
+      <PushOptInPanel />
     </ConsumerShell>
   );
 }

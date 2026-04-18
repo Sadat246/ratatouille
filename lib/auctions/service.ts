@@ -14,6 +14,7 @@ import {
   getSettlementAmounts,
   hasMockCardOnFile,
 } from "@/lib/auctions/pricing";
+import { notifyAuctionMutation } from "@/lib/push/notify";
 
 type InteractiveTransaction = Parameters<
   Parameters<ReturnType<typeof getInteractiveDb>["transaction"]>[0]
@@ -398,7 +399,7 @@ export async function placeBid({
   auctionId: string;
   consumerUserId: string;
 }) {
-  return getInteractiveDb().transaction(async (tx) => {
+  const result = await getInteractiveDb().transaction(async (tx) => {
     const now = new Date();
     const lockedAuction = await lockAuction(tx, auctionId);
 
@@ -521,6 +522,10 @@ export async function placeBid({
       winningBidUserId: consumerUserId,
     } satisfies AuctionMutationResult;
   });
+
+  await notifyAuctionMutation(result);
+
+  return result;
 }
 
 export async function buyoutAuction({
@@ -530,7 +535,7 @@ export async function buyoutAuction({
   auctionId: string;
   consumerUserId: string;
 }) {
-  return getInteractiveDb().transaction(async (tx) => {
+  const result = await getInteractiveDb().transaction(async (tx) => {
     const now = new Date();
     const lockedAuction = await lockAuction(tx, auctionId);
 
@@ -622,6 +627,10 @@ export async function buyoutAuction({
       outbidUserId,
     });
   });
+
+  await notifyAuctionMutation(result);
+
+  return result;
 }
 
 export async function cancelAuction({
@@ -631,7 +640,7 @@ export async function cancelAuction({
   auctionId: string;
   businessId: string;
 }) {
-  return getInteractiveDb().transaction(async (tx) => {
+  const result = await getInteractiveDb().transaction(async (tx) => {
     const now = new Date();
     const lockedAuction = await lockAuction(tx, auctionId);
 
@@ -677,10 +686,16 @@ export async function cancelAuction({
       action: "auction_cancelled",
     });
   });
+
+  if (result.changed) {
+    await notifyAuctionMutation(result);
+  }
+
+  return result;
 }
 
 export async function refreshAuctionIfOverdue(auctionId: string) {
-  return getInteractiveDb().transaction(async (tx) => {
+  const result = await getInteractiveDb().transaction(async (tx) => {
     const now = new Date();
     const lockedAuction = await lockAuction(tx, auctionId);
 
@@ -700,10 +715,16 @@ export async function refreshAuctionIfOverdue(auctionId: string) {
 
     return activateAuctionIfReady(tx, lockedAuction, now).then(() => null);
   });
+
+  if (result) {
+    await notifyAuctionMutation(result);
+  }
+
+  return result;
 }
 
 export async function sweepOverdueAuctions(limit = 12) {
-  return getInteractiveDb().transaction(async (tx) => {
+  const results = await getInteractiveDb().transaction(async (tx) => {
     const overdueAuctionIds = await tx.execute(sql<{ id: string }>`
       select a.id
       from auctions a
@@ -740,4 +761,8 @@ export async function sweepOverdueAuctions(limit = 12) {
 
     return closedAuctions;
   });
+
+  await Promise.all(results.map((result) => notifyAuctionMutation(result)));
+
+  return results;
 }

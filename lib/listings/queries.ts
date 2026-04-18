@@ -18,6 +18,10 @@ export type SellerDeskRecentListing = {
   category: string;
   reservePriceCents: number | null;
   buyoutPriceCents: number | null;
+  currentBidAmountCents: number | null;
+  auctionStatus: string | null;
+  auctionResult: string | null;
+  auctionBidCount: number | null;
   auctionEndsAt: Date | null;
   packageDate: string | null;
   updatedAt: Date;
@@ -75,6 +79,10 @@ export async function getSellerDeskData(userId: string): Promise<SellerDeskData 
       category: listings.category,
       reservePriceCents: listings.reservePriceCents,
       buyoutPriceCents: listings.buyoutPriceCents,
+      currentBidAmountCents: auctions.currentBidAmountCents,
+      auctionStatus: auctions.status,
+      auctionResult: auctions.result,
+      auctionBidCount: auctions.bidCount,
       auctionEndsAt: auctions.scheduledEndAt,
       packageDate: listings.expiryText,
       updatedAt: listings.updatedAt,
