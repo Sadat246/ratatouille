@@ -60,5 +60,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-18
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-payments/06-CONTEXT.md
+Stopped at: Phase 7 context gathered
+Resume file: .planning/phases/07-fulfillment/07-CONTEXT.md
