@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db/client";
@@ -136,6 +137,8 @@ export async function publishListing(formData: FormData): Promise<PublishListing
 
       return [listing];
     });
+
+    revalidatePath("/sell");
 
     return {
       success: true,

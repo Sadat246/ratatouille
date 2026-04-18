@@ -1,8 +1,8 @@
-import { Store, del, get, set } from "idb-keyval";
+import { createStore, del, get, set } from "idb-keyval";
 
 import type { ListingDraftSnapshot } from "./draft-types";
 
-const listingDraftStore = new Store("ratatouille-listing-drafts", "drafts");
+const listingDraftStore = createStore("ratatouille-listing-drafts", "drafts");
 
 function getDraftKey(businessId: string) {
   return `listing-draft:${businessId}`;

@@ -35,7 +35,7 @@ export type ListingDraftImageSnapshot = {
 export type ListingDraftValues = {
   title: string;
   description: string;
-  category: ListingCategory;
+  category: ListingCategory | "";
   customCategory: string;
   reservePrice: string;
   buyoutPrice: string;

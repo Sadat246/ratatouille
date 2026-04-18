@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** — Next.js + Postgres scaffold, schema, deploy pipeline, PWA shell
 - [x] **Phase 2: Auth & Onboarding** — Google OAuth for business and consumer roles
-- [ ] **Phase 3: Listing Creation (Snap-to-List)** — 3-photo capture, OCR expiry, reserve/buyout/end-time
+- [x] **Phase 3: Listing Creation (Snap-to-List)** — 3-photo capture, OCR expiry, reserve/buyout/end-time
 - [ ] **Phase 4: Auction Engine** — Bidding, buyout, timed settlement, commission modeling
 - [ ] **Phase 5: Consumer Feed & Discovery** — Endless-scroll geo-filtered feed, listing detail, PWA install
 - [ ] **Phase 6: Payments (Stripe Test)** — Stripe test-mode auth/capture for bids, buyouts, settlement
@@ -54,9 +54,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Research**: Likely (camera capture + OCR pipeline)
 **Research topics**: PWA camera capture patterns (getUserMedia vs input[capture]), image upload + storage on free tier, OCR options for expiry dates (Tesseract.js client-side vs server-side vs Google Vision API free tier), date-parsing heuristics for printed expiry formats, validation that end-time precedes expiry
 **Plans**:
-- 03-01 — Listing model and publish boundary — Planned
-- 03-02 — Capture and OCR plumbing — Planned
-- 03-03 — Seller listing desk — Planned
+- 03-01 — Listing model and publish boundary — Complete
+- 03-02 — Capture and OCR plumbing — Complete
+- 03-03 — Seller listing desk — Complete
 
 ### Phase 4: Auction Engine
 **Goal**: Listings go live as timed auctions where consumers can bid above reserve or buy out instantly; auctions end on schedule with a winner (or no sale), and platform commission is correctly modeled in settlement records.
@@ -102,7 +102,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-04-18 |
 | 2. Auth & Onboarding | 4/4 | Complete | 2026-04-18 |
-| 3. Listing Creation | 0/3 | Planned | - |
+| 3. Listing Creation | 3/3 | Complete | 2026-04-18 |
 | 4. Auction Engine | 0/TBD | Not started | - |
 | 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
 | 6. Payments (Stripe Test) | 0/TBD | Not started | - |

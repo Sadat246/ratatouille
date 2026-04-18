@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-04-18)
 
 **Core value:** Auctions actually clear at-risk inventory before expiry — bids land, winners pay, items get to buyers.
-**Current focus:** Phase 3 — Listing Creation
+**Current focus:** Phase 4 — Auction Engine
 
 ## Current Position
 
-Phase: 3 of 8 (Listing Creation)
+Phase: 4 of 8 (Auction Engine)
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-04-18 — Phase 2 complete, transitioned to Phase 3
+Last activity: 2026-04-18 — Phase 3 complete, transitioned to Phase 4
 
-Progress: ███░░░░░░░ 25%
+Progress: ████░░░░░░ 38%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 10
 - Average duration: Partially tracked
 - Total execution time: 31 min recorded in Phase 1; Phase 2 completed in the same session but did not capture per-plan timings
 
@@ -29,6 +29,7 @@ Progress: ███░░░░░░░ 25%
 |-------|-------|-------|----------|
 | 1. Foundation | 3 | 31 min | 10 min |
 | 2. Auth & Onboarding | 4 | Timing not captured | n/a |
+| 3. Listing Creation | 3 | Timing not captured | n/a |
 
 **Recent Trend:**
 - Last 5 plans: Phase 2 timing not captured at plan granularity
@@ -55,6 +56,10 @@ Recent decisions affecting current work:
 - Consumer onboarding persists shopper location and delivery data through a dedicated multi-step wizard and server action
 - Business onboarding now creates geocoded storefront data, unique slugs, and owner memberships transactionally
 - Protected shopper and seller shells are now enforced through proxy redirects plus server-side role checks
+- Phase 3 listing creation now runs through a single-screen seller desk with accepted-photo review before upload
+- Listing drafts persist seller field state plus accepted photo blobs in IndexedDB by business membership
+- Listing uploads use Cloudinary when configured with a local public-upload fallback, and OCR uses Vision when configured with manual-entry fallback states
+- OCR remains advisory and publish still requires a seller-confirmed package date before the listing and auction rows are created
 
 ### Deferred Issues
 
@@ -67,10 +72,10 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- Local runtime verification still lacks real Google OAuth and Mapbox credentials, so third-party sign-in and geocoding round-trips remain unproven until those secrets are configured
+- Local runtime verification still lacks real Google OAuth, Cloudinary, and Vision credentials, so third-party sign-in plus managed upload/OCR provider round-trips remain unproven until those secrets are configured
 
 ## Session Continuity
 
 Last session: 2026-04-18
-Stopped at: Phase 2 complete; Phase 3 is ready for planning
+Stopped at: Phase 3 complete; Phase 4 is ready for planning
 Resume file: .planning/ROADMAP.md
