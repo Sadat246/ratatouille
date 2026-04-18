@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-18)
 
 **Core value:** Auctions actually clear at-risk inventory before expiry — bids land, winners pay, items get to buyers.
-**Current focus:** Phase 5 — Consumer Feed & Discovery
+**Current focus:** Phase 6 — Payments (Stripe Test) [executing out-of-order ahead of Phase 5 per user direction]
 
 ## Current Position
 
-Phase: 5 of 8 (Consumer Feed & Discovery)
-Plan: TBD
-Status: Ready for planning
-Last activity: 2026-04-18 — Completed Phase 4 with seller monitoring, push plumbing, and final auction-phase bookkeeping
+Phase: 6 of 8 (Payments — Stripe Test)
+Plan: 06-01 (Wave 1 foundation)
+Status: Executing
+Last activity: 2026-04-18 — Phase 6 execution started (out-of-order ahead of Phase 5 at user direction; Phase 6 deps on Phase 4, which is complete). 6 plans across 4 waves.
 
 Progress: ███████░░░ 50%
 

@@ -78,9 +78,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 ### Phase 6: Payments (Stripe Test)
 **Goal**: Bids hold funds and buyouts/winning bids capture funds via Stripe in test mode, with commission split modeled in the settlement record (no real money).
 **Depends on**: Phase 4
-**Research**: Likely (external API — current Stripe patterns)
-**Research topics**: current Stripe test-mode flows for auth-then-capture on auctions, Payment Intents vs Setup Intents for held bids, Stripe Connect or simulated seller payouts for commission split in test mode, webhook handling in Next.js route handlers
-**Plans**: TBD
+**Research**: Complete (see `phases/06-payments/06-RESEARCH.md`)
+**Research topics**: current Stripe test-mode flows for card-save then off-session capture at auction close, SetupIntent + Payment Element vs PaymentIntent auth/capture for held bids, simulated commission split in settlement records (no Stripe Connect), webhook handling in Next.js route handlers (raw body, signature verify, idempotency)
+**Plans**:
+- 06-01 — Foundation: Stripe SDK install, env vars, schema (stripeCustomerId/stripePaymentMethodId on consumer_profiles + stripe_webhook_events table), Drizzle migration, platform fee correction (15%→10%), Stripe CLI docs (wave 1)
+- 06-02 — Server Stripe services: stripe singleton, getOrCreateStripeCustomer, createSetupIntentForConsumer, chargeBidderOffSession + chargeBuyout, webhook idempotency helpers, runFallbackBidderLoop (wave 2, depends on 06-01)
+- 06-03 — Webhook route + 4 handlers: /api/webhooks/stripe with signature verify + dedup, setup_intent.succeeded / payment_intent.succeeded / payment_intent.payment_failed / payment_intent.canceled handlers (wave 3, depends on 06-02)
+- 06-04 — SetupIntent API + inline Payment Element UI: /api/consumer/setup-intent, StripeCardSetup component wired into AuctionBidPanel, MockCardPanel gated by env (wave 3, depends on 06-02)
+- 06-05 — Settlement trigger: post-commit charge dispatch (`triggerAuctionPaymentIfCloseResult`) wired into buyoutAuction, refreshAuctionIfOverdue, sweepOverdueAuctions — OUTSIDE Drizzle transactions; routes to chargeBuyout or chargeBidderOffSession and invokes runFallbackBidderLoop on failure (wave 3, depends on 06-02)
+- 06-06 — Demo walk-through docs: end-to-end README section covering first-bid SetupIntent, auction close → off-session capture, fallback bidder, buyout, and seller outcomes verification (wave 4, depends on 06-01..06-05)
 
 ### Phase 7: Fulfillment
 **Goal**: After a sale clears, the buyer can choose in-store pickup (with a verification code) or Uber Direct delivery, and the business sees the corresponding fulfillment state.
@@ -108,6 +114,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. Listing Creation | 3/3 | Complete | 2026-04-18 |
 | 4. Auction Engine | 3/3 | Complete | 2026-04-18 |
 | 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
-| 6. Payments (Stripe Test) | 0/TBD | Not started | - |
+| 6. Payments (Stripe Test) | 0/6 | Planned | - |
 | 7. Fulfillment | 0/TBD | Not started | - |
 | 8. Notifications & Demo Polish | 0/TBD | Not started | - |
