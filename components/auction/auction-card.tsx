@@ -25,6 +25,8 @@ type AuctionCardProps = {
     label: string;
     tone: AuctionCardBadgeTone;
   };
+  distanceMiles?: number | null;
+  categoryBadge?: string | null;
 };
 
 const badgeToneClasses: Record<AuctionCardBadgeTone, string> = {
@@ -47,6 +49,8 @@ export function AuctionCard({
   status,
   result,
   badge,
+  distanceMiles,
+  categoryBadge,
 }: AuctionCardProps) {
   return (
     <Link
@@ -76,10 +80,20 @@ export function AuctionCard({
           ) : null}
         </div>
 
-        <div
-          className="h-36 rounded-[1.6rem] border border-[#f4ddcf] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]"
-          style={imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
-        />
+        <div className="relative">
+          <div
+            className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]"
+            style={imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+          />
+          {categoryBadge ? (
+            <span
+              aria-hidden="true"
+              className="absolute right-2 top-2 rounded-full border border-white/60 bg-[rgba(255,248,239,0.88)] px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[#705446] backdrop-blur-sm"
+            >
+              {categoryBadge}
+            </span>
+          ) : null}
+        </div>
 
         <div className="grid grid-cols-3 gap-2">
           {metrics.map((metric) => (
@@ -97,7 +111,7 @@ export function AuctionCard({
           ))}
         </div>
 
-        {footerLines.length > 0 ? (
+        {(footerLines.length > 0 || distanceMiles != null) ? (
           <div className="flex flex-wrap gap-2">
             {footerLines.map((line) => (
               <span
@@ -107,6 +121,11 @@ export function AuctionCard({
                 {line}
               </span>
             ))}
+            {distanceMiles != null ? (
+              <span className="rounded-full border border-[#ecd6c7] bg-[rgba(255,247,241,0.92)] px-3 py-1.5 text-xs font-medium text-[#725546]">
+                {distanceMiles.toFixed(1)} mi away
+              </span>
+            ) : null}
           </div>
         ) : null}
 
