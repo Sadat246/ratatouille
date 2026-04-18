@@ -51,6 +51,8 @@ export const consumerProfiles = pgTable(
       withTimezone: true,
       mode: "date",
     }),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripePaymentMethodId: text("stripe_payment_method_id"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
