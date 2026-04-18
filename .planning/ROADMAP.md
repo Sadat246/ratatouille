@@ -73,7 +73,13 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Phase 4
 **Research**: Likely (geo filtering + PWA install UX)
 **Research topics**: geo query approaches on Postgres free tiers (PostGIS vs haversine on lat/lng), endless-scroll + pagination patterns in Next.js App Router, listing-detail design for auctions (live time-left, current bid), PWA installability checklist and install-prompt UX
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Geo query layer: extend getAuctionFeed with haversine + pagination, update feed route handler, vitest + unit tests
+- [ ] 05-02-PLAN.md — New UI atoms: FilterChipRow, FeedCardSkeleton, ListingPhotoCarousel, InstallPromptBanner
+- [ ] 05-03-PLAN.md — Feed page composition: FeedClient infinite scroll + chips, extend AuctionCard, wire shop/page.tsx
+- [ ] 05-04-PLAN.md — Detail page: photo carousel + polling interval change + distance display
 
 ### Phase 6: Payments (Stripe Test)
 **Goal**: Bids hold funds and buyouts/winning bids capture funds via Stripe in test mode, with commission split modeled in the settlement record (no real money).
@@ -107,7 +113,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 2. Auth & Onboarding | 4/4 | Complete | 2026-04-18 |
 | 3. Listing Creation | 3/3 | Complete | 2026-04-18 |
 | 4. Auction Engine | 3/3 | Complete | 2026-04-18 |
-| 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
+| 5. Consumer Feed & Discovery | 0/4 | Not started | - |
 | 6. Payments (Stripe Test) | 0/TBD | Not started | - |
 | 7. Fulfillment | 0/TBD | Not started | - |
 | 8. Notifications & Demo Polish | 0/TBD | Not started | - |
