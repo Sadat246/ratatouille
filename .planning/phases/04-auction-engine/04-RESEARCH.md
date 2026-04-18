@@ -10,7 +10,7 @@ Phase 4 is not one problem. It is four separate systems that must agree on truth
 
 The biggest repo-specific finding is that the current database client path is optimized for simple queries, not for the interactive locked transactions that a bid engine needs. The app currently uses Drizzle's Neon HTTP driver, while Drizzle's current Neon guidance says HTTP is best for single non-interactive transactions and recommends the WebSocket-based driver when session or interactive transaction support is needed. For this phase, that is not an implementation detail, it is architecture. If the bid path keeps the current driver shape unchanged, the plan will be fighting the stack.
 
-The second major finding is that **Vercel Cron is the wrong default for this project on a free-tier deployment**. Current Vercel docs say Hobby cron jobs can only run once per day and only with hourly precision, which makes them unusable for minute-sensitive auction settlement. The strongest default for this repo is therefore: **interactive Postgres writes via Neon WebSockets, Inngest for per-auction delayed close execution, Ably for live auction updates, and `web-push` + the existing service worker for outbid notifications**. A new first-party option now exists in Vercel Workflow/Queues, and it is worth considering, but it is still Beta and should be treated as an explicit tradeoff rather than assumed "the standard" by default.
+The second major finding is that **Vercel Cron is the wrong default for this project on a free-tier deployment**. Current Vercel docs say Hobby cron jobs can only run once per day and only with hourly precision, which makes them unusable for minute-sensitive auction settlement. The strongest default for this repo is therefore still: **interactive Postgres writes via Neon WebSockets, Inngest for per-auction delayed close execution, Ably for live auction updates, and `web-push` + the existing service worker for outbid notifications**. The first-party Vercel options are materially more viable than they were a few months ago because Workflow is available on all plans and includes a real Hobby allotment, and Queues recently added longer delays in a changelog update, but both still require explicit tradeoff decisions rather than being assumed defaults.
 
 **Primary recommendation:** Use **interactive Postgres transactions + Inngest delayed close jobs + Ably channels + native Web Push**, with a small safety sweep for overdue auctions and all close paths funneled through one idempotent settlement function.
 
@@ -45,8 +45,9 @@ The established stack for this phase:
 
 | Instead of | Could Use | Tradeoff |
 | --- | --- | --- |
-| Inngest delayed jobs | Vercel Workflow | Fewer vendors and native Vercel observability, but current docs still label Workflow as Beta. |
-| Inngest delayed jobs | Trigger.dev scheduled tasks | Excellent durability/story for long-running tasks, but the free plan only includes 10 schedules and would pinch once seeded demo inventory grows. |
+| Inngest delayed jobs | Vercel Workflow | Fewer vendors, native Vercel observability, and current docs show included Hobby usage, but Workflow is still Beta. |
+| Inngest delayed jobs | Vercel Queues | Now more plausible for short auction windows, but it is lower-level than Workflow and current official sources conflict on max delay/TTL (`24h` in docs/API references vs `7 days` in the Apr 1, 2026 changelog). |
+| Inngest delayed jobs | Trigger.dev scheduled tasks | Viable on current limits (`10` schedules free, `100` on Hobby, `14` day run TTL), but it adds another workflow vendor without a clear advantage over Inngest for this demo. |
 | Inngest delayed jobs | Upstash QStash schedules | Lighter-weight and simple, but the free plan also caps active schedules at 10 and messages at 1,000/day. |
 | Any durable scheduler | Vercel Cron | Not viable here on Hobby because current Vercel docs cap it at once per day with hourly precision. |
 | Ably | Another Vercel-recommended provider such as Pusher or Supabase Realtime | Viable, but Ably's official docs surface the clearest combination of channels, history, token auth, push support, and React hooks for this use case. |
@@ -406,12 +407,14 @@ What's changed recently:
 | --- | --- | --- | --- |
 | "Vercel Cron is the obvious way to close auctions on Vercel" | Current Vercel docs say Hobby cron is once per day with hourly precision | Verified March 4, 2026 docs | Free-tier Vercel cron is not acceptable for this phase. |
 | "Third-party schedulers are the only durable option on Vercel" | Vercel now has Workflow and Queues as first-party durable primitives | Verified February 27, 2026 docs | There is now a native option, but it is still Beta and should be evaluated explicitly. |
+| "Vercel Workflow is probably too immature or too constrained for Hobby" | Current Workflow docs show Beta on all plans with included Hobby usage (`50,000` steps and `720` GB-hours storage) | Verified February 27, 2026 docs | Workflow is a real contender now if reducing vendors matters more than Beta risk. |
+| "Vercel Queues can only cover sub-day delays" | Official sources now conflict: main docs/API refs still describe `24h` max retention by default, while the Apr 1, 2026 Vercel changelog announces `7`-day max TTL and delivery delay | Verified February-April 2026 official sources | Direct Queues are more viable for grocery-style auction durations, but the feature needs implementation-time verification because Vercel's docs are currently lagging each other. |
 | "Neon HTTP is the universal default for a serverless Postgres app" | Drizzle currently recommends WebSocket-based Neon when session/interactive transactions are needed | Verified current Drizzle Neon docs | The auction write path should probably not use the current client unchanged. |
 | "Web Push for PWAs is still too niche to pull forward" | MDN marks Push API and service-worker notifications as broadly available since March 2023 | Verified MDN pages updated in 2025 | Pulling outbid push into Phase 4 is feasible, though still worth manual device testing. |
 
 **New tools/patterns to consider:**
 - **Vercel Workflow:** new first-party durable workflow option on all Vercel plans, with resumable steps, sleeps, hooks, and queue-backed execution.
-- **Vercel Queues:** lower-level durable queueing primitive now available if you want direct control rather than workflow orchestration.
+- **Vercel Queues:** lower-level durable queueing primitive now available if you want direct control rather than workflow orchestration, with recently expanded delay/TTL support called out in the Vercel changelog.
 - **Trigger.dev Realtime:** if Trigger.dev is chosen for task orchestration, its current platform also exposes React hooks for subscribed run updates.
 
 **Deprecated/outdated for this phase:**
@@ -420,27 +423,32 @@ What's changed recently:
 
 ## Open Questions
 
-1. **What is the maximum auction duration in v1?**
-   - What we know: Inngest free delays are limited to seven days, while Vercel Workflow does not present the same duration constraint in the reviewed docs.
-   - What's unclear: The roadmap and phase context do not set an auction-duration cap.
-   - Recommendation: If staying on Inngest Hobby, cap v1 auctions at `<= 7 days`, which is probably compatible with the soon-to-expire grocery use case anyway.
+1. **Should the scheduler default be Inngest or Vercel Workflow?**
+   - What we know: Both are viable on Hobby from current official docs. Inngest gives durable delays up to seven days on free and avoids betting on Vercel Beta primitives; Workflow gives fewer vendors plus included Hobby usage and native Vercel observability.
+   - What's unclear: Whether this project values vendor minimization more than avoiding Beta risk.
+   - Recommendation: Decide this explicitly during planning. Default to Inngest for lower platform-risk; choose Workflow only if the same-vendor ergonomics are worth the Beta tradeoff.
 
-2. **What is the fee-rounding policy for 15% commission on odd-cent totals?**
+2. **What is the maximum auction duration in v1?**
+   - What we know: Inngest free delays are limited to seven days. Vercel Workflow does not present the same duration constraint in the reviewed docs. Vercel Queues may now cover up to seven days according to the Apr 1, 2026 changelog, but the main docs/API references still need to catch up.
+   - What's unclear: The roadmap and phase context do not set an auction-duration cap.
+   - Recommendation: Cap v1 auctions at `<= 7 days` unless product requirements force something longer. That matches the soon-to-expire grocery use case and keeps all scheduler options on the table.
+
+3. **What is the fee-rounding policy for 15% commission on odd-cent totals?**
    - What we know: Money is modeled in integer cents, and some sale prices will create half-cent fees.
    - What's unclear: Whether the product wants `round`, `floor`, or another deterministic rule.
    - Recommendation: Lock the rule during planning and persist both fee and seller net at close so later phases never recompute it.
 
-3. **Should cancelled/no-sale outcomes create settlement rows or live only on the auction row?**
+4. **Should cancelled/no-sale outcomes create settlement rows or live only on the auction row?**
    - What we know: The current schema already has unique settlement constraints, and the phase context wants a settlement lifecycle.
    - What's unclear: Whether "settlement" should mean only successful sales or all terminal auction outcomes.
    - Recommendation: Decide before implementation. Default lean: settlement rows for successful sales only, unless reporting requirements argue for a unified ledger of all terminal outcomes.
 
-4. **Where do mock card-on-file state and push subscriptions live?**
+5. **Where do mock card-on-file state and push subscriptions live?**
    - What we know: The current consumer profile schema does not include either.
    - What's unclear: Whether they should be booleans on the user/profile row or separate tables.
    - Recommendation: Model them explicitly during planning rather than slipping them into unrelated tables ad hoc.
 
-5. **Does the app want denormalized current-bid snapshots on the auction row?**
+6. **Does the app want denormalized current-bid snapshots on the auction row?**
    - What we know: The current schema stores bids and winning bid linkage, but not an explicit current-bid amount or leader snapshot.
    - What's unclear: Whether feed/detail performance in later phases should come from joins/subqueries or snapshot columns.
    - Recommendation: Decide in planning based on expected demo volume; for a pitch demo, a small amount of denormalization may be worth the simpler reads.
@@ -457,6 +465,7 @@ What's changed recently:
 - Vercel WebSocket guidance: https://vercel.com/kb/guide/do-vercel-serverless-functions-support-websocket-connections
 - Vercel Workflow docs: https://vercel.com/docs/workflow
 - Vercel Queues docs: https://vercel.com/docs/queues
+- Vercel Queues 7-day TTL changelog: https://vercel.com/changelog/queues-now-supports-7-day-ttl
 - Inngest functions overview: https://www.inngest.com/docs/learn/inngest-functions
 - Inngest delayed functions: https://www.inngest.com/docs/guides/delayed-functions
 - Inngest errors/retries: https://www.inngest.com/docs/guides/error-handling
@@ -469,6 +478,7 @@ What's changed recently:
 - Trigger.dev scheduled tasks: https://trigger.dev/docs/tasks/scheduled
 - Trigger.dev concurrency/queues: https://trigger.dev/docs/queue-concurrency
 - Trigger.dev idempotency: https://trigger.dev/docs/idempotency
+- Trigger.dev limits: https://trigger.dev/docs/limits
 - Trigger.dev pricing: https://trigger.dev/pricing
 - Trigger.dev realtime overview: https://trigger.dev/docs/realtime/overview
 - Upstash QStash schedules: https://upstash.com/docs/qstash/features/schedules
@@ -502,7 +512,9 @@ What's changed recently:
 
 **Current repo implications identified during research:**
 - The existing DB client uses `drizzle-orm/neon-http`, which is not the recommended default for the interactive bid path.
+- Listing publish already creates auction rows as `active` with `scheduledStartAt = now`, so Phase 4 does not need a separate "activate auction later" pipeline unless product scope changes.
 - The existing service worker is navigation-only and currently lacks push event handling.
+- The current consumer-side schema still lacks both a mock card-on-file flag and push-subscription persistence.
 - The current schema already provides a useful base with `auctions`, `bids`, and unique `settlements`.
 
 **Research gap note:**

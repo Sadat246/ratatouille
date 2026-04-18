@@ -63,7 +63,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Phase 3
 **Research**: Likely (time-driven settlement + bid concurrency)
 **Research topics**: scheduled-task options on Vercel (cron jobs, Inngest, Trigger.dev) for auction end settlement, race-safe bid handling in Postgres (row locks / transactions), buyout-wins-immediately semantics, commission calculation placement in schema and settlement flow
-**Plans**: TBD
+**Plans**:
+- 04-01 — Auction engine foundation, settlement service, and bid APIs — Planned
+- 04-02 — Consumer bidding feed, detail, and My Bids lanes — Planned
+- 04-03 — Seller auction board, push notifications, and phase completion — Planned
 
 ### Phase 5: Consumer Feed & Discovery
 **Goal**: Consumers land on an endless-scroll feed of nearby active listings, filter/sort by distance and time-left, open a listing detail page, and install the PWA on their device.
@@ -103,7 +106,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 1. Foundation | 3/3 | Complete | 2026-04-18 |
 | 2. Auth & Onboarding | 4/4 | Complete | 2026-04-18 |
 | 3. Listing Creation | 3/3 | Complete | 2026-04-18 |
-| 4. Auction Engine | 0/TBD | Not started | - |
+| 4. Auction Engine | 0/3 | Planned | - |
 | 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
 | 6. Payments (Stripe Test) | 0/TBD | Not started | - |
 | 7. Fulfillment | 0/TBD | Not started | - |
