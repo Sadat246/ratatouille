@@ -1,8 +1,11 @@
+import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 import { AuctionDetailClient } from "@/components/auction/auction-detail-client";
 import { ConsumerShell } from "@/components/auction/consumer-shell";
 import { db } from "@/db/client";
+import { auctions as auctionsTable, businesses } from "@/db/schema";
+import { computeHaversine } from "@/lib/auctions/geo";
 import { getAuctionDetail } from "@/lib/auctions/queries";
 import { refreshAuctionIfOverdue } from "@/lib/auctions/service";
 import { requireCompletedRole } from "@/lib/auth/onboarding";
@@ -21,6 +24,8 @@ export default async function AuctionDetailPage({
         city: true,
         state: true,
         locationLabel: true,
+        latitude: true,
+        longitude: true,
       },
       where: (table, operators) => operators.eq(table.userId, session.user.id),
     }),
@@ -31,6 +36,33 @@ export default async function AuctionDetailPage({
 
   if (!auction) {
     notFound();
+  }
+
+  const consumerLat = profile?.latitude ?? null;
+  const consumerLng = profile?.longitude ?? null;
+
+  let distanceMiles: number | null = null;
+
+  if (
+    consumerLat != null &&
+    consumerLng != null &&
+    !(consumerLat === 0 && consumerLng === 0)
+  ) {
+    const [businessGeo] = await db
+      .select({ lat: businesses.latitude, lng: businesses.longitude })
+      .from(auctionsTable)
+      .innerJoin(businesses, eq(businesses.id, auctionsTable.businessId))
+      .where(eq(auctionsTable.id, auctionId))
+      .limit(1);
+
+    if (businessGeo?.lat != null && businessGeo?.lng != null) {
+      distanceMiles = computeHaversine(
+        consumerLat,
+        consumerLng,
+        businessGeo.lat,
+        businessGeo.lng,
+      );
+    }
   }
 
   const locationLabel = profile?.city
@@ -46,7 +78,7 @@ export default async function AuctionDetailPage({
       heroClassName="bg-[linear-gradient(145deg,#2d1814_0%,#8d321b_46%,#f75d36_100%)] text-white shadow-[0_35px_110px_rgba(45,24,20,0.28)]"
       locationLabel={locationLabel}
     >
-      <AuctionDetailClient initialAuction={auction} />
+      <AuctionDetailClient initialAuction={auction} distanceMiles={distanceMiles} />
     </ConsumerShell>
   );
 }
