@@ -1,4 +1,5 @@
 import {
+  boolean,
   pgTable,
   text,
   timestamp,
@@ -43,6 +44,13 @@ export const consumerProfiles = pgTable(
       withTimezone: true,
       mode: "date",
     }).notNull(),
+    hasMockCardOnFile: boolean("has_mock_card_on_file").notNull().default(false),
+    mockCardBrand: text("mock_card_brand"),
+    mockCardLast4: text("mock_card_last4"),
+    mockCardAddedAt: timestamp("mock_card_added_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

@@ -51,6 +51,13 @@ export const auctions = pgTable(
     result: auctionResultEnum("result").notNull().default("pending"),
     reservePriceCents: integer("reserve_price_cents").notNull(),
     buyoutPriceCents: integer("buyout_price_cents"),
+    currentBidAmountCents: integer("current_bid_amount_cents"),
+    currentLeaderBidId: uuid("current_leader_bid_id"),
+    currentLeaderUserId: uuid("current_leader_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    bidCount: integer("bid_count").notNull().default(0),
+    lastBidAt: timestamp("last_bid_at", { withTimezone: true }),
     scheduledStartAt: timestamp("scheduled_start_at", { withTimezone: true }),
     scheduledEndAt: timestamp("scheduled_end_at", { withTimezone: true }).notNull(),
     endedAt: timestamp("ended_at", { withTimezone: true }),

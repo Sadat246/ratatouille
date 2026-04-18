@@ -64,7 +64,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Research**: Likely (time-driven settlement + bid concurrency)
 **Research topics**: scheduled-task options on Vercel (cron jobs, Inngest, Trigger.dev) for auction end settlement, race-safe bid handling in Postgres (row locks / transactions), buyout-wins-immediately semantics, commission calculation placement in schema and settlement flow
 **Plans**:
-- 04-01 — Auction engine foundation, settlement service, and bid APIs — Planned
+- 04-01 — Auction engine foundation, settlement service, and bid APIs — Complete
 - 04-02 — Consumer bidding feed, detail, and My Bids lanes — Planned
 - 04-03 — Seller auction board, push notifications, and phase completion — Planned
 
@@ -106,7 +106,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 1. Foundation | 3/3 | Complete | 2026-04-18 |
 | 2. Auth & Onboarding | 4/4 | Complete | 2026-04-18 |
 | 3. Listing Creation | 3/3 | Complete | 2026-04-18 |
-| 4. Auction Engine | 0/3 | Planned | - |
+| 4. Auction Engine | 1/3 | In progress | - |
 | 5. Consumer Feed & Discovery | 0/TBD | Not started | - |
 | 6. Payments (Stripe Test) | 0/TBD | Not started | - |
 | 7. Fulfillment | 0/TBD | Not started | - |
