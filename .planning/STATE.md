@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-04-18)
 ## Current Position
 
 Phase: 5 of 8 (Consumer Feed & Discovery)
-Plan: TBD
-Status: Ready for planning
-Last activity: 2026-04-18 — Completed Phase 4 with seller monitoring, push plumbing, and final auction-phase bookkeeping
+Plan: 4 plans (05-01 through 05-04), 2 waves
+Status: In Progress
+Last activity: 2026-04-18 — Phase 5 executing: geo feed query, UI atoms, feed page composition, detail page
 
 Progress: ███████░░░ 50%
 
