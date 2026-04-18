@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-04-18)
 ## Current Position
 
 Phase: 1 of 8 (Foundation)
-Plan: 01-03 ready
-Status: In progress
-Last activity: 2026-04-18 — Completed 01-02 core schema and migrations
+Plan: 01-03 blocked
+Status: Blocked
+Last activity: 2026-04-18 — Deployed branded shell; hosted DB attach blocked
 
 Progress: ██░░░░░░░░ 25%
 
@@ -45,11 +45,14 @@ Recent decisions affecting current work:
 - Turbopack root is pinned to the repository to avoid parent-workspace inference
 - Core marketplace tables are split by domain module instead of one schema file
 - Money is modeled in integer cents and lifecycle state is modeled with enums across auctions, settlements, and fulfillment
+- Phase 1 shell uses server-first routes with small client-only PWA helpers
+- PWA icons are generated through an app route, and the service worker stays navigation-only with no-store headers
 
 ### Deferred Issues
 
-- Execute 01-03 shell, PWA baseline, and deployment work
-- Complete hosted migration verification after the Neon integration gate is cleared
+- Accept the Neon marketplace terms in Vercel and attach the hosted database resource
+- Set the hosted `DATABASE_URL` and run the committed migration workflow against production
+- Perform the human phone review checkpoint if visual approval is still required before Phase 2 starts
 
 ### Pending Todos
 
@@ -58,6 +61,7 @@ Recent decisions affecting current work:
 ### Blockers/Concerns
 
 - No usable local Postgres runtime is available on this machine right now; Docker is installed but its daemon is not running, and Postgres CLI tools are absent
+- The linked Vercel project has no environment variables or database resources yet
 - Hosted Neon attachment is blocked until the Vercel account accepts the Neon marketplace terms
 
 ## Session Continuity

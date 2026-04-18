@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**:
 - 01-01 — Bootstrap foundation and toolchain — Complete
 - 01-02 — Core schema and migrations — Complete
-- 01-03 — Branded shell, PWA baseline, and deployment — Planned
+- 01-03 — Branded shell, PWA baseline, and deployment — In progress (live shell deployed; DB attach blocked)
 
 ### Phase 2: Auth & Onboarding
 **Goal**: Users can sign in with Google as either a business or a consumer, with role persisted and protected routes enforced.
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/3 | In progress | - |
+| 1. Foundation | 2/3 | Blocked | - |
 | 2. Auth & Onboarding | 0/TBD | Not started | - |
 | 3. Listing Creation | 0/TBD | Not started | - |
 | 4. Auction Engine | 0/TBD | Not started | - |
