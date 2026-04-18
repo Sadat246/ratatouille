@@ -6,6 +6,7 @@ export * from "./auctions";
 export * from "./payments";
 export * from "./fulfillment";
 export * from "./push";
+export * from "./stripe-webhook-events";
 
 import { bids, auctions } from "./auctions";
 import { businesses, businessMemberships } from "./businesses";
@@ -15,6 +16,7 @@ import { accounts, sessions, users, verificationTokens } from "./identity";
 import { listingImages, listings } from "./listings";
 import { settlements } from "./payments";
 import { pushSubscriptions } from "./push";
+import { stripeWebhookEvents } from "./stripe-webhook-events";
 
 export const schema = {
   users,
@@ -31,6 +33,7 @@ export const schema = {
   settlements,
   fulfillments,
   pushSubscriptions,
+  stripeWebhookEvents,
 };
 
 export type AppSchema = typeof schema;
