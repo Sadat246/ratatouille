@@ -30,7 +30,7 @@ export function getStripe(): Stripe {
   return cachedStripe;
 }
 
-// Proxy so downstream modules can write `stripe.customers.create(...)` and
+// Proxy so downstream modules can reference the `stripe` const directly and
 // still get lazy initialization. The first property access triggers
 // `getStripe()`; thereafter all calls route to the cached SDK instance.
 export const stripe: Stripe = new Proxy({} as Stripe, {
