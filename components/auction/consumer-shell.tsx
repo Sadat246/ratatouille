@@ -17,7 +17,6 @@ const consumerNavItems = [
   { href: "/shop", label: "Home", icon: "spark" as const },
   { href: "/shop/bids", label: "My Bids", icon: "chart" as const },
   { href: "/shop/purchases", label: "Purchases", icon: "box" as const },
-  { href: "/shop/alerts", label: "Alerts", icon: "bell" as const },
 ];
 
 export function ConsumerShell({

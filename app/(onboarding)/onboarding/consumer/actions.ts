@@ -2,6 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 import { db } from "@/db/client";
 import { consumerProfiles, users } from "@/db/schema";
@@ -17,6 +18,19 @@ function pickValue(formData: FormData, key: string) {
 }
 
 export async function completeConsumerOnboarding(formData: FormData) {
+  try {
+    return await runCompleteConsumerOnboarding(formData);
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    console.error("[onboarding/consumer] action failed", error);
+    const detail = error instanceof Error ? error.message : String(error);
+    return {
+      error: `Could not finish shopper setup: ${detail}`,
+    };
+  }
+}
+
+async function runCompleteConsumerOnboarding(formData: FormData) {
   const session = await requireSession("/signin/consumer");
 
   if (session.user.role === "business") {

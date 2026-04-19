@@ -39,7 +39,11 @@ export function MyBidsList({ items }: MyBidsListProps) {
       {items.map((item) => (
         <AuctionCard
           key={item.id}
-          href={`/shop/${item.id}`}
+          href={
+            item.participationState === "won"
+              ? `/shop/orders?focus=${item.id}`
+              : `/shop/${item.id}`
+          }
           eyebrow={item.business.name}
           title={item.listing.title}
           description={`Your top bid ${formatCurrency(item.myTopBidAmountCents)} across ${item.myBidCount} ${item.myBidCount === 1 ? "move" : "moves"}.`}

@@ -6,19 +6,11 @@ import type { ReactNode } from "react";
 
 type BuyerHeaderProps = {
   activeHref: string;
-  locationLabel: string;
   signOutSlot: ReactNode;
 };
 
-const navLinks = [
-  { href: "/shop", label: "Home" },
-  { href: "/shop/bids", label: "My Bids" },
-  { href: "/shop/alerts", label: "Alerts" },
-];
-
 export function BuyerHeader({
   activeHref,
-  locationLabel,
   signOutSlot,
 }: BuyerHeaderProps) {
   const router = useRouter();
@@ -39,33 +31,6 @@ export function BuyerHeader({
 
   return (
     <header className="sticky top-0 z-30 w-full border-b border-[#ececec] bg-white">
-      <div className="border-b border-[#f3f3f3] bg-[#fafafa]">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-2 text-[0.72rem] font-medium text-[#6a6a6a] lg:px-10">
-          <span className="inline-flex items-center gap-2">
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20s5-4.8 5-9a5 5 0 1 0-10 0c0 4.2 5 9 5 9Z" />
-              <circle cx="12" cy="11" r="1.8" fill="currentColor" stroke="none" />
-            </svg>
-            {locationLabel}
-          </span>
-          <div className="flex items-center gap-5">
-            {navLinks.map((item) => {
-              const active = item.href === activeHref;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`transition-colors ${active ? "text-[#3d8d5c]" : "hover:text-[#1a1a1a]"}`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-            {signOutSlot}
-          </div>
-        </div>
-      </div>
-
       <div className="mx-auto flex w-full max-w-7xl items-center gap-6 px-6 py-4 lg:px-10">
         <Link href="/shop" className="flex items-center gap-2">
           <span className="flex h-10 w-10 items-center justify-center rounded-[0.9rem] bg-[#3d8d5c] text-white">
@@ -123,17 +88,7 @@ export function BuyerHeader({
               <path d="M6 8h12l-1 12H7ZM9 8V6a3 3 0 0 1 6 0v2" />
             </svg>
           </Link>
-          <Link
-            href="/shop/alerts"
-            aria-label="Alerts"
-            className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#e4e4e4] text-[#4a4a4a] transition-colors hover:border-[#3d8d5c] hover:text-[#3d8d5c] ${
-              activeHref === "/shop/alerts" ? "border-[#3d8d5c] text-[#3d8d5c]" : ""
-            }`}
-          >
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M8 18h8m-7-2V10a3 3 0 1 1 6 0v6l1.5 2H7.5Z" />
-            </svg>
-          </Link>
+          {signOutSlot}
         </div>
       </div>
 
