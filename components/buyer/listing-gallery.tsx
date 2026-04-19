@@ -28,7 +28,7 @@ export function ListingGallery({ images }: ListingGalleryProps) {
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-[#ececec] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]">
+      <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-[#ececec] bg-[linear-gradient(140deg,#f3fbf5_0%,#cbe8d8_48%,#7ab89a_100%)]">
         <svg
           aria-hidden="true"
           viewBox="0 0 64 64"
@@ -72,7 +72,7 @@ export function ListingGallery({ images }: ListingGalleryProps) {
               onClick={() => emblaApi?.scrollTo(i)}
               className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all sm:h-20 sm:w-20 ${
                 i === selectedIndex
-                  ? "border-[#f75d36]"
+                  ? "border-[#3d8d5c]"
                   : "border-[#ececec] hover:border-[#cfcfcf]"
               }`}
             >

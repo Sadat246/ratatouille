@@ -55,7 +55,7 @@ export function BuyerHeader({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`transition-colors ${active ? "text-[#f75d36]" : "hover:text-[#1a1a1a]"}`}
+                  className={`transition-colors ${active ? "text-[#3d8d5c]" : "hover:text-[#1a1a1a]"}`}
                 >
                   {item.label}
                 </Link>
@@ -68,19 +68,19 @@ export function BuyerHeader({
 
       <div className="mx-auto flex w-full max-w-7xl items-center gap-6 px-6 py-4 lg:px-10">
         <Link href="/shop" className="flex items-center gap-2">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[0.9rem] bg-[#f75d36] text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[0.9rem] bg-[#3d8d5c] text-white">
             <svg aria-hidden="true" viewBox="0 0 64 64" className="h-6 w-6" fill="currentColor">
               <path d="M17 48V16h14.5c8 0 14.2 4.1 14.2 11.7 0 6.2-3.8 10-10 11.6L47 48h-8.5l-9.3-8h-4.9v8Zm8.7-15h5.1c4.4 0 6.4-1.8 6.4-4.9 0-3.2-2-4.8-6.4-4.8h-5.1Z" />
             </svg>
           </span>
           <span className="text-lg font-semibold tracking-[-0.03em] text-[#1a1a1a]">
-            Ratatouille<span className="text-[#f75d36]">.</span>
+            Ratatouille<span className="text-[#3d8d5c]">.</span>
           </span>
         </Link>
 
         <form
           onSubmit={handleSubmit}
-          className="hidden flex-1 items-center overflow-hidden rounded-full border border-[#e4e4e4] bg-white focus-within:border-[#f75d36] md:flex"
+          className="hidden flex-1 items-center overflow-hidden rounded-full border border-[#e4e4e4] bg-white focus-within:border-[#3d8d5c] md:flex"
         >
           <button
             type="button"
@@ -115,8 +115,8 @@ export function BuyerHeader({
           <Link
             href="/shop/bids"
             aria-label="My bids"
-            className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#e4e4e4] text-[#4a4a4a] transition-colors hover:border-[#f75d36] hover:text-[#f75d36] ${
-              activeHref === "/shop/bids" ? "border-[#f75d36] text-[#f75d36]" : ""
+            className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#e4e4e4] text-[#4a4a4a] transition-colors hover:border-[#3d8d5c] hover:text-[#3d8d5c] ${
+              activeHref === "/shop/bids" ? "border-[#3d8d5c] text-[#3d8d5c]" : ""
             }`}
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -126,8 +126,8 @@ export function BuyerHeader({
           <Link
             href="/shop/alerts"
             aria-label="Alerts"
-            className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#e4e4e4] text-[#4a4a4a] transition-colors hover:border-[#f75d36] hover:text-[#f75d36] ${
-              activeHref === "/shop/alerts" ? "border-[#f75d36] text-[#f75d36]" : ""
+            className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#e4e4e4] text-[#4a4a4a] transition-colors hover:border-[#3d8d5c] hover:text-[#3d8d5c] ${
+              activeHref === "/shop/alerts" ? "border-[#3d8d5c] text-[#3d8d5c]" : ""
             }`}
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -138,7 +138,7 @@ export function BuyerHeader({
       </div>
 
       <form onSubmit={handleSubmit} className="mx-auto w-full max-w-7xl px-6 pb-3 md:hidden">
-        <div className="flex items-center overflow-hidden rounded-full border border-[#e4e4e4] bg-white focus-within:border-[#f75d36]">
+        <div className="flex items-center overflow-hidden rounded-full border border-[#e4e4e4] bg-white focus-within:border-[#3d8d5c]">
           <div className="flex flex-1 items-center gap-2 px-4">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-[#9a9a9a]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="7" />

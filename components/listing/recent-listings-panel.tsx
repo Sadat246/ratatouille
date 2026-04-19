@@ -44,7 +44,7 @@ function getCategoryLabel(category: string) {
 function getStatusTone(status: string) {
   switch (status) {
     case "active":
-      return "bg-[#e1edf3] text-[#365c8e]";
+      return "bg-[#e6f1ea] text-[#1e5a37]";
     case "scheduled":
       return "bg-[#f5efe1] text-[#7d6a3a]";
     case "draft":

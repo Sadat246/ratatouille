@@ -130,7 +130,7 @@ export function BusinessWizard({
   });
 
   const inputClass =
-    "rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]";
+    "rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]";
 
   return (
     <form

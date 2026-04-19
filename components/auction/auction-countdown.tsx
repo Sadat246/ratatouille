@@ -105,9 +105,9 @@ export function AuctionCountdown({
       label = remainingMs <= 0 ? "Closing..." : formatRemaining(remainingMs);
     }
     toneClass = urgent
-      ? "animate-pulse border-[#ffb3a1] bg-[#f75d36] text-white shadow-[0_18px_45px_rgba(247,93,54,0.32)]"
+      ? "animate-pulse border-[#a8d5b8] bg-[#3d8d5c] text-white shadow-[0_18px_45px_rgba(61,141,92,0.32)]"
       : endingSoon
-        ? "border-[#ffd0a6] bg-[#fff0dc] text-[#ad5415]"
+        ? "border-[#bcdfc7] bg-[#eaf6ee] text-[#1e5a37]"
         : "border-[#f1dcc7] bg-[rgba(255,248,242,0.86)] text-[#7a513c]";
   } else if (endedMs) {
     label = `${formatAuctionResultLabel(status, result)} · ${formatEndedAtUtc(endedMs)}`;

@@ -205,7 +205,7 @@ export function PushOptInPanel({
             type="button"
             onClick={() => void enablePush()}
             disabled={isPending || isSubscribed}
-            className="inline-flex items-center justify-center rounded-full bg-[#4a7ab8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#365c8e] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-full bg-[#3d8d5c] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1e5a37] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Enable alerts
           </button>
