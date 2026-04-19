@@ -25,6 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Fulfillment** — Pickup codes + Uber Direct delivery *(code complete 2026-04-18; live Uber/Stripe walkthrough still requires user-supplied secrets)*
 - [ ] **Phase 8: Notifications & Demo Polish** — Push notifications + deterministic demo tooling *(implementation landed 2026-04-18; final human walkthrough still pending with VAPID-enabled browsers)*
 - [x] **Phase 9: Error Logging & Bug Reports** — User action/outcome telemetry + floating bottom-right bug-report widget (support-chat style: screenshot + last 10 actions + description) persisted as LLM-retrievable Markdown *(implemented 2026-04-18; local widget/build verification plus CLI `list`/`get` smoke path complete)*
+- [ ] **Phase 10: Desktop App** — Create a desktop version of the web app
 
 ## Phase Details
 
@@ -126,10 +127,23 @@ Plans:
 - 09-02 — Global action trail capture, screenshot preview, and floating report widget — Complete
 - 09-03 — LLM-facing CLI, operator docs, and phase verification — Complete
 
+### Phase 10: Desktop App
+**Goal**: [To be planned] Create a desktop version of the web app.
+**Depends on**: Phase 9
+**Research**: Likely (desktop shell choice + reuse strategy)
+**Research topics**: [To be added during planning]
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run `/gsd:plan-phase 10` to break down)
+
+**Details:**
+[To be added during planning]
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -142,3 +156,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Fulfillment | 3/3 | Code complete (awaiting live Uber/Stripe UAT) | 2026-04-18 |
 | 8. Notifications & Demo Polish | 2/4 complete (+2 pending verify) | Implementation complete; awaiting human walkthrough | - |
 | 9. Error Logging & Bug Reports | 3/3 | Complete | 2026-04-18 |
+| 10. Desktop App | 0 plans | Not planned | - |

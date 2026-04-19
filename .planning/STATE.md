@@ -110,6 +110,7 @@ Recent decisions affecting current work:
 
 - 2026-04-18 — Phase 9 added: Error Logging & Bug Reports (user action/outcome telemetry + floating bottom-right bug-report widget — support-chat style, screenshot + last-10-actions buffer + description; reports persisted as Markdown retrievable by LLM CLI)
 - 2026-04-18 — Phase 9 planned and executed: 09-01..09-03 shipped immutable bug-report persistence, the root-mounted widget, and the `list`/`get` CLI loop.
+- 2026-04-19 — Phase 10 added: Desktop App (create a desktop version of the web app)
 
 ### Blockers/Concerns
 
