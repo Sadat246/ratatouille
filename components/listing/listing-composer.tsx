@@ -9,6 +9,7 @@ import { optimizeListingImage, createListingImagePreview, restoreDraftImageFile 
 import { getPackageDateLabel, isAuctionEndBeforePackageDate, parsePackageDateInput } from "@/lib/listings/date-parser";
 import { clearListingDraft, readListingDraft, requestPersistentListingDraftStorage, saveListingDraft } from "@/lib/listings/draft-store";
 import type {
+  GeminiProductAutofill,
   GeminiSealAssessment,
   ListingGeminiAutofillResult,
 } from "@/lib/listings/ai-autofill-types";
@@ -256,11 +257,15 @@ async function requestListingOcr(file: File): Promise<ListingOcrResult> {
 async function requestListingGeminiAutofill(params: {
   product: File;
   seal?: File;
+  ocrRawText?: string;
 }): Promise<ListingGeminiAutofillResult> {
   const formData = new FormData();
   formData.set("product", params.product);
   if (params.seal) {
     formData.set("seal", params.seal);
+  }
+  if (params.ocrRawText?.trim()) {
+    formData.set("ocrRawText", params.ocrRawText.trim());
   }
 
   const response = await fetch("/api/listings/ai-autofill", {
@@ -295,7 +300,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     tone: "success" | "error";
     message: string;
   } | null>(null);
-  const [ocrFilledPackageDate, setOcrFilledPackageDate] = useState(false);
+  const [dateAutofillSource, setDateAutofillSource] = useState<"vision" | "gemini" | null>(null);
   const [geminiHint, setGeminiHint] = useState<string | null>(null);
   const [geminiBusy, setGeminiBusy] = useState<"idle" | "product" | "seal">("idle");
   const [sealAiAssessment, setSealAiAssessment] = useState<GeminiSealAssessment | null>(null);
@@ -422,15 +427,77 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     }));
   }
 
+  function applyGeminiProductSuggestions(p: GeminiProductAutofill): boolean {
+    const v = getValues();
+    let filledPackageDateFromGemini = false;
+
+    if (p.title?.trim() && !v.title.trim()) {
+      setValue("title", p.title.trim(), { shouldDirty: true });
+    }
+    if (p.category && !v.category) {
+      setValue("category", p.category, { shouldDirty: true });
+      if (p.category !== "other") {
+        setValue("customCategory", "", { shouldDirty: true });
+      }
+    }
+    if (p.category === "other" && p.customCategory?.trim()) {
+      setValue("category", "other", { shouldDirty: true });
+      if (!v.customCategory.trim()) {
+        setValue("customCategory", p.customCategory.trim(), { shouldDirty: true });
+      }
+    }
+    if (p.description?.trim() && !v.description.trim()) {
+      setValue("description", p.description.trim(), { shouldDirty: true });
+    }
+
+    if (
+      p.packageDate &&
+      parsePackageDateInput(p.packageDate) &&
+      !v.packageDate.trim()
+    ) {
+      filledPackageDateFromGemini = true;
+      setDateAutofillSource("gemini");
+      setValue("packageDate", p.packageDate, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      if (p.packageDateKind) {
+        setValue("packageDateKind", p.packageDateKind, { shouldDirty: true });
+      }
+      if (p.packageDateLabel?.trim()) {
+        setValue("packageDateLabel", p.packageDateLabel.trim(), { shouldDirty: true });
+      } else if (p.packageDateKind && p.packageDateKind !== "other") {
+        setValue("packageDateLabel", getPackageDateLabel(p.packageDateKind), {
+          shouldDirty: true,
+        });
+      }
+      const auctionEndsAtLocal = getValues("auctionEndsAtLocal");
+      if (
+        !auctionEndsAtLocal ||
+        !isAuctionEndBeforePackageDate(
+          new Date(auctionEndsAtLocal).toISOString(),
+          p.packageDate,
+        )
+      ) {
+        setValue("auctionEndsAtLocal", buildSuggestedAuctionEnd(p.packageDate), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+    }
+
+    return filledPackageDateFromGemini;
+  }
+
   function applyOcrResult(result: ListingOcrResult) {
     setValue("ocrRawText", result.rawText, { shouldDirty: true });
 
     if (result.status !== "succeeded") {
-      setOcrFilledPackageDate(false);
+      setDateAutofillSource(null);
       return;
     }
 
-    setOcrFilledPackageDate(true);
+    setDateAutofillSource("vision");
     setValue("packageDate", result.packageDate, {
       shouldDirty: true,
       shouldValidate: true,
@@ -460,30 +527,13 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
       return;
     }
 
-    const v = getValues();
-    const p = result.product;
+    const filledPackageDateFromGemini = applyGeminiProductSuggestions(result.product);
 
     if (mode === "product") {
-      if (p.title?.trim() && !v.title.trim()) {
-        setValue("title", p.title.trim(), { shouldDirty: true });
-      }
-      if (p.category && !v.category) {
-        setValue("category", p.category, { shouldDirty: true });
-        if (p.category !== "other") {
-          setValue("customCategory", "", { shouldDirty: true });
-        }
-      }
-      if (p.category === "other" && p.customCategory?.trim()) {
-        setValue("category", "other", { shouldDirty: true });
-        if (!v.customCategory.trim()) {
-          setValue("customCategory", p.customCategory.trim(), { shouldDirty: true });
-        }
-      }
-      if (p.description?.trim() && !v.description.trim()) {
-        setValue("description", p.description.trim(), { shouldDirty: true });
-      }
       setGeminiHint(
-        "Title, category, and listing notes were suggested from the product photo (Gemini). Review and edit before publishing.",
+        filledPackageDateFromGemini
+          ? "Suggested title, category, notes, and/or package date (Gemini; uses OCR text when included). Review before publishing."
+          : "Title, category, and listing notes were suggested from the product photo (Gemini). Review and edit before publishing.",
       );
     }
 
@@ -495,12 +545,16 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
           notes: result.seal.notes,
         });
         setGeminiHint(
-          "Seal photo analyzed (Gemini). This is a visual hint only — you are responsible for what you list.",
+          filledPackageDateFromGemini
+            ? "Seal assessment below; package date may also have been filled from OCR text (Gemini). Verify before publishing."
+            : "Seal photo analyzed (Gemini). This is a visual hint only — you are responsible for what you list.",
         );
       } else {
         setSealAiAssessment(null);
         setGeminiHint(
-          "Gemini did not return a seal assessment. Check the photo yourself before publishing.",
+          filledPackageDateFromGemini
+            ? "Gemini did not return a seal assessment; package date may have been updated from OCR text. Check the seal yourself before publishing."
+            : "Gemini did not return a seal assessment. Check the photo yourself before publishing.",
         );
       }
     }
@@ -510,7 +564,11 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     setGeminiBusy("product");
     setGeminiHint(null);
     try {
-      const result = await requestListingGeminiAutofill({ product: file });
+      const ocrRawText = getValues("ocrRawText").trim();
+      const result = await requestListingGeminiAutofill({
+        product: file,
+        ocrRawText: ocrRawText || undefined,
+      });
       applyGeminiAutofill(result, "product");
     } finally {
       setGeminiBusy("idle");
@@ -521,9 +579,11 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     setGeminiBusy("seal");
     setGeminiHint(null);
     try {
+      const ocrRawText = getValues("ocrRawText").trim();
       const result = await requestListingGeminiAutofill({
         product: productFile,
         seal: sealFile,
+        ocrRawText: ocrRawText || undefined,
       });
       applyGeminiAutofill(result, "seal");
     } finally {
@@ -597,6 +657,21 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             void runGeminiForSealPhoto(productFile, restoredFile);
           } catch {
             /* seal autofill is optional */
+          }
+        }
+      }
+      if (kind === "expiry") {
+        const productAccepted = photosRef.current.product?.accepted;
+        if (
+          productAccepted &&
+          ocr?.status === "manual_required" &&
+          ocr.rawText?.trim()
+        ) {
+          try {
+            const productFile = restoreDraftImageFile(productAccepted);
+            void runGeminiForProductPhoto(productFile);
+          } catch {
+            /* Gemini assist is optional */
           }
         }
       }
@@ -894,7 +969,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
       });
 
       reset(buildDefaultValues());
-      setOcrFilledPackageDate(false);
+      setDateAutofillSource(null);
       setGeminiHint(null);
       setSealAiAssessment(null);
       setBanner({
@@ -1130,9 +1205,14 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
               className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
               type="date"
             />
-            {ocrFilledPackageDate ? (
+            {dateAutofillSource === "vision" ? (
               <p className="text-xs text-[#2f6b4d]">
                 Autofilled from Cloud Vision OCR on your package-date photo — verify before publish.
+              </p>
+            ) : dateAutofillSource === "gemini" ? (
+              <p className="text-xs text-[#2f6b4d]">
+                Package date suggested by Gemini from your OCR text (and product photo context) —
+                verify before publish.
               </p>
             ) : null}
             {errors.packageDate ? (

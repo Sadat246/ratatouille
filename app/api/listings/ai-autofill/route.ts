@@ -28,6 +28,7 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const product = formData.get("product");
   const seal = formData.get("seal");
+  const ocrRawTextField = formData.get("ocrRawText");
 
   if (!(product instanceof File) || product.size === 0) {
     return NextResponse.json(
@@ -37,10 +38,15 @@ export async function POST(request: Request) {
   }
 
   const sealFile = seal instanceof File && seal.size > 0 ? seal : undefined;
+  const ocrRawText =
+    typeof ocrRawTextField === "string" && ocrRawTextField.trim().length > 0
+      ? ocrRawTextField
+      : undefined;
 
   const result = await runListingGeminiAutofill({
     product,
     seal: sealFile,
+    ocrRawText,
   });
 
   return NextResponse.json(result);

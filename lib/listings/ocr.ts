@@ -7,11 +7,7 @@ import { ImageAnnotatorClient } from "@google-cloud/vision";
 import { getOptionalEnv, getOptionalMultilineEnv } from "@/lib/env";
 
 import type { ListingOcrResult } from "./draft-types";
-import {
-  collectPackageDateCandidates,
-  detectPackageDateLabel,
-  parsePackageDateCandidate,
-} from "./date-parser";
+import { parseBestEffortPackageDateFromOcr } from "./date-parser";
 
 let cachedVisionClient: ImageAnnotatorClient | null = null;
 
@@ -102,20 +98,16 @@ export async function runListingOcr(file: File): Promise<ListingOcrResult> {
         response.textAnnotations?.[0]?.description?.trim() ??
         "",
     );
-    const detectedLabel = detectPackageDateLabel(rawText);
+    const best = parseBestEffortPackageDateFromOcr(rawText);
 
-    for (const candidate of collectPackageDateCandidates(rawText)) {
-      const packageDate = parsePackageDateCandidate(candidate);
-
-      if (packageDate) {
-        return {
-          status: "succeeded",
-          rawText,
-          packageDate,
-          packageDateKind: detectedLabel.packageDateKind,
-          packageDateLabel: detectedLabel.packageDateLabel,
-        };
-      }
+    if (best) {
+      return {
+        status: "succeeded",
+        rawText,
+        packageDate: best.packageDate,
+        packageDateKind: best.packageDateKind,
+        packageDateLabel: best.packageDateLabel,
+      };
     }
 
     return {
@@ -125,7 +117,7 @@ export async function runListingOcr(file: File): Promise<ListingOcrResult> {
       packageDateKind: "other",
       packageDateLabel: "",
       reason: rawText
-        ? "OCR found text but could not confidently parse a supported package date."
+        ? "OCR captured text but no date could be parsed automatically. Check the raw text below, type the date if needed, or let Gemini suggest it once GEMINI_API_KEY is set."
         : "OCR could not find readable package-date text in that image.",
     };
   } catch (error) {

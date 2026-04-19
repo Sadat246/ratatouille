@@ -56,7 +56,7 @@ function getOcrHeading(ocr: ListingOcrResult) {
     case "succeeded":
       return `OCR found ${ocr.packageDate}`;
     case "manual_required":
-      return "OCR needs a manual date";
+      return "OCR captured text — confirm the date below";
     default:
       return "OCR is unavailable right now";
   }
@@ -160,7 +160,8 @@ export function PhotoSlotCard({
           <p className="mt-1.5 leading-6">
             {ocr.status === "succeeded"
               ? `Date label: ${ocr.packageDateLabel || "Manual label"}`
-              : ocr.reason || "Type the package date manually and keep going."}
+              : ocr.reason ||
+                "Check the raw OCR text in the form, enter the date if needed, or use Gemini (when configured) to suggest it."}
           </p>
         </div>
       ) : null}
