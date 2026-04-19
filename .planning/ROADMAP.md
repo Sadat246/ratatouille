@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Fulfillment** — Pickup codes + Uber Direct delivery *(code complete 2026-04-18; live Uber/Stripe walkthrough still requires user-supplied secrets)*
 - [ ] **Phase 8: Notifications & Demo Polish** — Push notifications + deterministic demo tooling *(implementation landed 2026-04-18; final human walkthrough still pending with VAPID-enabled browsers)*
 - [x] **Phase 9: Error Logging & Bug Reports** — User action/outcome telemetry + floating bottom-right bug-report widget (support-chat style: screenshot + last 10 actions + description) persisted as LLM-retrievable Markdown *(implemented 2026-04-18; local widget/build verification plus CLI `list`/`get` smoke path complete)*
-- [ ] **Phase 10: Desktop App** — Create a desktop version of the web app
+- [ ] **Phase 10: Desktop App** — Browser-only desktop-responsive app refresh *(10-01 shopper desktop layout complete; 10-02 seller workstation pending)*
 
 ## Phase Details
 
@@ -128,17 +128,20 @@ Plans:
 - 09-03 — LLM-facing CLI, operator docs, and phase verification — Complete
 
 ### Phase 10: Desktop App
-**Goal**: [To be planned] Create a desktop version of the web app.
+**Goal**: Create a desktop-first browser experience for both shopper and seller lanes without forking the product into a separate app shell.
 **Depends on**: Phase 9
-**Research**: Likely (desktop shell choice + reuse strategy)
-**Research topics**: [To be added during planning]
-**Plans**: 0 plans
+**Research**: Likely (responsive shell reuse + layout density strategy)
+**Research topics**: responsive shell architecture for mobile + desktop coexistence, shopper marketplace desktop patterns (filter rail + dense card grid), seller workstation patterns (sidebar + focused workspace), install-prompt and mobile-nav behavior on large screens
+**Plans**: 2 plans
 
 Plans:
-- [ ] TBD (run `/gsd:plan-phase 10` to break down)
+- [x] 10-01-PLAN.md — Shared desktop shell foundation and shopper marketplace layout — Complete
+- [ ] 10-02-PLAN.md — Seller workstation layout and desktop operations surfaces
 
 **Details:**
-[To be added during planning]
+- Desktop remains the same Next.js product and routes; there is no Electron/Tauri/native wrapper in scope.
+- Shopper desktop should read like a browse-heavy marketplace: persistent filtering, denser card grid, and a main workspace that rewards scanning many auctions.
+- Seller desktop should read like an all-day operations console: sidebar navigation, wider workspace, and less mobile-card stacking across desk/live/fulfillment/outcomes.
 
 ## Progress
 
@@ -156,4 +159,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Fulfillment | 3/3 | Code complete (awaiting live Uber/Stripe UAT) | 2026-04-18 |
 | 8. Notifications & Demo Polish | 2/4 complete (+2 pending verify) | Implementation complete; awaiting human walkthrough | - |
 | 9. Error Logging & Bug Reports | 3/3 | Complete | 2026-04-18 |
-| 10. Desktop App | 0 plans | Not planned | - |
+| 10. Desktop App | 1/2 | In progress | - |

@@ -11,7 +11,7 @@ type BottomNavProps = {
   items: BottomNavItem[];
 };
 
-function NavIcon({
+export function NavIcon({
   icon,
   active,
 }: {
@@ -84,7 +84,7 @@ function NavIcon({
 
 export function BottomNav({ activeHref, items }: BottomNavProps) {
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex justify-center px-4">
+    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex justify-center px-4 lg:hidden">
       <nav className="pointer-events-auto flex w-full max-w-md items-center justify-between rounded-[1.9rem] border border-white/70 bg-[rgba(255,248,240,0.88)] px-2 py-2 shadow-[0_22px_80px_rgba(54,30,16,0.14)] backdrop-blur sm:max-w-lg">
         {items.map((item) => {
           const active = item.href === activeHref;

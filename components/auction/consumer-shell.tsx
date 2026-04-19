@@ -16,6 +16,7 @@ type ConsumerShellProps = {
 const consumerNavItems = [
   { href: "/shop", label: "Home", icon: "spark" as const },
   { href: "/shop/bids", label: "My Bids", icon: "chart" as const },
+  { href: "/shop/orders", label: "Orders", icon: "box" as const },
   { href: "/shop/alerts", label: "Alerts", icon: "bell" as const },
 ];
 
@@ -35,12 +36,12 @@ export function ConsumerShell({
       description={description}
       heroClassName={heroClassName}
       heroAside={
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-2 lg:items-start">
           <span className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-[#fff1df]">
             {locationLabel}
           </span>
           <SignOutButton
-            className="inline-flex items-center justify-center rounded-full border border-white/26 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white"
+            className="inline-flex items-center justify-center rounded-full border border-white/26 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white lg:self-start"
             label="Sign out"
           />
         </div>

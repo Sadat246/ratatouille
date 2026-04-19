@@ -76,11 +76,11 @@ export function InstallPromptBanner() {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-[72px] z-20 px-4 transition-transform duration-200 ${
+      className={`fixed bottom-[72px] left-4 right-4 z-20 transition-transform duration-200 sm:left-auto sm:max-w-sm lg:bottom-8 lg:left-8 lg:right-auto ${
         visible ? "translate-y-0" : "translate-y-full"
       }`}
     >
-      <div className="rounded-[1.6rem] border border-[#d8e7db] bg-[rgba(238,246,240,0.96)] p-4 shadow-[0_16px_60px_rgba(43,69,56,0.14)] backdrop-blur-sm">
+      <div className="rounded-[1.6rem] border border-[#d8e7db] bg-[rgba(238,246,240,0.96)] p-4 shadow-[0_16px_60px_rgba(43,69,56,0.14)] backdrop-blur-sm lg:p-5">
         <div className="flex items-start justify-between gap-3">
           <p className="text-sm leading-6 text-[#234d3d]">
             {isIos

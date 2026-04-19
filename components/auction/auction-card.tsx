@@ -57,15 +57,15 @@ export function AuctionCard({
   return (
     <Link
       href={href}
-      className="group overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_24px_70px_rgba(64,34,20,0.1)] transition-transform hover:-translate-y-0.5"
+      className="group flex h-full overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_24px_70px_rgba(64,34,20,0.1)] transition-transform hover:-translate-y-0.5 lg:rounded-[2.15rem]"
     >
-      <div className="grid gap-4 p-4">
+      <div className="grid h-full w-full gap-4 p-4 lg:gap-5 lg:p-5">
         <div className="grid grid-cols-[1fr_auto] gap-3">
           <div className="min-w-0">
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#aa5838]">
               {eyebrow}
             </p>
-            <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[#22130e]">
+            <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[#22130e] lg:text-[1.35rem]">
               {title}
             </h3>
             {description ? (
@@ -88,10 +88,10 @@ export function AuctionCard({
               src={imageUrl}
               alt=""
               aria-hidden="true"
-              className="aspect-[4/3] w-full rounded-[1.6rem] object-cover border border-[#f4ddcf]"
+              className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] object-cover lg:aspect-[5/4]"
             />
           ) : (
-            <div className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]" />
+            <div className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)] lg:aspect-[5/4]" />
           )}
           {categoryBadge ? (
             <span
@@ -107,7 +107,7 @@ export function AuctionCard({
           {metrics.map((metric) => (
             <div
               key={metric.label}
-              className="rounded-[1.4rem] border border-[#f2ded0] bg-[rgba(255,249,244,0.9)] px-3 py-3"
+              className="rounded-[1.4rem] border border-[#f2ded0] bg-[rgba(255,249,244,0.9)] px-3 py-3 lg:px-4 lg:py-3.5"
             >
               <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[#9d6d56]">
                 {metric.label}
@@ -137,9 +137,9 @@ export function AuctionCard({
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between gap-3 rounded-[1.5rem] bg-[#f8efe8] px-3 py-3">
+        <div className="mt-auto flex items-center justify-between gap-3 rounded-[1.5rem] bg-[#f8efe8] px-3 py-3 lg:px-4">
           <span className="text-sm font-medium text-[#684b3c]">
-            Tap in for live detail and actions
+            Open live detail and actions
           </span>
           <AuctionCountdown
             endsAt={endsAt}
