@@ -353,12 +353,34 @@ export function subscribeToBugReportSnapshot(listener: RuntimeListener) {
   };
 }
 
+/** Stable snapshot for SSR / `useSyncExternalStore` server snapshot (must be referentially stable). */
+const BUG_REPORT_SERVER_SNAPSHOT: { actions: BugReportAction[] } = {
+  actions: [],
+};
+
+let bugReportSnapshotCache: { actions: BugReportAction[] } | null = null;
+let bugReportSnapshotActionsRef: BugReportAction[] | null = null;
+
 export function getBugReportSnapshot() {
   const runtime = getRuntime();
 
-  return {
-    actions: runtime?.actions ?? [],
-  };
+  if (!runtime) {
+    return BUG_REPORT_SERVER_SNAPSHOT;
+  }
+
+  const actions = runtime.actions;
+  if (bugReportSnapshotActionsRef === actions && bugReportSnapshotCache) {
+    return bugReportSnapshotCache;
+  }
+
+  bugReportSnapshotActionsRef = actions;
+  bugReportSnapshotCache = { actions };
+  return bugReportSnapshotCache;
+}
+
+/** Explicit server snapshot for `useSyncExternalStore` (same ref as `getBugReportSnapshot` when there is no runtime). */
+export function getBugReportServerSnapshot() {
+  return BUG_REPORT_SERVER_SNAPSHOT;
 }
 
 export function buildBugReportDraft() {

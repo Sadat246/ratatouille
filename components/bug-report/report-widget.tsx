@@ -6,6 +6,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   buildBugReportDraft,
   ensureBugReportRuntime,
+  getBugReportServerSnapshot,
   getBugReportSnapshot,
   subscribeToBugReportSnapshot,
 } from "@/lib/bug-reports/client-runtime";
@@ -20,7 +21,7 @@ export function ReportWidget() {
   const liveSnapshot = useSyncExternalStore(
     subscribeToBugReportSnapshot,
     getBugReportSnapshot,
-    getBugReportSnapshot,
+    getBugReportServerSnapshot,
   );
   const [description, setDescription] = useState("");
   const [draft, setDraft] = useState<PreviewDraft | null>(null);

@@ -63,7 +63,7 @@ export default async function Home() {
           <div className="flex items-center justify-between gap-3">
             <Wordmark subtitle="Rescue-market shell" />
             <span className="rounded-full border border-[#f5c5a6] bg-[#fff3e7] px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#a24829]">
-              Phase 1 live
+              Through phase 6
             </span>
           </div>
         </section>
