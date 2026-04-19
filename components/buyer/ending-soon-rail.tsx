@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ProductCard } from "@/components/buyer/product-card";
 import {
@@ -32,31 +32,26 @@ function formatPair(ms: number) {
   return [h, m, s].map((v) => String(v).padStart(2, "0"));
 }
 
-function subscribeToTick(callback: () => void) {
-  const id = window.setInterval(callback, 1000);
-  return () => window.clearInterval(id);
-}
-
-function getNowSnapshot() {
-  return Date.now();
-}
-
-function getServerNowSnapshot() {
-  return 0;
-}
-
 export function EndingSoonRail({ items }: EndingSoonRailProps) {
   const railRef = useRef<HTMLDivElement>(null);
-  const now = useSyncExternalStore(
-    subscribeToTick,
-    getNowSnapshot,
-    getServerNowSnapshot,
-  );
+  /** Match AuctionCountdown: no ticking until mounted — avoids useSyncExternalStore hydration mismatch (server 0 vs client Date.now()). */
+  const [mounted, setMounted] = useState(false);
+  const [now, setNow] = useState(0);
+
+  useEffect(() => {
+    setMounted(true);
+    setNow(Date.now());
+    const id = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   if (items.length === 0) return null;
 
   const nearestEnd = getNearestEndMs(items);
-  const remainingMs = nearestEnd && now ? Math.max(0, nearestEnd - now) : 0;
+  const remainingMs =
+    mounted && nearestEnd ? Math.max(0, nearestEnd - now) : 0;
   const [hh, mm, ss] = formatPair(remainingMs);
 
   function scrollBy(direction: 1 | -1) {
@@ -83,11 +78,18 @@ export function EndingSoonRail({ items }: EndingSoonRailProps) {
           </h2>
           {nearestEnd ? (
             <div className="hidden items-center gap-1 sm:flex" suppressHydrationWarning>
-              {[hh, mm, ss].map((unit, idx) => (
-                <span key={idx} className="flex h-7 min-w-[28px] items-center justify-center rounded-md bg-[#f75d36] px-1.5 text-xs font-bold text-white">
-                  {unit}
-                </span>
-              ))}
+              {!mounted ? (
+                <span className="text-xs font-medium text-[#9a9a9a]">—</span>
+              ) : (
+                [hh, mm, ss].map((unit, idx) => (
+                  <span
+                    key={idx}
+                    className="flex h-7 min-w-[28px] items-center justify-center rounded-md bg-[#f75d36] px-1.5 text-xs font-bold text-white"
+                  >
+                    {unit}
+                  </span>
+                ))
+              )}
             </div>
           ) : null}
         </div>

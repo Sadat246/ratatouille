@@ -11,6 +11,7 @@ import {
   listingImages,
   listings,
   settlements,
+  users,
 } from "@/db/schema";
 import { type ListingCategory, listingCategoryValues } from "@/lib/listings/categories";
 import { getNextBidAmountCents, hasMockCardOnFile } from "@/lib/auctions/pricing";
@@ -687,17 +688,24 @@ export type SellerFulfillmentItem = {
   status: string;
   deliveryProvider: string;
   pickupCode: string | null;
+  pickupCodeExpiresAt: Date | null;
   deliveredAt: Date | null;
   updatedAt: Date;
   listing: {
     id: string;
     title: string;
+    packageDate: string | null;
+    expiresAt: Date | null;
   };
   settlement: {
     id: string;
     status: string;
     paymentStatus: string;
   };
+  buyer: {
+    name: string | null;
+    email: string;
+  } | null;
 };
 
 export async function getSellerFulfillments(
@@ -711,17 +719,23 @@ export async function getSellerFulfillments(
       status: fulfillments.status,
       deliveryProvider: fulfillments.deliveryProvider,
       pickupCode: fulfillments.pickupCode,
+      pickupCodeExpiresAt: fulfillments.pickupCodeExpiresAt,
       deliveredAt: fulfillments.deliveredAt,
       updatedAt: fulfillments.updatedAt,
       listingId: listings.id,
       listingTitle: listings.title,
+      listingPackageDate: listings.expiryText,
+      listingExpiresAt: listings.expiresAt,
       settlementId: settlements.id,
       settlementStatus: settlements.status,
       settlementPaymentStatus: settlements.paymentStatus,
+      buyerName: users.name,
+      buyerEmail: users.email,
     })
     .from(fulfillments)
     .innerJoin(settlements, eq(settlements.id, fulfillments.settlementId))
     .innerJoin(listings, eq(listings.id, fulfillments.listingId))
+    .leftJoin(users, eq(users.id, settlements.buyerUserId))
     .where(eq(settlements.businessId, businessId))
     .orderBy(desc(fulfillments.updatedAt))
     .limit(limit);
@@ -732,16 +746,121 @@ export async function getSellerFulfillments(
     status: row.status,
     deliveryProvider: row.deliveryProvider,
     pickupCode: row.pickupCode,
+    pickupCodeExpiresAt: row.pickupCodeExpiresAt,
     deliveredAt: row.deliveredAt,
     updatedAt: row.updatedAt,
     listing: {
       id: row.listingId,
       title: row.listingTitle,
+      packageDate: row.listingPackageDate,
+      expiresAt: row.listingExpiresAt,
     },
     settlement: {
       id: row.settlementId,
       status: row.settlementStatus,
       paymentStatus: row.settlementPaymentStatus,
+    },
+    buyer:
+      row.buyerEmail != null
+        ? {
+            name: row.buyerName,
+            email: row.buyerEmail,
+          }
+        : null,
+  }));
+}
+
+export type ConsumerPurchaseItem = {
+  auctionId: string;
+  settlementId: string;
+  fulfillmentId: string;
+  amountPaidCents: number | null;
+  capturedAt: Date | null;
+  pickupCode: string | null;
+  pickupBy: Date | null;
+  listing: {
+    id: string;
+    title: string;
+    packageDate: string | null;
+  };
+  business: {
+    id: string;
+    name: string;
+    addressLabel: string | null;
+    addressLine1: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+    pickupHours: string | null;
+    pickupInstructions: string | null;
+  };
+};
+
+export async function getConsumerPurchases(
+  userId: string,
+  limit = 24,
+): Promise<ConsumerPurchaseItem[]> {
+  const rows = await db
+    .select({
+      auctionId: settlements.auctionId,
+      settlementId: settlements.id,
+      fulfillmentId: fulfillments.id,
+      grossAmountCents: settlements.grossAmountCents,
+      capturedAt: settlements.capturedAt,
+      pickupCode: fulfillments.pickupCode,
+      pickupCodeExpiresAt: fulfillments.pickupCodeExpiresAt,
+      listingId: listings.id,
+      listingTitle: listings.title,
+      listingPackageDate: listings.expiryText,
+      businessId: businesses.id,
+      businessName: businesses.name,
+      addressLabel: businesses.addressLabel,
+      addressLine1: businesses.addressLine1,
+      addressLine2: businesses.addressLine2,
+      city: businesses.city,
+      state: businesses.state,
+      postalCode: businesses.postalCode,
+      pickupHours: businesses.pickupHours,
+      pickupInstructions: businesses.pickupInstructions,
+    })
+    .from(settlements)
+    .innerJoin(fulfillments, eq(fulfillments.settlementId, settlements.id))
+    .innerJoin(listings, eq(listings.id, settlements.listingId))
+    .innerJoin(businesses, eq(businesses.id, settlements.businessId))
+    .where(
+      and(
+        eq(settlements.buyerUserId, userId),
+        eq(settlements.paymentStatus, "captured"),
+      ),
+    )
+    .orderBy(desc(settlements.capturedAt))
+    .limit(limit);
+
+  return rows.map((row) => ({
+    auctionId: row.auctionId,
+    settlementId: row.settlementId,
+    fulfillmentId: row.fulfillmentId,
+    amountPaidCents: row.grossAmountCents,
+    capturedAt: row.capturedAt,
+    pickupCode: row.pickupCode,
+    pickupBy: row.pickupCodeExpiresAt,
+    listing: {
+      id: row.listingId,
+      title: row.listingTitle,
+      packageDate: row.listingPackageDate,
+    },
+    business: {
+      id: row.businessId,
+      name: row.businessName,
+      addressLabel: row.addressLabel,
+      addressLine1: row.addressLine1,
+      addressLine2: row.addressLine2,
+      city: row.city,
+      state: row.state,
+      postalCode: row.postalCode,
+      pickupHours: row.pickupHours,
+      pickupInstructions: row.pickupInstructions,
     },
   }));
 }

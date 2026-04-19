@@ -38,6 +38,12 @@ export function BuyerFeed({ initialItems, initialQuery = "" }: BuyerFeedProps) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
+  const offsetRef = useRef(offset);
+  const sortByRef = useRef(sortBy);
+  const categoriesRef = useRef(categories);
+  offsetRef.current = offset;
+  sortByRef.current = sortBy;
+  categoriesRef.current = categories;
 
   const loadMore = useCallback(
     async (
@@ -132,14 +138,19 @@ export function BuyerFeed({ initialItems, initialQuery = "" }: BuyerFeedProps) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && hasMore && !isLoadingRef.current) {
-          void loadMore(offset, sortBy, categories, true);
+          void loadMore(
+            offsetRef.current,
+            sortByRef.current,
+            categoriesRef.current,
+            true,
+          );
         }
       },
       { threshold: 0.1 },
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [categories, hasMore, loadMore, offset, sortBy]);
+  }, [hasMore, loadMore]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 

@@ -8,6 +8,7 @@ import { listings, settlements } from "@/db/schema";
 import { getSettlementAmounts } from "@/lib/auctions/pricing";
 
 import { chargeBidderOffSession } from "./payment-intents";
+import { finalizeSettlementCapture } from "./settlement-capture";
 
 export type FallbackResult =
   | {
@@ -118,9 +119,6 @@ export async function runFallbackBidderLoop(
     });
 
     if (outcome.kind === "captured") {
-      // Mark 'capture_requested' only — webhook payment_intent.succeeded is the
-      // authoritative 'captured' transition and spawns the fulfillment row
-      // (single-sourced state machine).
       await db
         .update(settlements)
         .set({
@@ -129,12 +127,15 @@ export async function runFallbackBidderLoop(
           grossAmountCents: amounts.grossAmountCents,
           platformFeeCents: amounts.platformFeeCents,
           sellerNetAmountCents: amounts.sellerNetAmountCents,
-          processor: "stripe",
-          processorIntentId: outcome.paymentIntentId,
-          paymentStatus: "capture_requested",
           updatedAt: new Date(),
         })
         .where(eq(settlements.id, settlementId));
+
+      await finalizeSettlementCapture({
+        settlementId,
+        paymentIntentId: outcome.paymentIntentId,
+        processor: "stripe",
+      });
 
       return {
         kind: "captured",

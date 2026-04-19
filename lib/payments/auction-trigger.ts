@@ -4,9 +4,11 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/client";
 import { settlements } from "@/db/schema";
+import { hasMockCardOnFile } from "@/lib/auctions/pricing";
 import { getOptionalEnv } from "@/lib/env";
 
 import type { AuctionMutationResult } from "@/lib/auctions/service";
+import { finalizeSettlementCapture } from "@/lib/payments/settlement-capture";
 
 function isPayableCloseResult(
   result: AuctionMutationResult,
@@ -27,14 +29,6 @@ export async function triggerAuctionPaymentIfCloseResult(
   result: AuctionMutationResult,
 ): Promise<void> {
   if (!isPayableCloseResult(result)) {
-    return;
-  }
-
-  if (!getOptionalEnv("STRIPE_SECRET_KEY")) {
-    console.info(
-      "[auction-trigger] STRIPE_SECRET_KEY unset; skipping charge",
-      { auctionId: result.auctionId, action: result.action },
-    );
     return;
   }
 
@@ -60,7 +54,6 @@ export async function triggerAuctionPaymentIfCloseResult(
 
   if (
     settlement.paymentStatus === "captured" ||
-    settlement.paymentStatus === "capture_requested" ||
     settlement.paymentStatus === "failed"
   ) {
     return;
@@ -87,9 +80,38 @@ export async function triggerAuctionPaymentIfCloseResult(
       userId: true,
       stripeCustomerId: true,
       stripePaymentMethodId: true,
+      hasMockCardOnFile: true,
+      mockCardBrand: true,
+      mockCardLast4: true,
     },
     where: (table, operators) => operators.eq(table.userId, settlement.buyerUserId!),
   });
+
+  const stripeConfigured = Boolean(getOptionalEnv("STRIPE_SECRET_KEY"));
+
+  // Local / pre-webhook dev: no Stripe keys — simulate a successful capture when
+  // the shopper passed the mock-card gate (same gate as real bids).
+  if (!stripeConfigured) {
+    if (!profile || !hasMockCardOnFile(profile)) {
+      console.warn(
+        "[auction-trigger] STRIPE_SECRET_KEY unset and no mock card; skipping settlement",
+        { settlementId: settlement.id },
+      );
+      return;
+    }
+
+    const devId = `dev_${settlement.id}`;
+    await finalizeSettlementCapture({
+      settlementId: settlement.id,
+      paymentIntentId: devId,
+      processor: "dev_mock",
+    });
+    console.info(
+      "[auction-trigger] dev_mock capture applied (no STRIPE_SECRET_KEY)",
+      { settlementId: settlement.id, auctionId: result.auctionId },
+    );
+    return;
+  }
 
   if (!profile?.stripeCustomerId || !profile.stripePaymentMethodId) {
     console.warn(
@@ -137,15 +159,13 @@ export async function triggerAuctionPaymentIfCloseResult(
         });
 
   if (outcome.kind === "captured") {
-    await db
-      .update(settlements)
-      .set({
-        processor: "stripe",
-        processorIntentId: outcome.paymentIntentId,
-        paymentStatus: "capture_requested",
-        updatedAt: new Date(),
-      })
-      .where(eq(settlements.id, settlement.id));
+    // Finalize immediately so local dev works without webhooks; Stripe dashboard
+    // webhook remains idempotent if it fires later.
+    await finalizeSettlementCapture({
+      settlementId: settlement.id,
+      paymentIntentId: outcome.paymentIntentId,
+      processor: "stripe",
+    });
     return;
   }
 
