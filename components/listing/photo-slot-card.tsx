@@ -2,8 +2,9 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import type { ChangeEventHandler } from "react";
+import { useState } from "react";
 
+import { CameraCaptureModal } from "@/components/listing/camera-capture-modal";
 import type { ListingOcrResult } from "@/lib/listings/draft-types";
 import type { RequiredListingImageKind } from "@/lib/listings/shared";
 
@@ -92,16 +93,7 @@ export function PhotoSlotCard({
   ocr,
 }: PhotoSlotCardProps) {
   const tone = cardToneByKind[kind];
-
-  const handleFileChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const file = event.target.files?.[0];
-
-    if (file) {
-      onSelectFile(file);
-    }
-
-    event.target.value = "";
-  };
+  const [cameraOpen, setCameraOpen] = useState(false);
 
   return (
     <article
@@ -136,23 +128,28 @@ export function PhotoSlotCard({
           />
         ) : (
           <div className="flex aspect-[4/3] items-center justify-center px-6 text-center text-sm leading-6 text-[#6f604f]">
-            Snap the {title.toLowerCase()} photo, then confirm it before the desk
-            uploads anything.
+            Use Capture to take the {title.toLowerCase()} photo with your webcam, then
+            confirm it before the desk uploads anything.
           </div>
         )}
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-[#1f3d30] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2a5643]">
+        <button
+          className="inline-flex cursor-pointer items-center justify-center rounded-full bg-[#1f3d30] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2a5643]"
+          onClick={() => setCameraOpen(true)}
+          type="button"
+        >
           {previewUrl ? "Retake" : "Capture"}
-          <input
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={handleFileChange}
-            type="file"
-          />
-        </label>
+        </button>
+
+        <CameraCaptureModal
+          imageKind={kind}
+          isOpen={cameraOpen}
+          onCapture={onSelectFile}
+          onClose={() => setCameraOpen(false)}
+          slotTitle={title}
+        />
 
         {status === "review" ? (
           <button
