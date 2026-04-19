@@ -129,10 +129,13 @@ export function BusinessWizard({
     });
   });
 
+  const inputClass =
+    "rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]";
+
   return (
     <form
       onSubmit={submit}
-      className="grid gap-4 rounded-[2.2rem] border border-white/70 bg-white/82 p-5 shadow-[0_24px_90px_rgba(43,48,36,0.1)] backdrop-blur"
+      className="grid gap-5 rounded-[1rem] border border-[#eaeaea] bg-white p-5 shadow-[0_1px_2px_rgba(15,15,15,0.03)]"
     >
       <ProgressSteps currentStep={step} steps={steps} />
 
@@ -141,22 +144,20 @@ export function BusinessWizard({
 
       {step === 1 ? (
         <section className="grid gap-3">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#173126]">
-              Store name
-            </span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Store name</span>
             <input
               {...register("storeName")}
-              className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+              className={inputClass}
               placeholder="Bright Basket"
             />
           </label>
-          <p className="rounded-[1.4rem] bg-[#eef7f1] px-4 py-3 text-sm leading-7 text-[#315343]">
-            This becomes the seller identity shoppers see on listings, feed
-            cards, and pickup handoffs later.
+          <p className="rounded-[0.65rem] border border-[#eaeaea] bg-[#fafafa] px-3.5 py-3 text-xs leading-5 text-[#7a7a7a]">
+            This becomes the seller identity shoppers see on listings, feed cards,
+            and pickup handoffs later.
           </p>
           {errors.storeName ? (
-            <p className="text-sm text-[#b13f2f]">{errors.storeName.message}</p>
+            <p className="text-sm text-[#a14431]">{errors.storeName.message}</p>
           ) : null}
         </section>
       ) : null}
@@ -166,7 +167,7 @@ export function BusinessWizard({
           <button
             type="button"
             onClick={captureStorefrontLocation}
-            className="inline-flex items-center justify-center rounded-full border border-[#cadccf] px-4 py-3 text-sm font-semibold text-[#254636] transition hover:border-[#86b49d]"
+            className="inline-flex items-center justify-center rounded-full border border-[#eaeaea] bg-white px-4 py-2.5 text-sm font-medium text-[#1a1a1a] transition hover:border-[#dcdcdc]"
           >
             {locationState === "loading"
               ? "Capturing storefront location..."
@@ -177,26 +178,26 @@ export function BusinessWizard({
             <input
               {...register("addressLine1")}
               autoComplete="address-line1"
-              className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+              className={inputClass}
               placeholder="Street address"
             />
             <input
               {...register("addressLine2")}
               autoComplete="address-line2"
-              className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+              className={inputClass}
               placeholder="Suite or unit (optional)"
             />
             <div className="grid gap-3 sm:grid-cols-2">
               <input
                 {...register("city")}
                 autoComplete="address-level2"
-                className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+                className={inputClass}
                 placeholder="City"
               />
               <input
                 {...register("state")}
                 autoComplete="address-level1"
-                className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+                className={inputClass}
                 placeholder="State"
               />
             </div>
@@ -204,26 +205,25 @@ export function BusinessWizard({
               <input
                 {...register("postalCode")}
                 autoComplete="postal-code"
-                className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+                className={inputClass}
                 placeholder="Postal code"
               />
               <input
                 {...register("countryCode")}
                 autoComplete="country"
-                className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+                className={inputClass}
                 placeholder="Country"
               />
             </div>
           </div>
 
-          <p className="rounded-[1.4rem] bg-[#eef7f1] px-4 py-3 text-sm leading-7 text-[#315343]">
-            Later feed and fulfillment work will trust this storefront location,
-            so the address needs to be real. Google geocoding verifies the
-            typed address at save time, and captured browser coordinates remain
-            the fallback proof point when needed.
+          <p className="rounded-[0.65rem] border border-[#eaeaea] bg-[#fafafa] px-3.5 py-3 text-xs leading-5 text-[#7a7a7a]">
+            Feed and fulfillment trust this storefront location, so it needs to
+            be real. Google geocoding verifies the typed address on save, and
+            captured browser coordinates stay as the fallback proof point.
           </p>
           {errors.addressLine1 ? (
-            <p className="text-sm text-[#b13f2f]">{errors.addressLine1.message}</p>
+            <p className="text-sm text-[#a14431]">{errors.addressLine1.message}</p>
           ) : null}
         </section>
       ) : null}
@@ -232,18 +232,18 @@ export function BusinessWizard({
         <section className="grid gap-3">
           <input
             {...register("contactEmail")}
-            className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+            className={inputClass}
             placeholder="Pickup contact email"
             type="email"
           />
           <input
             {...register("contactPhone")}
-            className="rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+            className={inputClass}
             placeholder="Pickup contact phone"
           />
           <textarea
             {...register("pickupHours")}
-            className="min-h-28 rounded-[1.1rem] border border-[#cadccf] bg-[#f4faf6] px-4 py-3 text-sm text-[#173126] outline-none transition focus:border-[#5d9c7f]"
+            className={`${inputClass} min-h-28`}
             placeholder="Open daily 8am-9pm, pickups held until 9:30pm"
           />
           {[
@@ -253,7 +253,7 @@ export function BusinessWizard({
           ]
             .filter(Boolean)
             .map((message) => (
-              <p key={message} className="text-sm text-[#b13f2f]">
+              <p key={message} className="text-sm text-[#a14431]">
                 {message}
               </p>
             ))}
@@ -261,17 +261,17 @@ export function BusinessWizard({
       ) : null}
 
       {serverError ? (
-        <div className="rounded-[1.4rem] bg-[#fff1ee] px-4 py-3 text-sm text-[#b13f2f]">
+        <div className="rounded-[0.65rem] border border-[#f1d4cd] bg-[#fbeae5] px-3.5 py-3 text-sm text-[#a14431]">
           {serverError}
         </div>
       ) : null}
 
-      <div className="flex flex-wrap justify-between gap-3 pt-2">
+      <div className="flex flex-wrap justify-between gap-3 pt-1">
         <button
           type="button"
           onClick={previousStep}
           disabled={step === 1 || isPending}
-          className="inline-flex items-center justify-center rounded-full border border-[#cadccf] px-4 py-3 text-sm font-semibold text-[#254636] transition hover:border-[#86b49d] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center justify-center rounded-full border border-[#eaeaea] bg-white px-4 py-2.5 text-sm font-medium text-[#1a1a1a] transition hover:border-[#dcdcdc] disabled:cursor-not-allowed disabled:opacity-40"
         >
           Back
         </button>
@@ -280,7 +280,7 @@ export function BusinessWizard({
           <button
             type="button"
             onClick={nextStep}
-            className="inline-flex items-center justify-center rounded-full bg-[#173126] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#264637]"
+            className="inline-flex items-center justify-center rounded-full bg-[#1a1a1a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#000]"
           >
             Next
           </button>
@@ -288,7 +288,7 @@ export function BusinessWizard({
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center justify-center rounded-full bg-[#173126] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#264637] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-full bg-[#1a1a1a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#000] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? "Saving..." : "Finish seller setup"}
           </button>

@@ -17,19 +17,36 @@ export default async function BusinessOnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-6 sm:px-6">
-      <div className="mx-auto flex max-w-md flex-col gap-4 sm:max-w-lg">
-        <section className="rounded-[2.2rem] bg-[linear-gradient(145deg,#1d3e32_0%,#2c5e49_45%,#6bb08d_100%)] p-5 text-white shadow-[0_35px_110px_rgba(31,77,61,0.24)]">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.26em] text-white/74">
+    <main className="min-h-screen w-full bg-[#f7f7f7] text-[#1a1a1a]">
+      <div className="mx-auto flex w-full max-w-xl flex-col gap-6 px-5 py-10 sm:py-14">
+        <header className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-[0.6rem] bg-[#1a1a1a] text-white">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-[15px] w-[15px]"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 7h14l-1.4 9.4a2 2 0 0 1-2 1.6H8.4a2 2 0 0 1-2-1.6Zm3-3 1 3m6-3-1 3" />
+            </svg>
+          </span>
+          <p className="text-base font-semibold tracking-tight">Ratatouille for Sellers</p>
+        </header>
+
+        <section className="flex flex-col gap-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a9a9a]">
             Seller onboarding
           </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
+          <h1 className="text-[clamp(1.75rem,3vw,2.25rem)] font-semibold leading-tight tracking-tight">
             Lock in the storefront before listings start moving.
           </h1>
-          <p className="mt-4 text-sm leading-7 text-white/90">
-            Phase 2 captures the seller basics only: store identity, a real
-            pickup address, and the contact details that later auction handoffs
-            will rely on.
+          <p className="max-w-[55ch] text-sm leading-6 text-[#6b6b6b]">
+            Capture the seller basics: store identity, a real pickup address,
+            and the contact details that later auction handoffs will rely on.
           </p>
         </section>
 

@@ -32,7 +32,7 @@ type AuctionCardProps = {
 };
 
 const badgeToneClasses: Record<AuctionCardBadgeTone, string> = {
-  warm: "border-[#ffd4bc] bg-[#fff0e5] text-[#ad5422]",
+  warm: "border-[#cbe8d8] bg-[#effaf3] text-[#1e5a37]",
   green: "border-[#cbe8d8] bg-[#effaf3] text-[#216348]",
   amber: "border-[#ffe2a7] bg-[#fff6df] text-[#a45c11]",
   slate: "border-[#d7d9e0] bg-[#f5f6f9] text-[#566074]",
@@ -57,15 +57,15 @@ export function AuctionCard({
   return (
     <Link
       href={href}
-      className="group flex h-full overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_24px_70px_rgba(64,34,20,0.1)] transition-transform hover:-translate-y-0.5 lg:rounded-[2.15rem]"
+      className="group overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_24px_70px_rgba(64,34,20,0.1)] transition-transform hover:-translate-y-0.5"
     >
-      <div className="grid h-full w-full gap-4 p-4 lg:gap-5 lg:p-5">
+      <div className="grid gap-4 p-4">
         <div className="grid grid-cols-[1fr_auto] gap-3">
           <div className="min-w-0">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#aa5838]">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#1e5a37]">
               {eyebrow}
             </p>
-            <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[#22130e] lg:text-[1.35rem]">
+            <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[#22130e]">
               {title}
             </h3>
             {description ? (
@@ -88,10 +88,10 @@ export function AuctionCard({
               src={imageUrl}
               alt=""
               aria-hidden="true"
-              className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] object-cover lg:aspect-[5/4]"
+              className="aspect-[4/3] w-full rounded-[1.6rem] object-cover border border-[#f4ddcf]"
             />
           ) : (
-            <div className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)] lg:aspect-[5/4]" />
+            <div className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#d7ebdc] bg-[linear-gradient(140deg,#f3fbf5_0%,#cbe8d8_48%,#7ab89a_100%)]" />
           )}
           {categoryBadge ? (
             <span
@@ -107,7 +107,7 @@ export function AuctionCard({
           {metrics.map((metric) => (
             <div
               key={metric.label}
-              className="rounded-[1.4rem] border border-[#f2ded0] bg-[rgba(255,249,244,0.9)] px-3 py-3 lg:px-4 lg:py-3.5"
+              className="rounded-[1.4rem] border border-[#f2ded0] bg-[rgba(255,249,244,0.9)] px-3 py-3"
             >
               <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[#9d6d56]">
                 {metric.label}
@@ -137,9 +137,9 @@ export function AuctionCard({
           </div>
         ) : null}
 
-        <div className="mt-auto flex items-center justify-between gap-3 rounded-[1.5rem] bg-[#f8efe8] px-3 py-3 lg:px-4">
+        <div className="flex items-center justify-between gap-3 rounded-[1.5rem] bg-[#f8efe8] px-3 py-3">
           <span className="text-sm font-medium text-[#684b3c]">
-            Open live detail and actions
+            Tap in for live detail and actions
           </span>
           <AuctionCountdown
             endsAt={endsAt}

@@ -1,17 +1,22 @@
 import "server-only";
 
-import { and, asc, desc, eq, gte, inArray, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, or, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
-import { auctions, bids, businesses, listingImages, listings, settlements } from "@/db/schema";
+import {
+  auctions,
+  bids,
+  businesses,
+  fulfillments,
+  listingImages,
+  listings,
+  settlements,
+  users,
+} from "@/db/schema";
 import { type ListingCategory, listingCategoryValues } from "@/lib/listings/categories";
 import { getNextBidAmountCents, hasMockCardOnFile } from "@/lib/auctions/pricing";
 
 export type SortBy = "ending_soon" | "nearest" | "lowest_price";
-
-const EARTH_RADIUS_MILES = 3959;
-const MILES_PER_LAT_DEGREE = 69.0;
-const FEED_RADIUS_MILES = 5.0;
 
 function toNumber(value: unknown) {
   return Number(value ?? 0);
@@ -97,48 +102,9 @@ export async function getAuctionFeed(
     limit = 24,
     offset = 0,
     viewerUserId,
-    lat,
-    lng,
     sortBy = "ending_soon",
     categories = [],
   } = normalizedParams;
-
-  const hasGeo = lat != null && lng != null && !(lat === 0 && lng === 0);
-
-  const distanceMilesExpr = hasGeo
-    ? sql<number>`${EARTH_RADIUS_MILES} * acos(least(1.0,
-        cos(radians(${lat}))
-        * cos(radians(${businesses.latitude}))
-        * cos(radians(${businesses.longitude}) - radians(${lng}))
-        + sin(radians(${lat}))
-        * sin(radians(${businesses.latitude}))
-      ))`.as("distance_miles")
-    : sql<number>`null`.as("distance_miles");
-
-  const latDelta = FEED_RADIUS_MILES / MILES_PER_LAT_DEGREE;
-  const lngDelta = hasGeo
-    ? FEED_RADIUS_MILES /
-      (MILES_PER_LAT_DEGREE * Math.cos(((lat as number) * Math.PI) / 180))
-    : 0;
-
-  const geoConditions = hasGeo
-    ? [
-        gte(businesses.latitude, (lat as number) - latDelta),
-        lte(businesses.latitude, (lat as number) + latDelta),
-        gte(businesses.longitude, (lng as number) - lngDelta),
-        lte(businesses.longitude, (lng as number) + lngDelta),
-        sql`${EARTH_RADIUS_MILES} * acos(least(1.0,
-          cos(radians(${lat}))
-          * cos(radians(${businesses.latitude}))
-          * cos(radians(${businesses.longitude}) - radians(${lng}))
-          + sin(radians(${lat}))
-          * sin(radians(${businesses.latitude}))
-        )) <= ${FEED_RADIUS_MILES}`,
-      ]
-    : [];
-
-  // Only include businesses that have been geocoded
-  const nullLocationGuard = sql`${businesses.latitude} IS NOT NULL AND ${businesses.longitude} IS NOT NULL`;
 
   const validCategories = categories.filter((c) =>
     listingCategoryValues.includes(c as ListingCategory),
@@ -148,12 +114,16 @@ export async function getAuctionFeed(
       ? inArray(listings.category, validCategories)
       : undefined;
 
+  /**
+   * Shop feed: every live row in the DB — active auction + active listing, no geo filter.
+   * `lat` / `lng` in params are ignored until a location-based feed ships.
+   */
+  const distanceMilesExpr = sql<number | null>`null`.as("distance_miles");
+
   const orderByClause =
-    sortBy === "nearest" && hasGeo
-      ? asc(distanceMilesExpr)
-      : sortBy === "lowest_price"
-        ? asc(auctions.reservePriceCents)
-        : asc(auctions.scheduledEndAt); // ending_soon default
+    sortBy === "lowest_price"
+      ? asc(auctions.reservePriceCents)
+      : asc(auctions.scheduledEndAt);
 
   const rows = await db
     .select({
@@ -185,8 +155,7 @@ export async function getAuctionFeed(
     .where(
       and(
         eq(auctions.status, "active"),
-        nullLocationGuard,
-        ...geoConditions,
+        eq(listings.status, "active"),
         categoryCondition,
       ),
     )
@@ -273,8 +242,12 @@ export type AuctionDetail = {
   };
 };
 
+/**
+ * Loads auction detail. `auctionOrListingId` may be either `auctions.id` or the parent
+ * `listings.id` (so `/shop/<listingId>` and `/shop/<auctionId>` both work).
+ */
 export async function getAuctionDetail(
-  auctionId: string,
+  auctionOrListingId: string,
   viewerUserId?: string,
 ): Promise<AuctionDetail | null> {
   const [row] = await db
@@ -312,12 +285,16 @@ export async function getAuctionDetail(
     .from(auctions)
     .innerJoin(listings, eq(listings.id, auctions.listingId))
     .innerJoin(businesses, eq(businesses.id, auctions.businessId))
-    .where(eq(auctions.id, auctionId))
+    .where(
+      or(eq(auctions.id, auctionOrListingId), eq(listings.id, auctionOrListingId)),
+    )
     .limit(1);
 
   if (!row) {
     return null;
   }
+
+  const resolvedAuctionId = row.id;
 
   const images = await db
     .select({
@@ -347,7 +324,7 @@ export async function getAuctionDetail(
         .from(bids)
         .where(
           and(
-            eq(bids.auctionId, auctionId),
+            eq(bids.auctionId, resolvedAuctionId),
             eq(bids.consumerUserId, viewerUserId),
           ),
         )
@@ -702,5 +679,188 @@ export async function getSellerOutcomes(
           paymentStatus: row.settlementPaymentStatus ?? "pending_authorization",
         }
       : null,
+  }));
+}
+
+export type SellerFulfillmentItem = {
+  id: string;
+  mode: string;
+  status: string;
+  deliveryProvider: string;
+  pickupCode: string | null;
+  pickupCodeExpiresAt: Date | null;
+  deliveredAt: Date | null;
+  updatedAt: Date;
+  listing: {
+    id: string;
+    title: string;
+    packageDate: string | null;
+    expiresAt: Date | null;
+  };
+  settlement: {
+    id: string;
+    status: string;
+    paymentStatus: string;
+  };
+  buyer: {
+    name: string | null;
+    email: string;
+  } | null;
+};
+
+export async function getSellerFulfillments(
+  businessId: string,
+  limit = 48,
+): Promise<SellerFulfillmentItem[]> {
+  const rows = await db
+    .select({
+      id: fulfillments.id,
+      mode: fulfillments.mode,
+      status: fulfillments.status,
+      deliveryProvider: fulfillments.deliveryProvider,
+      pickupCode: fulfillments.pickupCode,
+      pickupCodeExpiresAt: fulfillments.pickupCodeExpiresAt,
+      deliveredAt: fulfillments.deliveredAt,
+      updatedAt: fulfillments.updatedAt,
+      listingId: listings.id,
+      listingTitle: listings.title,
+      listingPackageDate: listings.expiryText,
+      listingExpiresAt: listings.expiresAt,
+      settlementId: settlements.id,
+      settlementStatus: settlements.status,
+      settlementPaymentStatus: settlements.paymentStatus,
+      buyerName: users.name,
+      buyerEmail: users.email,
+    })
+    .from(fulfillments)
+    .innerJoin(settlements, eq(settlements.id, fulfillments.settlementId))
+    .innerJoin(listings, eq(listings.id, fulfillments.listingId))
+    .leftJoin(users, eq(users.id, settlements.buyerUserId))
+    .where(eq(settlements.businessId, businessId))
+    .orderBy(desc(fulfillments.updatedAt))
+    .limit(limit);
+
+  return rows.map((row) => ({
+    id: row.id,
+    mode: row.mode,
+    status: row.status,
+    deliveryProvider: row.deliveryProvider,
+    pickupCode: row.pickupCode,
+    pickupCodeExpiresAt: row.pickupCodeExpiresAt,
+    deliveredAt: row.deliveredAt,
+    updatedAt: row.updatedAt,
+    listing: {
+      id: row.listingId,
+      title: row.listingTitle,
+      packageDate: row.listingPackageDate,
+      expiresAt: row.listingExpiresAt,
+    },
+    settlement: {
+      id: row.settlementId,
+      status: row.settlementStatus,
+      paymentStatus: row.settlementPaymentStatus,
+    },
+    buyer:
+      row.buyerEmail != null
+        ? {
+            name: row.buyerName,
+            email: row.buyerEmail,
+          }
+        : null,
+  }));
+}
+
+export type ConsumerPurchaseItem = {
+  auctionId: string;
+  settlementId: string;
+  fulfillmentId: string;
+  amountPaidCents: number | null;
+  capturedAt: Date | null;
+  pickupCode: string | null;
+  pickupBy: Date | null;
+  listing: {
+    id: string;
+    title: string;
+    packageDate: string | null;
+  };
+  business: {
+    id: string;
+    name: string;
+    addressLabel: string | null;
+    addressLine1: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+    pickupHours: string | null;
+    pickupInstructions: string | null;
+  };
+};
+
+export async function getConsumerPurchases(
+  userId: string,
+  limit = 24,
+): Promise<ConsumerPurchaseItem[]> {
+  const rows = await db
+    .select({
+      auctionId: settlements.auctionId,
+      settlementId: settlements.id,
+      fulfillmentId: fulfillments.id,
+      grossAmountCents: settlements.grossAmountCents,
+      capturedAt: settlements.capturedAt,
+      pickupCode: fulfillments.pickupCode,
+      pickupCodeExpiresAt: fulfillments.pickupCodeExpiresAt,
+      listingId: listings.id,
+      listingTitle: listings.title,
+      listingPackageDate: listings.expiryText,
+      businessId: businesses.id,
+      businessName: businesses.name,
+      addressLabel: businesses.addressLabel,
+      addressLine1: businesses.addressLine1,
+      addressLine2: businesses.addressLine2,
+      city: businesses.city,
+      state: businesses.state,
+      postalCode: businesses.postalCode,
+      pickupHours: businesses.pickupHours,
+      pickupInstructions: businesses.pickupInstructions,
+    })
+    .from(settlements)
+    .innerJoin(fulfillments, eq(fulfillments.settlementId, settlements.id))
+    .innerJoin(listings, eq(listings.id, settlements.listingId))
+    .innerJoin(businesses, eq(businesses.id, settlements.businessId))
+    .where(
+      and(
+        eq(settlements.buyerUserId, userId),
+        eq(settlements.paymentStatus, "captured"),
+      ),
+    )
+    .orderBy(desc(settlements.capturedAt))
+    .limit(limit);
+
+  return rows.map((row) => ({
+    auctionId: row.auctionId,
+    settlementId: row.settlementId,
+    fulfillmentId: row.fulfillmentId,
+    amountPaidCents: row.grossAmountCents,
+    capturedAt: row.capturedAt,
+    pickupCode: row.pickupCode,
+    pickupBy: row.pickupCodeExpiresAt,
+    listing: {
+      id: row.listingId,
+      title: row.listingTitle,
+      packageDate: row.listingPackageDate,
+    },
+    business: {
+      id: row.businessId,
+      name: row.businessName,
+      addressLabel: row.addressLabel,
+      addressLine1: row.addressLine1,
+      addressLine2: row.addressLine2,
+      city: row.city,
+      state: row.state,
+      postalCode: row.postalCode,
+      pickupHours: row.pickupHours,
+      pickupInstructions: row.pickupInstructions,
+    },
   }));
 }

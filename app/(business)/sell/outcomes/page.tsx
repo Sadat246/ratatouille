@@ -13,16 +13,13 @@ export default async function SellerOutcomesPage() {
     return (
       <SellerShell
         activeHref="/sell/outcomes"
-        badge="Seller setup issue"
+        badge="Seller setup"
         title="Storefront membership missing."
         description="Finish business onboarding again before using the outcomes lane."
         businessName="Seller setup"
       >
-        <SectionCard
-          title="Seller setup issue"
-          tone="border-[#ead1cb] bg-[rgba(255,241,237,0.88)] text-[#41231c]"
-        >
-          <p className="text-sm leading-7">
+        <SectionCard title="Setup issue">
+          <p className="text-sm leading-6 text-[#5a5a5a]">
             This seller account is missing the storefront membership record that
             powers the outcomes lane.
           </p>
@@ -42,39 +39,24 @@ export default async function SellerOutcomesPage() {
   return (
     <SellerShell
       activeHref="/sell/outcomes"
-      badge="Auction outcomes"
+      badge="Outcomes"
       title="See exactly what sold, what died, and what paid out."
-      description="Outcome state stays server-derived: final price, commission, seller net, and whether the auction ended in sale, cancellation, or no-sale."
-      heroClassName="bg-[linear-gradient(145deg,#3d2618_0%,#6e452e_46%,#d69e68_100%)] text-white shadow-[0_35px_110px_rgba(78,47,28,0.22)]"
+      description="Server-derived final price, commission, seller net, and whether the auction ended in sale, cancellation, or no-sale."
       businessName={sellerDesk.businessName}
     >
-      <SectionCard
-        title="Outcome snapshot"
-        tone="border-[#ecdac7] bg-[rgba(255,247,236,0.9)] text-[#261b14]"
-      >
-        <div className="grid grid-cols-3 gap-3">
+      <SectionCard title="Outcome snapshot">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            {
-              label: "Recorded",
-              value: String(outcomes.length).padStart(2, "0"),
-            },
-            {
-              label: "Sold",
-              value: String(soldCount).padStart(2, "0"),
-            },
-            {
-              label: "Cancelled",
-              value: String(cancelledCount).padStart(2, "0"),
-            },
+            { label: "Recorded", value: outcomes.length },
+            { label: "Sold", value: soldCount },
+            { label: "Cancelled", value: cancelledCount },
           ].map((metric) => (
             <div
               key={metric.label}
-              className="rounded-[1.4rem] border border-[#efdecc] bg-white/88 p-3"
+              className="rounded-[0.85rem] border border-[#eaeaea] bg-white p-4"
             >
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#8b6a53]">
-                {metric.label}
-              </p>
-              <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#2a2018]">
+              <p className="text-sm text-[#6b6b6b]">{metric.label}</p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight text-[#1a1a1a]">
                 {metric.value}
               </p>
             </div>

@@ -13,16 +13,13 @@ export default async function SellerAuctionsPage() {
     return (
       <SellerShell
         activeHref="/sell/auctions"
-        badge="Seller setup issue"
+        badge="Seller setup"
         title="Storefront membership missing."
         description="Finish business onboarding again before using the live seller board."
         businessName="Seller setup"
       >
-        <SectionCard
-          title="Seller setup issue"
-          tone="border-[#ead1cb] bg-[rgba(255,241,237,0.88)] text-[#41231c]"
-        >
-          <p className="text-sm leading-7">
+        <SectionCard title="Setup issue">
+          <p className="text-sm leading-6 text-[#5a5a5a]">
             This seller account is missing the storefront membership record that
             powers the live auction board.
           </p>
@@ -38,39 +35,24 @@ export default async function SellerAuctionsPage() {
   return (
     <SellerShell
       activeHref="/sell/auctions"
-      badge="Live auction board"
+      badge="Live auctions"
       title="Hands-off until you need a clean intervention."
-      description="This board keeps the seller side informed: current bid, total pressure, time-left, and cancellation when a manual stop is truly required."
-      heroClassName="bg-[linear-gradient(145deg,#15372d_0%,#205546_46%,#79c4a3_100%)] text-white shadow-[0_35px_110px_rgba(20,63,51,0.24)]"
+      description="Current bid, total pressure, time left, and cancellation when a manual stop is truly required."
       businessName={sellerDesk.businessName}
     >
-      <SectionCard
-        title="Live snapshot"
-        tone="border-[#d4e4dc] bg-[rgba(239,247,243,0.92)] text-[#173127]"
-      >
-        <div className="grid grid-cols-3 gap-3">
+      <SectionCard title="Live snapshot">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            {
-              label: "Live now",
-              value: String(liveAuctions.length).padStart(2, "0"),
-            },
-            {
-              label: "With bids",
-              value: String(auctionsWithBids).padStart(2, "0"),
-            },
-            {
-              label: "Total bids",
-              value: String(totalBidCount).padStart(2, "0"),
-            },
+            { label: "Live now", value: liveAuctions.length },
+            { label: "With bids", value: auctionsWithBids },
+            { label: "Total bids", value: totalBidCount },
           ].map((metric) => (
             <div
               key={metric.label}
-              className="rounded-[1.4rem] border border-[#cdded7] bg-white/88 p-3"
+              className="rounded-[0.85rem] border border-[#eaeaea] bg-white p-4"
             >
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#55776a]">
-                {metric.label}
-              </p>
-              <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#143126]">
+              <p className="text-sm text-[#6b6b6b]">{metric.label}</p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight text-[#1a1a1a]">
                 {metric.value}
               </p>
             </div>

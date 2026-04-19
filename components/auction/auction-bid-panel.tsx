@@ -101,8 +101,9 @@ export function AuctionBidPanel({
             {auctionOpen ? "Choose your move" : "Auction settled"}
           </h3>
           <p className="mt-2 text-sm leading-6 text-[#6d5245]">
-            The server decides every winner. This panel only sends bid and buyout
-            requests to the shared auction engine.
+            Every shopper bids against the same live price: the highest authorized
+            bid wins when the timer ends (or someone buys out). The server records
+            each bid, updates the leader, and notifies anyone who was outbid.
           </p>
         </div>
 
@@ -121,7 +122,7 @@ export function AuctionBidPanel({
           type="button"
           onClick={() => void submit("bid")}
           disabled={!canBid || isPending}
-          className="inline-flex items-center justify-center rounded-[1.5rem] bg-[#f75d36] px-4 py-4 text-base font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#f6b09b]"
+          className="inline-flex items-center justify-center rounded-[1.5rem] bg-[#3d8d5c] px-4 py-4 text-base font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#a8d5b8]"
         >
           Place {formatCurrency(viewer?.minimumNextBidAmountCents ?? reservePriceCents)} bid
         </button>

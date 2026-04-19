@@ -47,6 +47,11 @@ function formatRemaining(ms: number) {
   return `${days}d ${String(remainingHours).padStart(2, "0")}h left`;
 }
 
+function formatEndedAtUtc(endedMs: number) {
+  const d = new Date(endedMs);
+  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")} UTC`;
+}
+
 export function AuctionCountdown({
   endsAt,
   status,
@@ -54,9 +59,19 @@ export function AuctionCountdown({
   endedAt,
   size = "sm",
 }: AuctionCountdownProps) {
-  const [now, setNow] = useState(() => Date.now());
+  /** Avoid SSR/client clock skew hydration mismatches — live countdown only after mount. */
+  const [mounted, setMounted] = useState(false);
+  const [now, setNow] = useState(() => 0);
 
   useEffect(() => {
+    setMounted(true);
+    setNow(Date.now());
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) {
+      return undefined;
+    }
     if (status !== "active" && status !== "scheduled") {
       return undefined;
     }
@@ -66,11 +81,12 @@ export function AuctionCountdown({
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [status]);
+  }, [mounted, status]);
 
   const endMs = toTimestamp(endsAt);
   const endedMs = toTimestamp(endedAt);
-  const remainingMs = endMs === null ? 0 : Math.max(0, endMs - now);
+  const remainingMs =
+    !mounted || endMs === null ? 0 : Math.max(0, endMs - now);
   const urgent = remainingMs > 0 && remainingMs <= 10_000;
   const endingSoon = remainingMs > 10_000 && remainingMs <= 60_000;
   const sizeClass =
@@ -83,20 +99,18 @@ export function AuctionCountdown({
     "border-[#f3d9cb] bg-[rgba(255,248,242,0.86)] text-[#6e4a39]";
 
   if (status === "active" || status === "scheduled") {
-    label = remainingMs <= 0 ? "Closing..." : formatRemaining(remainingMs);
+    if (!mounted) {
+      label = "Time left";
+    } else {
+      label = remainingMs <= 0 ? "Closing..." : formatRemaining(remainingMs);
+    }
     toneClass = urgent
-      ? "animate-pulse border-[#ffb3a1] bg-[#f75d36] text-white shadow-[0_18px_45px_rgba(247,93,54,0.32)]"
+      ? "animate-pulse border-[#a8d5b8] bg-[#3d8d5c] text-white shadow-[0_18px_45px_rgba(61,141,92,0.32)]"
       : endingSoon
-        ? "border-[#ffd0a6] bg-[#fff0dc] text-[#ad5415]"
+        ? "border-[#bcdfc7] bg-[#eaf6ee] text-[#1e5a37]"
         : "border-[#f1dcc7] bg-[rgba(255,248,242,0.86)] text-[#7a513c]";
   } else if (endedMs) {
-    label = `${formatAuctionResultLabel(status, result)} · ${new Date(endedMs).toLocaleTimeString(
-      "en-US",
-      {
-        hour: "numeric",
-        minute: "2-digit",
-      },
-    )}`;
+    label = `${formatAuctionResultLabel(status, result)} · ${formatEndedAtUtc(endedMs)}`;
   }
 
   return (

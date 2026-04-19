@@ -5,8 +5,8 @@
   --canvas-strong: #edd6be;
   --ink: #21140f;
   --muted: #5d4738;
-  --accent: #f75d36;
-  --accent-deep: #9f3a20;
+  --accent: #3d8d5c;
+  --accent-deep: #1e5a37;
   --leaf: #234d3d;
   --leaf-soft: #dceadf;
   --paper: rgba(255, 248, 239, 0.8);
@@ -21,7 +21,7 @@ body {
 html {
   background:
     radial-gradient(circle at top, rgba(255, 239, 204, 0.82), transparent 36%),
-    radial-gradient(circle at 85% 15%, rgba(247, 93, 54, 0.15), transparent 24%),
+    radial-gradient(circle at 85% 15%, rgba(61, 141, 92, 0.16), transparent 24%),
     linear-gradient(180deg, #f9efdf 0%, #f3e1cd 58%, #edd4be 100%);
 }
 
@@ -66,6 +66,6 @@ a {
 }
 
 ::selection {
-  background: rgba(247, 93, 54, 0.24);
-  color: #2a140d;
+  background: rgba(61, 141, 92, 0.24);
+  color: #0f2a1a;
 }

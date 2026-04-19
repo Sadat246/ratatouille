@@ -34,9 +34,8 @@ export async function GET(request: Request) {
       (listingCategoryValues as readonly string[]).includes(c),
     );
 
-    // SECURITY: read consumer lat/lng from DB — NEVER from request params
     const profile = await db.query.consumerProfiles.findFirst({
-      columns: { latitude: true, longitude: true },
+      columns: { id: true },
       where: (table, operators) =>
         operators.eq(table.userId, authorization.session.user.id),
     });
@@ -51,8 +50,6 @@ export async function GET(request: Request) {
     void sweepOverdueAuctions(AUCTION_SWEEP_BATCH_SIZE);
 
     const items = await getAuctionFeed({
-      lat: profile.latitude,
-      lng: profile.longitude,
       sortBy,
       categories,
       limit: LIMIT + 1, // fetch one extra to detect hasMore

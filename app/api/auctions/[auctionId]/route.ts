@@ -20,19 +20,22 @@ export async function GET(
   }
 
   try {
-    const { auctionId } = await context.params;
+    const { auctionId: segment } = await context.params;
 
-    await refreshAuctionIfOverdue(auctionId);
+    const first = await getAuctionDetail(segment, authorization.session.user.id);
 
-    const auction = await getAuctionDetail(auctionId, authorization.session.user.id);
-
-    if (!auction) {
+    if (!first) {
       return jsonAuctionError(
         "AUCTION_NOT_FOUND",
         "This auction could not be found.",
         404,
       );
     }
+
+    await refreshAuctionIfOverdue(first.id);
+
+    const auction =
+      (await getAuctionDetail(first.id, authorization.session.user.id)) ?? first;
 
     return NextResponse.json({
       ok: true,

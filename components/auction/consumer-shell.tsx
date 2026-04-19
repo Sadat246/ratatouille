@@ -16,7 +16,7 @@ type ConsumerShellProps = {
 const consumerNavItems = [
   { href: "/shop", label: "Home", icon: "spark" as const },
   { href: "/shop/bids", label: "My Bids", icon: "chart" as const },
-  { href: "/shop/orders", label: "Orders", icon: "box" as const },
+  { href: "/shop/purchases", label: "Purchases", icon: "box" as const },
   { href: "/shop/alerts", label: "Alerts", icon: "bell" as const },
 ];
 
@@ -25,7 +25,7 @@ export function ConsumerShell({
   badge,
   title,
   description,
-  heroClassName = "bg-[linear-gradient(145deg,#f75d36_0%,#ff8660_46%,#ffc483_100%)] text-white shadow-[0_35px_110px_rgba(247,93,54,0.3)]",
+  heroClassName = "bg-[linear-gradient(145deg,#1e5a37_0%,#3d8d5c_46%,#7ab89a_100%)] text-white shadow-[0_35px_110px_rgba(30,90,55,0.32)]",
   locationLabel,
   children,
 }: ConsumerShellProps) {
@@ -36,12 +36,12 @@ export function ConsumerShell({
       description={description}
       heroClassName={heroClassName}
       heroAside={
-        <div className="flex flex-col items-end gap-2 lg:items-start">
+        <div className="flex flex-col items-end gap-2">
           <span className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-[#fff1df]">
             {locationLabel}
           </span>
           <SignOutButton
-            className="inline-flex items-center justify-center rounded-full border border-white/26 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white lg:self-start"
+            className="inline-flex items-center justify-center rounded-full border border-white/26 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white"
             label="Sign out"
           />
         </div>
