@@ -4,7 +4,9 @@ import { createHash, randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { getRequiredEnv, hasEnv } from "@/lib/env";
+import { put } from "@vercel/blob";
+
+import { getOptionalEnv, getRequiredEnv, hasEnv } from "@/lib/env";
 
 import type { UploadedListingAsset } from "./draft-types";
 import type { RequiredListingImageKind } from "./shared";
@@ -66,6 +68,34 @@ async function saveLocalAsset(
   };
 }
 
+async function saveVercelBlobAsset(
+  file: File,
+  kind: RequiredListingImageKind,
+): Promise<UploadedListingAsset> {
+  const token = getRequiredEnv("BLOB_READ_WRITE_TOKEN");
+  const monthStamp = new Date().toISOString().slice(0, 7);
+  const extension = getFileExtension(file.type);
+  const storageKey = path.posix.join(
+    "listings",
+    monthStamp,
+    `${kind}-${randomUUID()}${extension}`,
+  );
+
+  const result = await put(storageKey, file, {
+    access: "public",
+    token,
+    contentType: file.type || undefined,
+  });
+
+  return {
+    kind,
+    url: result.url,
+    storageKey: result.pathname,
+    storageProvider: "vercel_blob",
+    originalFilename: file.name,
+  };
+}
+
 async function saveCloudinaryAsset(
   file: File,
   kind: RequiredListingImageKind,
@@ -122,6 +152,10 @@ export async function storeListingImage(
   kind: RequiredListingImageKind,
 ) {
   assertSupportedImage(file);
+
+  if (hasEnv("BLOB_READ_WRITE_TOKEN")) {
+    return saveVercelBlobAsset(file, kind);
+  }
 
   if (
     hasEnv(
