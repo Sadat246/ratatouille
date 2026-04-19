@@ -110,7 +110,7 @@ function CardForm({ onCardAttached }: { onCardAttached: () => void }) {
     setError(null);
     setIsSubmitting(true);
 
-    const { error: confirmError } = await stripe.confirmSetup({
+    const { error: confirmError, setupIntent } = await stripe.confirmSetup({
       elements,
       confirmParams: {
         return_url: `${window.location.origin}/consumer/card-return`,
@@ -122,6 +122,22 @@ function CardForm({ onCardAttached }: { onCardAttached: () => void }) {
       setError(confirmError.message ?? "Could not save your card.");
       setIsSubmitting(false);
       return;
+    }
+
+    // Don't wait for `setup_intent.succeeded` to land via webhook — call our
+    // server immediately so the bid panel sees `hasMockCardOnFile = true` on
+    // the next refresh. The webhook handler is idempotent with this call.
+    if (setupIntent?.id) {
+      try {
+        await fetch("/api/consumer/setup-intent/confirm", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ setupIntentId: setupIntent.id }),
+        });
+      } catch {
+        // The webhook will catch up; surface a soft note but still proceed.
+        console.warn("Could not eagerly confirm card; awaiting webhook.");
+      }
     }
 
     setIsSubmitting(false);

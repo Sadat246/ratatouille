@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { AuctionCountdown } from "@/components/auction/auction-countdown";
@@ -14,16 +14,39 @@ type SellerAuctionBoardProps = {
   items: SellerLiveAuctionItem[];
 };
 
+const SELLER_BOARD_REFRESH_MS = 12_000;
+
 export function SellerAuctionBoard({ items }: SellerAuctionBoardProps) {
   const router = useRouter();
   const [pendingAuctionId, setPendingAuctionId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const hasLiveAuctions = items.length > 0;
+  const cancelInFlightRef = useRef(false);
+
+  // Pull fresh server state every 12s so the seller sees bids, buyouts and
+  // settlement transitions land without manually reloading. Pause when a
+  // cancel POST is in-flight to avoid a refresh racing the user's click.
+  useEffect(() => {
+    if (!hasLiveAuctions) {
+      return undefined;
+    }
+
+    const timer = window.setInterval(() => {
+      if (cancelInFlightRef.current) {
+        return;
+      }
+      router.refresh();
+    }, SELLER_BOARD_REFRESH_MS);
+
+    return () => window.clearInterval(timer);
+  }, [hasLiveAuctions, router]);
 
   async function cancelAuction(auctionId: string) {
     setPendingAuctionId(auctionId);
     setFeedback(null);
     setError(null);
+    cancelInFlightRef.current = true;
 
     try {
       const response = await fetch(`/api/auctions/${auctionId}/cancel`, {
@@ -51,6 +74,7 @@ export function SellerAuctionBoard({ items }: SellerAuctionBoardProps) {
       setError("Cancellation failed. Try again in a moment.");
     } finally {
       setPendingAuctionId(null);
+      cancelInFlightRef.current = false;
     }
   }
 
