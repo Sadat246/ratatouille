@@ -13,20 +13,13 @@ export default async function ShopPage() {
       city: true,
       state: true,
       locationLabel: true,
-      latitude: true,
-      longitude: true,
     },
     where: (table, operators) => operators.eq(table.userId, session.user.id),
   });
 
   await sweepOverdueAuctions(AUCTION_SWEEP_BATCH_SIZE);
 
-  const lat = profile?.latitude ?? null;
-  const lng = profile?.longitude ?? null;
-
   const allItems = await getAuctionFeed({
-    lat,
-    lng,
     sortBy: "ending_soon",
     categories: [],
     limit: 13,
@@ -44,9 +37,9 @@ export default async function ShopPage() {
   return (
     <ConsumerShell
       activeHref="/shop"
-      badge="Nearby deals"
+      badge="Live auctions"
       title="Fresh lots, ending soon."
-      description="Geo-filtered auction feed — sorted by urgency, filtered by what you want."
+      description="Active listings from sellers — sorted by urgency, filtered by what you want."
       locationLabel={locationLabel}
     >
       <FeedClient initialItems={initialItems} />

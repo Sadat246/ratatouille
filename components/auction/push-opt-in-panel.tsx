@@ -39,14 +39,22 @@ export function PushOptInPanel({
   const [isPending, setIsPending] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const isSupported =
-    typeof window !== "undefined" &&
-    "serviceWorker" in navigator &&
-    "PushManager" in window &&
-    "Notification" in window;
+  /** Avoid SSR vs browser mismatch: support + API result only apply after mount. */
+  const [mounted, setMounted] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
+  const [availabilityLoaded, setAvailabilityLoaded] = useState(false);
 
   useEffect(() => {
-    if (!isSupported) {
+    const supported =
+      typeof window !== "undefined" &&
+      "serviceWorker" in navigator &&
+      "PushManager" in window &&
+      "Notification" in window;
+    setIsSupported(supported);
+    setMounted(true);
+
+    if (!supported) {
+      setAvailabilityLoaded(true);
       return;
     }
 
@@ -67,11 +75,13 @@ export function PushOptInPanel({
         setIsSubscribed(data.subscribed);
       } catch {
         setError("Push availability failed. Try again in a moment.");
+      } finally {
+        setAvailabilityLoaded(true);
       }
     }
 
     void loadAvailability();
-  }, [isSupported]);
+  }, []);
 
   async function enablePush() {
     if (!publicKey) {
@@ -174,9 +184,17 @@ export function PushOptInPanel({
         </span>
       </div>
 
-      {!isSupported ? (
+      {!mounted ? (
+        <p className="mt-4 text-sm font-medium text-[#7c5277]">
+          Checking push notification support…
+        </p>
+      ) : !isSupported ? (
         <p className="mt-4 text-sm font-medium text-[#7c5277]">
           This browser does not expose Service Worker Push APIs.
+        </p>
+      ) : !availabilityLoaded ? (
+        <p className="mt-4 text-sm font-medium text-[#7c5277]">
+          Loading push settings…
         </p>
       ) : !isAvailable ? (
         <p className="mt-4 text-sm font-medium text-[#7c5277]">

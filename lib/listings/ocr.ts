@@ -1,5 +1,7 @@
 import "server-only";
 
+import { existsSync } from "node:fs";
+
 import { ImageAnnotatorClient } from "@google-cloud/vision";
 
 import { getOptionalEnv, getOptionalMultilineEnv } from "@/lib/env";
@@ -13,7 +15,23 @@ import {
 
 let cachedVisionClient: ImageAnnotatorClient | null = null;
 
+/** Fixes common .env PEM mistakes (Windows / copy-paste). */
+function normalizeInlinePrivateKey(key: string) {
+  let k = key.trim().replace(/\r\n/g, "\n");
+  k = k.replace(/\\n/g, "\n");
+  return k;
+}
+
+function visionProjectId() {
+  return getOptionalEnv("GOOGLE_CLOUD_PROJECT_ID") ?? getOptionalEnv("GOOGLE_CLOUD_PROJECT");
+}
+
 function isGoogleVisionConfigured() {
+  const adc = getOptionalEnv("GOOGLE_APPLICATION_CREDENTIALS");
+  if (adc && existsSync(adc)) {
+    return true;
+  }
+
   const clientEmail = getOptionalEnv("GOOGLE_CLOUD_CLIENT_EMAIL");
   const privateKey = getOptionalMultilineEnv("GOOGLE_CLOUD_PRIVATE_KEY");
 
@@ -29,11 +47,19 @@ function getVisionClient(): ImageAnnotatorClient | null {
     return cachedVisionClient;
   }
 
+  const projectId = visionProjectId();
+  const adc = getOptionalEnv("GOOGLE_APPLICATION_CREDENTIALS");
+
+  if (adc && existsSync(adc)) {
+    cachedVisionClient = new ImageAnnotatorClient({
+      keyFilename: adc,
+      projectId,
+    });
+    return cachedVisionClient;
+  }
+
   const clientEmail = getOptionalEnv("GOOGLE_CLOUD_CLIENT_EMAIL")!;
-  const privateKey = getOptionalMultilineEnv("GOOGLE_CLOUD_PRIVATE_KEY")!;
-  const projectId =
-    getOptionalEnv("GOOGLE_CLOUD_PROJECT_ID") ??
-    getOptionalEnv("GOOGLE_CLOUD_PROJECT");
+  const privateKey = normalizeInlinePrivateKey(getOptionalMultilineEnv("GOOGLE_CLOUD_PRIVATE_KEY")!);
 
   cachedVisionClient = new ImageAnnotatorClient({
     credentials: {
@@ -61,7 +87,7 @@ export async function runListingOcr(file: File): Promise<ListingOcrResult> {
       packageDateKind: "other",
       packageDateLabel: "",
       reason:
-        "OCR is not configured. Set GOOGLE_CLOUD_CLIENT_EMAIL, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_PROJECT_ID in .env.local (service account with Vision API access). See .env.example.",
+        "OCR is not configured. Set GOOGLE_APPLICATION_CREDENTIALS to your service account JSON path, or set GOOGLE_CLOUD_CLIENT_EMAIL, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_PROJECT_ID. See .env.example.",
     };
   }
 
@@ -104,6 +130,12 @@ export async function runListingOcr(file: File): Promise<ListingOcrResult> {
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "OCR is unavailable.";
+    const reason =
+      /requires billing|enable billing on project/i.test(message)
+        ? "OCR is temporarily unavailable: the Google Cloud project needs billing enabled (Vision API requires it, even within free-tier limits). Enter the date manually for now, or try again after billing is enabled."
+        : /DECODER|1E08010C|DECODER routines|unsupported/i.test(message)
+          ? "OCR could not read your Google service account key (invalid PEM in GOOGLE_CLOUD_PRIVATE_KEY is common on Windows). Fix: set GOOGLE_APPLICATION_CREDENTIALS to the full path of the downloaded JSON key file, or put the private key in .env as one line with \\n between PEM lines inside double quotes. See .env.example."
+          : message;
 
     return {
       status: "unavailable",
@@ -111,7 +143,7 @@ export async function runListingOcr(file: File): Promise<ListingOcrResult> {
       packageDate: "",
       packageDateKind: "other",
       packageDateLabel: "",
-      reason: message,
+      reason,
     };
   }
 }
