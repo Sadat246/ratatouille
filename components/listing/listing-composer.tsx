@@ -583,17 +583,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     for (const kind of requiredListingImageKinds) {
       const currentSlot = photosRef.current[kind];
 
-      if (!currentSlot?.accepted) {
-        hasPhotoError = true;
-        replaceSlot(kind, (slot) => ({
-          requestId: slot?.requestId ?? 0,
-          status: "error",
-          accepted: slot?.accepted,
-          acceptedPreviewUrl: slot?.acceptedPreviewUrl,
-          pendingFile: slot?.pendingFile,
-          pendingPreviewUrl: slot?.pendingPreviewUrl,
-          error: "Capture and accept this photo before publishing.",
-        }));
+      if (!currentSlot) {
         continue;
       }
 
@@ -609,7 +599,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         continue;
       }
 
-      if (currentSlot.status === "uploading" || !currentSlot.accepted.asset) {
+      if (currentSlot.status === "uploading" || (currentSlot.accepted && !currentSlot.accepted.asset)) {
         hasPhotoError = true;
         replaceSlot(kind, (slot) => ({
           ...(slot ?? {
@@ -709,15 +699,9 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
       return;
     }
 
-    const images = requiredListingImageKinds.map((kind) => photosRef.current[kind]?.accepted?.asset);
-
-    if (images.some((image) => !image)) {
-      setBanner({
-        tone: "error",
-        message: "Wait for all three accepted photos to upload before publishing.",
-      });
-      return;
-    }
+    const images = requiredListingImageKinds
+      .map((kind) => photosRef.current[kind]?.accepted?.asset)
+      .filter((image): image is NonNullable<typeof image> => Boolean(image));
 
     const formData = new FormData();
     const selectedCategory = values.category;
@@ -770,8 +754,8 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
   return (
     <form className="grid gap-5" onSubmit={submit}>
       <div className="rounded-[1.9rem] border border-[#d9cab9] bg-[#fff8ef] px-4 py-4 text-sm leading-7 text-[#5b4a3a]">
-        Three photos up top, form underneath, and no stepper. This desk keeps the
-        listing loop fast enough for a seller working between customers.
+        Photos are optional while we test — fill in the form below and publish. A
+        placeholder image will show on the buyer feed when no photo is attached.
       </div>
 
       {banner ? (

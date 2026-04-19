@@ -91,7 +91,7 @@ export const publishListingSchema = z
       .refine((value) => !Number.isNaN(new Date(value).getTime()), {
         message: "Choose a valid auction end time.",
       }),
-    images: z.array(listingAssetSchema).length(3),
+    images: z.array(listingAssetSchema).max(3),
   })
   .superRefine((value, ctx) => {
     if (value.category === "other" && value.customCategory.trim().length < 2) {
@@ -108,19 +108,6 @@ export const publishListingSchema = z
         path: ["buyoutPriceCents"],
         message: "Buyout has to be higher than the reserve price.",
       });
-    }
-
-    const uploadedKinds = new Set(value.images.map((image) => image.kind));
-
-    for (const kind of requiredListingImageKinds) {
-      if (!uploadedKinds.has(kind)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["images"],
-          message: "Capture and accept the product, seal, and package-date photos.",
-        });
-        break;
-      }
     }
 
     if (!isAuctionEndBeforePackageDate(value.auctionEndsAtIso, value.packageDate)) {
