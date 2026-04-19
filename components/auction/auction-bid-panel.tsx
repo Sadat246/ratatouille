@@ -122,7 +122,7 @@ export function AuctionBidPanel({
           type="button"
           onClick={() => void submit("bid")}
           disabled={!canBid || isPending}
-          className="inline-flex items-center justify-center rounded-[1.5rem] bg-[#f75d36] px-4 py-4 text-base font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#f6b09b]"
+          className="inline-flex items-center justify-center rounded-[1.5rem] bg-[#3d8d5c] px-4 py-4 text-base font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#a8d5b8]"
         >
           Place {formatCurrency(viewer?.minimumNextBidAmountCents ?? reservePriceCents)} bid
         </button>

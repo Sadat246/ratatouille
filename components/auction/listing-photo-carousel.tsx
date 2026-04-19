@@ -28,7 +28,7 @@ export function ListingPhotoCarousel({ images }: ListingPhotoCarouselProps) {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-[4/3] w-full rounded-[2rem] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]" />
+      <div className="aspect-[4/3] w-full rounded-[2rem] bg-[linear-gradient(140deg,#f3fbf5_0%,#cbe8d8_48%,#7ab89a_100%)]" />
     );
   }
 
@@ -62,7 +62,7 @@ export function ListingPhotoCarousel({ images }: ListingPhotoCarouselProps) {
               aria-selected={i === selectedIndex}
               onClick={() => emblaApi?.scrollTo(i)}
               className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                i === selectedIndex ? "bg-[#f75d36]" : "bg-[#dfc9b6]"
+                i === selectedIndex ? "bg-[#3d8d5c]" : "bg-[#dfc9b6]"
               }`}
             />
           ))}

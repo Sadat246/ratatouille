@@ -73,7 +73,7 @@ export function EndingSoonRail({ items }: EndingSoonRailProps) {
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f75d36] text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#3d8d5c] text-white">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
               <path d="M13 3 4 14h6l-1 7 9-11h-6Z" />
             </svg>
@@ -84,7 +84,7 @@ export function EndingSoonRail({ items }: EndingSoonRailProps) {
           {nearestEnd ? (
             <div className="hidden items-center gap-1 sm:flex" suppressHydrationWarning>
               {[hh, mm, ss].map((unit, idx) => (
-                <span key={idx} className="flex h-7 min-w-[28px] items-center justify-center rounded-md bg-[#f75d36] px-1.5 text-xs font-bold text-white">
+                <span key={idx} className="flex h-7 min-w-[28px] items-center justify-center rounded-md bg-[#3d8d5c] px-1.5 text-xs font-bold text-white">
                   {unit}
                 </span>
               ))}
@@ -107,7 +107,7 @@ export function EndingSoonRail({ items }: EndingSoonRailProps) {
             type="button"
             aria-label="Scroll right"
             onClick={() => scrollBy(1)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1a1a1a] text-white transition-colors hover:bg-[#f75d36]"
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1a1a1a] text-white transition-colors hover:bg-[#3d8d5c]"
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m9 6 6 6-6 6" />

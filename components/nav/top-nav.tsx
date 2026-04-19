@@ -95,7 +95,7 @@ export function TopNav({ activeHref, items }: TopNavProps) {
             aria-current={active ? "page" : undefined}
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold tracking-[0.01em] transition-colors ${
               active
-                ? "bg-[#f75d36] text-white"
+                ? "bg-[#3d8d5c] text-white"
                 : "text-[#5b4638] hover:bg-white/70"
             }`}
           >

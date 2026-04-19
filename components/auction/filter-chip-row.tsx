@@ -19,7 +19,7 @@ const SORT_OPTIONS: { value: SortBy; label: string }[] = [
 const CHIP_INACTIVE =
   "inline-flex items-center whitespace-nowrap rounded-full border border-[#edd6be] bg-[rgba(255,248,239,0.88)] px-3.5 py-2 text-xs font-semibold text-[#705446] transition-colors min-h-[44px]";
 const CHIP_ACTIVE =
-  "inline-flex items-center whitespace-nowrap rounded-full border border-[#f75d36] bg-[#f75d36] px-3.5 py-2 text-xs font-semibold text-white transition-colors min-h-[44px]";
+  "inline-flex items-center whitespace-nowrap rounded-full border border-[#3d8d5c] bg-[#3d8d5c] px-3.5 py-2 text-xs font-semibold text-white transition-colors min-h-[44px]";
 
 export function FilterChipRow({
   sortBy,

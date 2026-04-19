@@ -44,7 +44,7 @@ export default async function ConsumerSignInPage() {
           </p>
         </section>
 
-        <section className="rounded-[2.3rem] bg-[linear-gradient(145deg,#f75d36_0%,#ff8a60_45%,#ffbf87_100%)] p-5 text-white shadow-[0_35px_110px_rgba(247,93,54,0.28)]">
+        <section className="rounded-[2.3rem] bg-[linear-gradient(145deg,#1e5a37_0%,#3d8d5c_45%,#7ab89a_100%)] p-5 text-white shadow-[0_35px_110px_rgba(30,90,55,0.3)]">
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.26em] text-white/74">
             Shopper lane
           </p>

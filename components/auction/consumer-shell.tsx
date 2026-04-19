@@ -24,7 +24,7 @@ export function ConsumerShell({
   badge,
   title,
   description,
-  heroClassName = "bg-[linear-gradient(145deg,#f75d36_0%,#ff8660_46%,#ffc483_100%)] text-white shadow-[0_35px_110px_rgba(247,93,54,0.3)]",
+  heroClassName = "bg-[linear-gradient(145deg,#1e5a37_0%,#3d8d5c_46%,#7ab89a_100%)] text-white shadow-[0_35px_110px_rgba(30,90,55,0.32)]",
   locationLabel,
   children,
 }: ConsumerShellProps) {

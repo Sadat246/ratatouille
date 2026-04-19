@@ -7,7 +7,7 @@ import { getRoleHome } from "@/lib/auth/roles";
 function LandingWordmark() {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex h-11 w-11 items-center justify-center rounded-[1.1rem] bg-[#4a7ab8] text-[#def0f7] shadow-[0_14px_30px_rgba(30,55,85,0.22)]">
+      <span className="flex h-11 w-11 items-center justify-center rounded-[1.1rem] bg-[#3d8d5c] text-[#effaf3] shadow-[0_14px_30px_rgba(30,70,45,0.22)]">
         <svg
           aria-hidden="true"
           viewBox="0 0 64 64"
@@ -85,7 +85,7 @@ export default async function Home() {
           </Link>
           <Link
             href="/signin/business"
-            className="rounded-full bg-[#4a7ab8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#365c8e]"
+            className="rounded-full bg-[#3d8d5c] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1e5a37]"
           >
             Sign up
           </Link>
@@ -107,7 +107,7 @@ export default async function Home() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/signin/consumer"
-              className="inline-flex items-center gap-2 rounded-full bg-[#4a7ab8] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#365c8e]"
+              className="inline-flex items-center gap-2 rounded-full bg-[#3d8d5c] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1e5a37]"
             >
               Shop deals
               <span aria-hidden="true">→</span>
@@ -131,18 +131,18 @@ export default async function Home() {
         <div className="flex items-center justify-center lg:justify-end">
           <div className="w-full max-w-[420px] rounded-[1.5rem] border border-[#eaeaea] bg-white p-5 shadow-[0_30px_80px_rgba(24,20,18,0.08)]">
             <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#e1edf3] px-3 py-1 text-xs font-semibold text-[#365c8e]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#4a7ab8]" />
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#e6f1ea] px-3 py-1 text-xs font-semibold text-[#1e5a37]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#3d8d5c]" />
                 Ending in 12m
               </span>
               <span className="text-xs text-[#9a9a9a]">0.4 mi away</span>
             </div>
-            <div className="relative mt-4 aspect-[4/3] overflow-hidden rounded-[1rem] bg-[linear-gradient(135deg,#d9e8f3_0%,#82a7c9_60%,#3a6a95_100%)]">
-              <span className="absolute right-3 top-3 rounded-full border border-white/60 bg-white/80 px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[#485e7a]">
+            <div className="relative mt-4 aspect-[4/3] overflow-hidden rounded-[1rem] bg-[linear-gradient(135deg,#d9efe0_0%,#82c29a_60%,#3a8858_100%)]">
+              <span className="absolute right-3 top-3 rounded-full border border-white/60 bg-white/80 px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[#2f5a43]">
                 Dairy
               </span>
             </div>
-            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#4a7ab8]">
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#3d8d5c]">
               Corner Market
             </p>
             <h3 className="mt-1 text-lg font-semibold tracking-tight">
@@ -178,7 +178,7 @@ export default async function Home() {
         className="border-y border-[#eaeaea] bg-[#fafafa] py-20 lg:py-28"
       >
         <div className="mx-auto max-w-6xl px-6 lg:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#4a7ab8]">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#3d8d5c]">
             Why Ratatouille
           </p>
           <h2 className="mt-3 max-w-[22ch] text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.1] tracking-tight">
@@ -202,9 +202,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="how" className="bg-[#0e1318] py-20 text-white lg:py-28">
+      <section id="how" className="bg-[#0f1f17] py-20 text-white lg:py-28">
         <div className="mx-auto max-w-6xl px-6 lg:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a7c9e5]">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a8d5b8]">
             How it works
           </p>
           <h2 className="mt-3 max-w-[22ch] text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.1] tracking-tight">
@@ -232,10 +232,10 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-20 lg:px-10 lg:py-28">
-        <div className="rounded-[1.75rem] bg-[#0e1318] px-8 py-14 text-white lg:px-14">
+        <div className="rounded-[1.75rem] bg-[#0f1f17] px-8 py-14 text-white lg:px-14">
           <div className="flex flex-wrap items-center justify-between gap-8">
             <div className="max-w-[32ch]">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a7c9e5]">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a8d5b8]">
                 Get started
               </p>
               <h2 className="mt-3 text-[clamp(1.75rem,3vw,2.5rem)] font-semibold leading-tight tracking-tight">
@@ -245,7 +245,7 @@ export default async function Home() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/signin/consumer"
-                className="inline-flex items-center gap-2 rounded-full bg-[#4a7ab8] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#365c8e]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#3d8d5c] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1e5a37]"
               >
                 Shop deals
                 <span aria-hidden="true">→</span>

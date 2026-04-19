@@ -13,7 +13,7 @@ export function Wordmark({
     <div className="flex items-center gap-3">
       <span
         className={`flex h-12 w-12 items-center justify-center rounded-[1.35rem] shadow-[0_18px_40px_rgba(86,34,20,0.16)] ${
-          isLight ? "bg-white/14 text-[#fff0dc]" : "bg-[#f75d36] text-[#fff2df]"
+          isLight ? "bg-white/14 text-[#eaf6ee]" : "bg-[#3d8d5c] text-[#eaf6ee]"
         }`}
       >
         <svg

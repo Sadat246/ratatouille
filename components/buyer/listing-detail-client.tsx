@@ -113,11 +113,11 @@ export function ListingDetailClient({
         aria-label="Breadcrumb"
         className="flex items-center gap-2 text-xs font-medium text-[#666]"
       >
-        <Link href="/shop" className="hover:text-[#f75d36]">
+        <Link href="/shop" className="hover:text-[#3d8d5c]">
           Shop
         </Link>
         <span aria-hidden="true">/</span>
-        <Link href="/shop" className="hover:text-[#f75d36]">
+        <Link href="/shop" className="hover:text-[#3d8d5c]">
           {auction.business.name}
         </Link>
         <span aria-hidden="true">/</span>
@@ -196,7 +196,7 @@ export function ListingDetailClient({
 
           <section className="rounded-2xl border border-[#ececec] bg-white p-5">
             <div className="flex items-start gap-3">
-              <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#fff5ef] text-[#f75d36]">
+              <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#effaf3] text-[#1e5a37]">
                 <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 7h11v8H3Zm11 2h3l2 2v4h-5" />
                   <circle cx="8" cy="17" r="1.5" fill="currentColor" stroke="none" />
@@ -233,12 +233,12 @@ export function ListingDetailClient({
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
                   open
-                    ? "bg-[#fff0eb] text-[#9f3a20]"
+                    ? "bg-[#e6f1ea] text-[#1e5a37]"
                     : "bg-[#f3f3f3] text-[#4a4a4a]"
                 }`}
               >
                 {open ? (
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#f75d36]" />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3d8d5c]" />
                 ) : null}
                 {resultLabel}
               </span>
@@ -266,7 +266,7 @@ export function ListingDetailClient({
                       {formatCurrency(auction.buyoutPriceCents)}
                     </span>
                     {discountPct ? (
-                      <span className="rounded bg-[#f75d36] px-1.5 py-0.5 text-[0.7rem] font-bold text-white">
+                      <span className="rounded bg-[#3d8d5c] px-1.5 py-0.5 text-[0.7rem] font-bold text-white">
                         -{discountPct}%
                       </span>
                     ) : null}
@@ -361,7 +361,7 @@ export function ListingDetailClient({
       </div>
 
       {refreshError ? (
-        <p className="text-sm font-medium text-[#b3431b]">{refreshError}</p>
+        <p className="text-sm font-medium text-[#a14431]">{refreshError}</p>
       ) : null}
     </div>
   );
