@@ -100,7 +100,7 @@ export default async function SellPage() {
         title="Operations lanes"
         tone="border-[#d7e6de] bg-[rgba(240,248,244,0.92)] text-[#163025]"
       >
-        <div className="grid gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {demoModeEnabled ? (
             <Link
               href="/sell/demo"

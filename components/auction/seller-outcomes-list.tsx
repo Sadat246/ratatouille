@@ -23,7 +23,7 @@ export function SellerOutcomesList({ items }: SellerOutcomesListProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {items.map((item) => (
         <article
           key={item.id}
