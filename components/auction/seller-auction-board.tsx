@@ -56,11 +56,11 @@ export function SellerAuctionBoard({ items }: SellerAuctionBoardProps) {
 
   if (items.length === 0) {
     return (
-      <section className="rounded-[2rem] border border-[#d9e6de] bg-[rgba(241,248,244,0.92)] p-5">
-        <h2 className="text-lg font-semibold tracking-[-0.03em] text-[#173127]">
+      <section className="rounded-[1rem] border border-[#eaeaea] bg-white p-5">
+        <h2 className="text-base font-semibold tracking-tight text-[#1a1a1a]">
           No live auctions
         </h2>
-        <p className="mt-2 text-sm leading-6 text-[#466255]">
+        <p className="mt-2 text-sm leading-6 text-[#6b6b6b]">
           Fresh listings show up here the moment they go live, with the current
           price, bid count, timer, and seller-side cancel control.
         </p>
@@ -73,17 +73,17 @@ export function SellerAuctionBoard({ items }: SellerAuctionBoardProps) {
       {items.map((item) => (
         <article
           key={item.id}
-          className="rounded-[2rem] border border-[#d8e4dc] bg-white/92 p-5 shadow-[0_20px_60px_rgba(35,43,28,0.08)]"
+          className="rounded-[1rem] border border-[#eaeaea] bg-white p-5"
         >
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#55776a]">
+            <div className="min-w-0">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[#9a9a9a]">
                 Live auction
               </p>
-              <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[#17241e]">
+              <h3 className="mt-1.5 text-lg font-semibold tracking-tight text-[#1a1a1a]">
                 {item.listing.title}
               </h3>
-              <p className="mt-2 text-sm text-[#5d6b65]">
+              <p className="mt-1 text-sm text-[#6b6b6b]">
                 {formatPackageLabel(item.listing.packageDate)}
               </p>
             </div>
@@ -106,18 +106,18 @@ export function SellerAuctionBoard({ items }: SellerAuctionBoardProps) {
                 value: formatCurrency(item.buyoutPriceCents),
               },
               {
-                label: "Bid count",
+                label: "Bids",
                 value: String(item.bidCount).padStart(2, "0"),
               },
             ].map((metric) => (
               <div
                 key={metric.label}
-                className="rounded-[1.4rem] border border-[#dce6df] bg-[rgba(244,249,246,0.9)] p-3"
+                className="rounded-[0.75rem] border border-[#eaeaea] bg-[#fafafa] p-3"
               >
-                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[#648577]">
+                <p className="text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-[#9a9a9a]">
                   {metric.label}
                 </p>
-                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[#173127]">
+                <p className="mt-1.5 text-lg font-semibold tracking-tight text-[#1a1a1a]">
                   {metric.value}
                 </p>
               </div>
@@ -125,15 +125,15 @@ export function SellerAuctionBoard({ items }: SellerAuctionBoardProps) {
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3">
-            <p className="text-sm text-[#5c6d64]">
-              Reserve {formatCurrency(item.reservePriceCents)}. Keep this hands-off unless you need to cancel.
+            <p className="text-sm text-[#6b6b6b]">
+              Reserve {formatCurrency(item.reservePriceCents)}
             </p>
 
             <button
               type="button"
               onClick={() => void cancelAuction(item.id)}
               disabled={pendingAuctionId === item.id}
-              className="inline-flex items-center justify-center rounded-full border border-[#d8b7a6] px-4 py-2 text-sm font-semibold text-[#754c39] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-full border border-[#eaeaea] bg-white px-4 py-1.5 text-sm font-medium text-[#1a1a1a] transition hover:border-[#dcdcdc] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel auction
             </button>
@@ -141,8 +141,8 @@ export function SellerAuctionBoard({ items }: SellerAuctionBoardProps) {
         </article>
       ))}
 
-      {feedback ? <p className="text-sm font-medium text-[#1f6b49]">{feedback}</p> : null}
-      {error ? <p className="text-sm font-medium text-[#b3431b]">{error}</p> : null}
+      {feedback ? <p className="text-sm font-medium text-[#2f6b4d]">{feedback}</p> : null}
+      {error ? <p className="text-sm font-medium text-[#a14431]">{error}</p> : null}
     </div>
   );
 }

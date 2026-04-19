@@ -162,22 +162,22 @@ export function PushOptInPanel({
   }
 
   return (
-    <section className="rounded-[2rem] border border-[#d9ddf6] bg-[rgba(243,245,255,0.9)] p-5">
+    <section className="rounded-[1rem] border border-[#eaeaea] bg-white p-5">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#6a5f9f]">
+        <div className="min-w-0">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[#9a9a9a]">
             Push notifications
           </p>
-          <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[#1d1737]">
+          <h3 className="mt-1.5 text-base font-semibold tracking-tight text-[#1a1a1a]">
             {title}
           </h3>
-          <p className="mt-2 text-sm leading-6 text-[#4a426d]">{description}</p>
+          <p className="mt-2 text-sm leading-6 text-[#6b6b6b]">{description}</p>
         </div>
         <span
-          className={`rounded-full px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em] ${
+          className={`shrink-0 rounded-full px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] ${
             isSubscribed
-              ? "bg-[#1f7f55] text-white"
-              : "bg-[#e8dcf8] text-[#6a4d97]"
+              ? "bg-[#e6f1ea] text-[#2f6b4d]"
+              : "bg-[#f0f0f0] text-[#5a5a5a]"
           }`}
         >
           {isSubscribed ? "On" : "Off"}
@@ -185,19 +185,17 @@ export function PushOptInPanel({
       </div>
 
       {!mounted ? (
-        <p className="mt-4 text-sm font-medium text-[#7c5277]">
+        <p className="mt-4 text-sm text-[#7a7a7a]">
           Checking push notification support…
         </p>
       ) : !isSupported ? (
-        <p className="mt-4 text-sm font-medium text-[#7c5277]">
+        <p className="mt-4 text-sm text-[#7a7a7a]">
           This browser does not expose Service Worker Push APIs.
         </p>
       ) : !availabilityLoaded ? (
-        <p className="mt-4 text-sm font-medium text-[#7c5277]">
-          Loading push settings…
-        </p>
+        <p className="mt-4 text-sm text-[#7a7a7a]">Loading push settings…</p>
       ) : !isAvailable ? (
-        <p className="mt-4 text-sm font-medium text-[#7c5277]">
+        <p className="mt-4 text-sm text-[#7a7a7a]">
           Push is not configured on this deployment yet. The rest of the auction
           flow still works normally.
         </p>
@@ -207,7 +205,7 @@ export function PushOptInPanel({
             type="button"
             onClick={() => void enablePush()}
             disabled={isPending || isSubscribed}
-            className="inline-flex items-center justify-center rounded-full bg-[#5a4ea6] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#b2abd9]"
+            className="inline-flex items-center justify-center rounded-full bg-[#4a7ab8] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#365c8e] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Enable alerts
           </button>
@@ -215,7 +213,7 @@ export function PushOptInPanel({
             type="button"
             onClick={() => void disablePush()}
             disabled={isPending || !isSubscribed}
-            className="inline-flex items-center justify-center rounded-full border border-[#c4bddc] px-4 py-2 text-sm font-semibold text-[#554d78] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-full border border-[#eaeaea] bg-white px-4 py-2 text-sm font-medium text-[#1a1a1a] transition hover:border-[#dcdcdc] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Disable alerts
           </button>
@@ -223,9 +221,9 @@ export function PushOptInPanel({
       )}
 
       {feedback ? (
-        <p className="mt-3 text-sm font-medium text-[#1e6b4a]">{feedback}</p>
+        <p className="mt-3 text-sm font-medium text-[#2f6b4d]">{feedback}</p>
       ) : null}
-      {error ? <p className="mt-3 text-sm font-medium text-[#b4441b]">{error}</p> : null}
+      {error ? <p className="mt-3 text-sm font-medium text-[#a14431]">{error}</p> : null}
     </section>
   );
 }

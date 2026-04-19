@@ -20,17 +20,17 @@ export function ProgressSteps({
           return (
             <div key={step} className="flex min-w-0 flex-1 items-center gap-2">
               <div
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition ${
                   isComplete || isCurrent
-                    ? "bg-[#1f1410] text-white"
-                    : "border border-[#dcc5b6] bg-white text-[#7a5645]"
+                    ? "bg-[#1a1a1a] text-white"
+                    : "border border-[#eaeaea] bg-white text-[#9a9a9a]"
                 }`}
               >
                 {stepNumber}
               </div>
               <div
-                className={`h-1 flex-1 rounded-full ${
-                  isComplete ? "bg-[#1f1410]" : "bg-[#ebdacf]"
+                className={`h-px flex-1 rounded-full ${
+                  isComplete ? "bg-[#1a1a1a]" : "bg-[#eaeaea]"
                 } ${stepNumber === steps.length ? "hidden" : ""}`}
               />
             </div>
@@ -38,10 +38,10 @@ export function ProgressSteps({
         })}
       </div>
       <div className="grid gap-1">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.26em] text-[#9a5537]">
+        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#9a9a9a]">
           Step {currentStep} of {steps.length}
         </p>
-        <p className="text-lg font-semibold tracking-[-0.03em] text-[#241510]">
+        <p className="text-base font-semibold tracking-tight text-[#1a1a1a]">
           {steps[currentStep - 1]}
         </p>
       </div>

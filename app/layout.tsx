@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 
-import { ReportWidget } from "@/components/bug-report/report-widget";
-
 import "./globals.css";
 
 const displayFont = Space_Grotesk({
@@ -52,10 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable} scroll-smooth`}>
-      <body className="antialiased">
-        <ReportWidget />
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
