@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { StripeCardSetup } from "@/components/auction/stripe-card-setup";
 import { formatCurrency } from "@/lib/auctions/display";
@@ -43,6 +44,7 @@ export function AuctionBidPanel({
   viewer,
   onAuctionChange,
 }: AuctionBidPanelProps) {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -78,6 +80,10 @@ export function AuctionBidPanel({
           ? "Bid accepted by the server."
           : "Buyout accepted by the server.",
       );
+
+      if (kind === "buyout") {
+        router.push(`/shop/orders?focus=${auctionId}`);
+      }
     } catch {
       setError("The auction action failed. Try again in a moment.");
     } finally {
