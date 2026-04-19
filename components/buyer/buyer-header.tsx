@@ -1,0 +1,160 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import type { ReactNode } from "react";
+
+type BuyerHeaderProps = {
+  activeHref: string;
+  locationLabel: string;
+  signOutSlot: ReactNode;
+};
+
+const navLinks = [
+  { href: "/shop", label: "Home" },
+  { href: "/shop/bids", label: "My Bids" },
+  { href: "/shop/alerts", label: "Alerts" },
+];
+
+export function BuyerHeader({
+  activeHref,
+  locationLabel,
+  signOutSlot,
+}: BuyerHeaderProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryParam = searchParams.get("q") ?? "";
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const trimmed = String(formData.get("q") ?? "").trim();
+    const params = new URLSearchParams();
+    if (trimmed) {
+      params.set("q", trimmed);
+    }
+    const qs = params.toString();
+    router.push(qs ? `/shop?${qs}` : "/shop");
+  }
+
+  return (
+    <header className="sticky top-0 z-30 w-full border-b border-[#ececec] bg-white">
+      <div className="border-b border-[#f3f3f3] bg-[#fafafa]">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-2 text-[0.72rem] font-medium text-[#6a6a6a] lg:px-10">
+          <span className="inline-flex items-center gap-2">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20s5-4.8 5-9a5 5 0 1 0-10 0c0 4.2 5 9 5 9Z" />
+              <circle cx="12" cy="11" r="1.8" fill="currentColor" stroke="none" />
+            </svg>
+            {locationLabel}
+          </span>
+          <div className="flex items-center gap-5">
+            {navLinks.map((item) => {
+              const active = item.href === activeHref;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`transition-colors ${active ? "text-[#f75d36]" : "hover:text-[#1a1a1a]"}`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+            {signOutSlot}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto flex w-full max-w-7xl items-center gap-6 px-6 py-4 lg:px-10">
+        <Link href="/shop" className="flex items-center gap-2">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[0.9rem] bg-[#f75d36] text-white">
+            <svg aria-hidden="true" viewBox="0 0 64 64" className="h-6 w-6" fill="currentColor">
+              <path d="M17 48V16h14.5c8 0 14.2 4.1 14.2 11.7 0 6.2-3.8 10-10 11.6L47 48h-8.5l-9.3-8h-4.9v8Zm8.7-15h5.1c4.4 0 6.4-1.8 6.4-4.9 0-3.2-2-4.8-6.4-4.8h-5.1Z" />
+            </svg>
+          </span>
+          <span className="text-lg font-semibold tracking-[-0.03em] text-[#1a1a1a]">
+            Ratatouille<span className="text-[#f75d36]">.</span>
+          </span>
+        </Link>
+
+        <form
+          onSubmit={handleSubmit}
+          className="hidden flex-1 items-center overflow-hidden rounded-full border border-[#e4e4e4] bg-white focus-within:border-[#f75d36] md:flex"
+        >
+          <button
+            type="button"
+            className="flex items-center gap-2 border-r border-[#e4e4e4] px-4 py-2.5 text-sm font-medium text-[#4a4a4a] hover:bg-[#fafafa]"
+            onClick={() => {
+              const categorySection = document.getElementById("shop-categories");
+              categorySection?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
+            All Category
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div className="flex flex-1 items-center gap-2 px-4">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-[#9a9a9a]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+            <input
+              key={queryParam}
+              name="q"
+              defaultValue={queryParam}
+              type="search"
+              placeholder="Search food deals or stores near you…"
+              className="flex-1 bg-transparent py-2.5 text-sm text-[#1a1a1a] outline-none placeholder:text-[#9a9a9a]"
+            />
+          </div>
+        </form>
+
+        <div className="flex items-center gap-2">
+          <Link
+            href="/shop/bids"
+            aria-label="My bids"
+            className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#e4e4e4] text-[#4a4a4a] transition-colors hover:border-[#f75d36] hover:text-[#f75d36] ${
+              activeHref === "/shop/bids" ? "border-[#f75d36] text-[#f75d36]" : ""
+            }`}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 8h12l-1 12H7ZM9 8V6a3 3 0 0 1 6 0v2" />
+            </svg>
+          </Link>
+          <Link
+            href="/shop/alerts"
+            aria-label="Alerts"
+            className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#e4e4e4] text-[#4a4a4a] transition-colors hover:border-[#f75d36] hover:text-[#f75d36] ${
+              activeHref === "/shop/alerts" ? "border-[#f75d36] text-[#f75d36]" : ""
+            }`}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 18h8m-7-2V10a3 3 0 1 1 6 0v6l1.5 2H7.5Z" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="mx-auto w-full max-w-7xl px-6 pb-3 md:hidden">
+        <div className="flex items-center overflow-hidden rounded-full border border-[#e4e4e4] bg-white focus-within:border-[#f75d36]">
+          <div className="flex flex-1 items-center gap-2 px-4">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-[#9a9a9a]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+            <input
+              key={queryParam}
+              name="q"
+              defaultValue={queryParam}
+              type="search"
+              placeholder="Search deals…"
+              className="flex-1 bg-transparent py-2.5 text-sm text-[#1a1a1a] outline-none placeholder:text-[#9a9a9a]"
+            />
+          </div>
+        </div>
+      </form>
+    </header>
+  );
+}
