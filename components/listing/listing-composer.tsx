@@ -8,6 +8,10 @@ import { listingCategoryOptions, type ListingCategory } from "@/lib/listings/cat
 import { optimizeListingImage, createListingImagePreview, restoreDraftImageFile } from "@/lib/listings/client-images";
 import { getPackageDateLabel, isAuctionEndBeforePackageDate, parsePackageDateInput } from "@/lib/listings/date-parser";
 import { clearListingDraft, readListingDraft, requestPersistentListingDraftStorage, saveListingDraft } from "@/lib/listings/draft-store";
+import type {
+  GeminiSealAssessment,
+  ListingGeminiAutofillResult,
+} from "@/lib/listings/ai-autofill-types";
 import type { ListingDraftImageSnapshot, ListingOcrResult, UploadedListingAsset } from "@/lib/listings/draft-types";
 import { packageDateKindLabels, packageDateKindValues, requiredListingImageKinds, type PackageDateKind, type RequiredListingImageKind } from "@/lib/listings/shared";
 
@@ -249,6 +253,38 @@ async function requestListingOcr(file: File): Promise<ListingOcrResult> {
   return payload;
 }
 
+async function requestListingGeminiAutofill(params: {
+  product: File;
+  seal?: File;
+}): Promise<ListingGeminiAutofillResult> {
+  const formData = new FormData();
+  formData.set("product", params.product);
+  if (params.seal) {
+    formData.set("seal", params.seal);
+  }
+
+  const response = await fetch("/api/listings/ai-autofill", {
+    method: "POST",
+    body: formData,
+  });
+
+  const payload = (await response.json()) as ListingGeminiAutofillResult & {
+    error?: string;
+  };
+
+  if (!response.ok) {
+    return {
+      status: "unavailable",
+      reason:
+        typeof payload === "object" && payload && "error" in payload && typeof payload.error === "string"
+          ? payload.error
+          : "AI autofill request failed.",
+    };
+  }
+
+  return payload;
+}
+
 export function ListingComposer({ businessId, action }: ListingComposerProps) {
   const router = useRouter();
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -259,6 +295,10 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     tone: "success" | "error";
     message: string;
   } | null>(null);
+  const [ocrFilledPackageDate, setOcrFilledPackageDate] = useState(false);
+  const [geminiHint, setGeminiHint] = useState<string | null>(null);
+  const [geminiBusy, setGeminiBusy] = useState<"idle" | "product" | "seal">("idle");
+  const [sealAiAssessment, setSealAiAssessment] = useState<GeminiSealAssessment | null>(null);
   const [isPublishing, startPublish] = useTransition();
   const {
     register,
@@ -386,9 +426,11 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     setValue("ocrRawText", result.rawText, { shouldDirty: true });
 
     if (result.status !== "succeeded") {
+      setOcrFilledPackageDate(false);
       return;
     }
 
+    setOcrFilledPackageDate(true);
     setValue("packageDate", result.packageDate, {
       shouldDirty: true,
       shouldValidate: true,
@@ -412,10 +454,90 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     }
   }
 
+  function applyGeminiAutofill(result: ListingGeminiAutofillResult, mode: "product" | "seal") {
+    if (result.status !== "succeeded") {
+      setGeminiHint(result.reason);
+      return;
+    }
+
+    const v = getValues();
+    const p = result.product;
+
+    if (mode === "product") {
+      if (p.title?.trim() && !v.title.trim()) {
+        setValue("title", p.title.trim(), { shouldDirty: true });
+      }
+      if (p.category && !v.category) {
+        setValue("category", p.category, { shouldDirty: true });
+        if (p.category !== "other") {
+          setValue("customCategory", "", { shouldDirty: true });
+        }
+      }
+      if (p.category === "other" && p.customCategory?.trim()) {
+        setValue("category", "other", { shouldDirty: true });
+        if (!v.customCategory.trim()) {
+          setValue("customCategory", p.customCategory.trim(), { shouldDirty: true });
+        }
+      }
+      if (p.description?.trim() && !v.description.trim()) {
+        setValue("description", p.description.trim(), { shouldDirty: true });
+      }
+      setGeminiHint(
+        "Title, category, and listing notes were suggested from the product photo (Gemini). Review and edit before publishing.",
+      );
+    }
+
+    if (mode === "seal") {
+      if (result.seal) {
+        setSealAiAssessment({
+          appearsFactorySealed: result.seal.appearsFactorySealed,
+          confidence: result.seal.confidence,
+          notes: result.seal.notes,
+        });
+        setGeminiHint(
+          "Seal photo analyzed (Gemini). This is a visual hint only — you are responsible for what you list.",
+        );
+      } else {
+        setSealAiAssessment(null);
+        setGeminiHint(
+          "Gemini did not return a seal assessment. Check the photo yourself before publishing.",
+        );
+      }
+    }
+  }
+
+  async function runGeminiForProductPhoto(file: File) {
+    setGeminiBusy("product");
+    setGeminiHint(null);
+    try {
+      const result = await requestListingGeminiAutofill({ product: file });
+      applyGeminiAutofill(result, "product");
+    } finally {
+      setGeminiBusy("idle");
+    }
+  }
+
+  async function runGeminiForSealPhoto(productFile: File, sealFile: File) {
+    setGeminiBusy("seal");
+    setGeminiHint(null);
+    try {
+      const result = await requestListingGeminiAutofill({
+        product: productFile,
+        seal: sealFile,
+      });
+      applyGeminiAutofill(result, "seal");
+    } finally {
+      setGeminiBusy("idle");
+    }
+  }
+
   function selectFile(kind: RequiredListingImageKind, file: File) {
     const previewUrl = createListingImagePreview(file);
 
     setBanner(null);
+    if (kind === "product") {
+      setSealAiAssessment(null);
+    }
 
     replaceSlot(kind, (current) => {
       revokePreviewUrl(current?.pendingPreviewUrl);
@@ -464,6 +586,20 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
           error: undefined,
         };
       });
+
+      if (kind === "product") {
+        void runGeminiForProductPhoto(restoredFile);
+      } else if (kind === "seal") {
+        const productAccepted = photosRef.current.product?.accepted;
+        if (productAccepted) {
+          try {
+            const productFile = restoreDraftImageFile(productAccepted);
+            void runGeminiForSealPhoto(productFile, restoredFile);
+          } catch {
+            /* seal autofill is optional */
+          }
+        }
+      }
     } catch (error) {
       replaceSlot(kind, (current) => {
         if (!current || current.requestId !== requestId) {
@@ -758,6 +894,9 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
       });
 
       reset(buildDefaultValues());
+      setOcrFilledPackageDate(false);
+      setGeminiHint(null);
+      setSealAiAssessment(null);
       setBanner({
         tone: "success",
         message: "Listed. The desk is reset and ready for another item.",
@@ -770,9 +909,25 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
   return (
     <form className="grid gap-5" onSubmit={submit}>
       <div className="rounded-[0.85rem] border border-[#eaeaea] bg-[#fafafa] px-4 py-3 text-sm leading-6 text-[#6b6b6b]">
-        Three photos up top, form underneath. Designed to keep the listing loop
-        fast enough for a seller working between customers.
+        Three photos first, then the form. Cloud Vision reads the stamped date from
+        the package-date photo; Gemini can suggest title, category, and notes from
+        the product shot, and give a non-binding seal check when both product and
+        seal photos are in place. You always review before publish.
       </div>
+
+      {geminiBusy !== "idle" ? (
+        <div className="rounded-[0.85rem] border border-[#e1edf3] bg-[#f4f8fb] px-4 py-3 text-sm leading-6 text-[#365c8e]">
+          {geminiBusy === "product"
+            ? "Suggesting listing text from the product photo (Gemini)…"
+            : "Checking the seal photo against the product photo (Gemini)…"}
+        </div>
+      ) : null}
+
+      {geminiHint && geminiBusy === "idle" ? (
+        <div className="rounded-[0.85rem] border border-[#e8e4dc] bg-[#fbfaf6] px-4 py-3 text-sm leading-6 text-[#5c5346]">
+          {geminiHint}
+        </div>
+      ) : null}
 
       {banner ? (
         <div
@@ -828,10 +983,31 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         </div>
       </div>
 
+      {sealAiAssessment ? (
+        <div className="rounded-[0.85rem] border border-[#e8e4dc] bg-[#fbfaf6] px-4 py-3 text-sm leading-6 text-[#5c5346]">
+          <p className="font-semibold text-[#3d382f]">Seal check (advisory)</p>
+          <p className="mt-1">
+            Looks factory-sealed:{" "}
+            <span className="font-medium">
+              {sealAiAssessment.appearsFactorySealed ? "Yes (best guess)" : "Unclear or opened"}
+            </span>
+            <span className="text-[#7a7268]"> · Confidence: {sealAiAssessment.confidence}</span>
+          </p>
+          <p className="mt-2 text-[#6b6358]">{sealAiAssessment.notes}</p>
+          <p className="mt-2 text-xs text-[#8a8278]">
+            Not a guarantee of safety or authenticity — only your inspection counts for what you sell.
+          </p>
+        </div>
+      ) : null}
+
       <div className="grid gap-4 rounded-[1rem] border border-[#eaeaea] bg-white p-4">
         <div className="grid gap-2">
           <label className="grid gap-1.5">
             <span className="text-sm font-medium text-[#1a1a1a]">Product title</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              Short name shoppers see in search and the auction tile. Gemini may suggest this from the
+              product photo; edit if anything is wrong.
+            </span>
             <input
               {...titleField}
               className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
@@ -850,6 +1026,10 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         <div className="grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
           <label className="grid gap-1.5">
             <span className="text-sm font-medium text-[#1a1a1a]">Category</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              Browsing group for your store&apos;s listings. Pick the closest match so buyers filter
+              correctly.
+            </span>
             <select
               {...register("category", {
                 onChange: (event) => {
@@ -872,6 +1052,10 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
 
           <label className="grid gap-1.5">
             <span className="text-sm font-medium text-[#1a1a1a]">Custom category</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              Required when Category is &quot;Other&quot; — name the aisle or type (e.g. vitamins,
+              baking).
+            </span>
             <input
               {...register("customCategory")}
               className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
@@ -887,7 +1071,11 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         ) : null}
 
         <label className="grid gap-1.5">
-          <span className="text-sm font-medium text-[#1a1a1a]">Notes</span>
+          <span className="text-sm font-medium text-[#1a1a1a]">Listing notes</span>
+          <span className="text-xs leading-5 text-[#7a7a7a]">
+            Extra detail for buyers: pack size, brand line, storage, or condition. Shown on the
+            listing page. Gemini may draft a starting paragraph from the product photo.
+          </span>
           <textarea
             {...register("description")}
             className="min-h-28 rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
@@ -898,6 +1086,9 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="grid gap-1.5">
             <span className="text-sm font-medium text-[#1a1a1a]">Reserve price</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              Minimum winning bid (USD). The item won&apos;t sell below this in the auction.
+            </span>
             <input
               {...register("reservePrice")}
               className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
@@ -911,6 +1102,10 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
 
           <label className="grid gap-1.5">
             <span className="text-sm font-medium text-[#1a1a1a]">Buyout price</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              Fixed price that ends the auction immediately if a shopper chooses it. Must be above the
+              reserve.
+            </span>
             <input
               {...register("buyoutPrice")}
               className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
@@ -926,11 +1121,20 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="grid gap-1.5">
             <span className="text-sm font-medium text-[#1a1a1a]">Package date</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              The printed expiry, &quot;best by&quot;, or sell-by date you are standing behind. OCR
+              fills this from the package-date photo when it can — always confirm.
+            </span>
             <input
               {...register("packageDate")}
               className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
               type="date"
             />
+            {ocrFilledPackageDate ? (
+              <p className="text-xs text-[#2f6b4d]">
+                Autofilled from Cloud Vision OCR on your package-date photo — verify before publish.
+              </p>
+            ) : null}
             {errors.packageDate ? (
               <p className="text-sm text-[#a14431]">{errors.packageDate.message}</p>
             ) : null}
@@ -938,6 +1142,10 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
 
           <label className="grid gap-1.5">
             <span className="text-sm font-medium text-[#1a1a1a]">Auction ends</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              Local date and time when bidding stops. Suggested so the auction ends before the
+              package date you confirmed (you can adjust).
+            </span>
             <input
               {...register("auctionEndsAtLocal")}
               className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
@@ -954,6 +1162,10 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         <div className="grid gap-3 sm:grid-cols-[0.9fr_1.1fr]">
           <label className="grid gap-1.5">
             <span className="text-sm font-medium text-[#1a1a1a]">Date label type</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              What the printed date represents (best by, use by, sell by, etc.). OCR picks a default
+              when it can.
+            </span>
             <select
               {...register("packageDateKind", {
                 onChange: (event) => {
@@ -981,7 +1193,11 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
           </label>
 
           <label className="grid gap-1.5">
-            <span className="text-sm font-medium text-[#1a1a1a]">Printed label text</span>
+            <span className="text-sm font-medium text-[#1a1a1a]">Printed label wording</span>
+            <span className="text-xs leading-5 text-[#7a7a7a]">
+              Exact words next to the date on the package (e.g. &quot;BEST BY&quot;). Shown on the
+              listing so buyers know how to read the date.
+            </span>
             <input
               {...register("packageDateLabel")}
               className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
@@ -990,11 +1206,22 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
           </label>
         </div>
 
-        <input type="hidden" {...register("ocrRawText")} />
+        <label className="grid gap-1.5">
+          <span className="text-sm font-medium text-[#1a1a1a]">Raw text from package-date photo</span>
+          <span className="text-xs leading-5 text-[#7a7a7a]">
+            Full text Cloud Vision read from the stamp area. Used internally for support and to
+            double-check the date; edit only if you&apos;re correcting a bad read.
+          </span>
+          <textarea
+            {...register("ocrRawText")}
+            className="min-h-[4.5rem] resize-y rounded-[0.65rem] border border-[#eaeaea] bg-[#fafafa] px-3.5 py-2.5 font-mono text-xs text-[#3a3a3a] outline-none transition focus:border-[#4a7ab8]"
+            spellCheck={false}
+          />
+        </label>
 
         <p className="rounded-[0.65rem] border border-[#eaeaea] bg-[#fafafa] px-3.5 py-3 text-xs leading-5 text-[#7a7a7a]">
-          Drafts auto-save in this browser with accepted photo blobs, so a seller
-          can leave mid-listing and come back without losing the desk state.
+          Drafts auto-save in this browser with accepted photo blobs, so you can leave mid-listing
+          and return without losing the desk.
         </p>
       </div>
 
