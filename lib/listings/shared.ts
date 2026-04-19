@@ -2,7 +2,11 @@ export const requiredListingImageKinds = ["product", "seal", "expiry"] as const;
 
 export type RequiredListingImageKind = (typeof requiredListingImageKinds)[number];
 
-export const listingImageStorageProviderValues = ["local", "cloudinary"] as const;
+export const listingImageStorageProviderValues = [
+  "local",
+  "cloudinary",
+  "vercel_blob",
+] as const;
 
 export type ListingImageStorageProvider =
   (typeof listingImageStorageProviderValues)[number];
