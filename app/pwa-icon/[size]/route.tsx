@@ -3,8 +3,7 @@ import { ImageResponse } from "next/og";
 export const runtime = "edge";
 
 function buildIcon(size: number) {
-  const badgeSize = Math.round(size * 0.56);
-  const glyphSize = Math.round(size * 0.34);
+  const glyphSize = Math.round(size * 0.58);
 
   return (
     <div
@@ -19,24 +18,14 @@ function buildIcon(size: number) {
         borderRadius: Math.round(size * 0.26),
       }}
     >
-      <div
-        style={{
-          width: badgeSize,
-          height: badgeSize,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(180deg, #fff6e6 0%, #ffe4bd 100%)",
-          borderRadius: badgeSize / 2,
-          color: "#231510",
-          fontSize: glyphSize,
-          fontWeight: 800,
-          letterSpacing: "-0.08em",
-          transform: "translateY(-2%)",
-        }}
+      <svg
+        width={glyphSize}
+        height={glyphSize}
+        viewBox="0 0 64 64"
+        fill="#eaf6ee"
       >
-        R
-      </div>
+        <path d="M10 54C10 30 30 10 54 10c0 28-20 44-44 44z" />
+      </svg>
     </div>
   );
 }
