@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth/session";
-import { runListingGeminiTripleExtraction } from "@/lib/listings/gemini-autofill";
+import { runListingGeminiAutofill } from "@/lib/listings/gemini-autofill";
 import { getSellerMembership } from "@/lib/listings/queries";
 
 export const runtime = "nodejs";
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing package-date image." }, { status: 400 });
   }
 
-  const result = await runListingGeminiTripleExtraction({ product, seal, expiry });
+  const result = await runListingGeminiAutofill({ product, seal, expiry });
 
   return NextResponse.json(result);
 }
