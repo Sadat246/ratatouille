@@ -153,6 +153,15 @@ export function AuctionBidPanel({
               setFeedback("Card saved. You can place a bid now.");
             }}
           />
+          {process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith("pk_test_") ? (
+            <p className="mt-3 text-xs leading-5 text-[#6d5245]">
+              Stripe test mode: use{" "}
+              <code className="rounded bg-white/90 px-1 py-0.5 font-mono text-[0.7rem]">
+                4242 4242 4242 4242
+              </code>
+              , any future expiry, any CVC. No real money is charged.
+            </p>
+          ) : null}
         </div>
       ) : null}
 

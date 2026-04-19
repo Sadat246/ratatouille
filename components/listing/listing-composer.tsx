@@ -73,7 +73,8 @@ const slotCopy: Record<
   },
   expiry: {
     title: "Package-date photo",
-    description: "Aim tight at the stamped date. OCR will suggest a date, but you stay in control.",
+    description:
+      "Aim tight at the stamped date. Vision OCR runs first; Gemini can fill gaps if the date is unclear.",
   },
 };
 
@@ -256,11 +257,15 @@ async function requestListingOcr(file: File): Promise<ListingOcrResult> {
 async function requestListingGeminiAutofill(params: {
   product: File;
   seal?: File;
+  expiry?: File;
 }): Promise<ListingGeminiAutofillResult> {
   const formData = new FormData();
   formData.set("product", params.product);
   if (params.seal) {
     formData.set("seal", params.seal);
+  }
+  if (params.expiry) {
+    formData.set("expiry", params.expiry);
   }
 
   const response = await fetch("/api/listings/ai-autofill", {
@@ -482,8 +487,42 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
       if (p.description?.trim() && !v.description.trim()) {
         setValue("description", p.description.trim(), { shouldDirty: true });
       }
+      if (p.rawTextFromExpiryPhoto?.trim()) {
+        setValue("ocrRawText", p.rawTextFromExpiryPhoto.trim(), { shouldDirty: true });
+      }
+      if (
+        p.packageDate &&
+        parsePackageDateInput(p.packageDate) &&
+        !v.packageDate.trim()
+      ) {
+        setOcrFilledPackageDate(true);
+        setValue("packageDate", p.packageDate, { shouldDirty: true, shouldValidate: true });
+        if (p.packageDateKind) {
+          setValue("packageDateKind", p.packageDateKind, { shouldDirty: true });
+        }
+        if (p.packageDateLabel?.trim()) {
+          setValue("packageDateLabel", p.packageDateLabel.trim(), { shouldDirty: true });
+        } else if (p.packageDateKind && p.packageDateKind !== "other") {
+          setValue("packageDateLabel", getPackageDateLabel(p.packageDateKind), {
+            shouldDirty: true,
+          });
+        }
+        const auctionEndsAtLocal = getValues("auctionEndsAtLocal");
+        if (
+          !auctionEndsAtLocal ||
+          !isAuctionEndBeforePackageDate(
+            new Date(auctionEndsAtLocal).toISOString(),
+            p.packageDate,
+          )
+        ) {
+          setValue("auctionEndsAtLocal", buildSuggestedAuctionEnd(p.packageDate), {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }
+      }
       setGeminiHint(
-        "Title, category, and listing notes were suggested from the product photo (Gemini). Review and edit before publishing.",
+        "Title, category, notes, and/or package date were suggested (Gemini). Review and edit before publishing.",
       );
     }
 
@@ -510,7 +549,12 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     setGeminiBusy("product");
     setGeminiHint(null);
     try {
-      const result = await requestListingGeminiAutofill({ product: file });
+      const exp = photosRef.current.expiry?.accepted;
+      const expiryFile = exp ? restoreDraftImageFile(exp) : undefined;
+      const result = await requestListingGeminiAutofill({
+        product: file,
+        expiry: expiryFile,
+      });
       applyGeminiAutofill(result, "product");
     } finally {
       setGeminiBusy("idle");
@@ -521,14 +565,56 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
     setGeminiBusy("seal");
     setGeminiHint(null);
     try {
+      const exp = photosRef.current.expiry?.accepted;
+      const expiryFile = exp ? restoreDraftImageFile(exp) : undefined;
       const result = await requestListingGeminiAutofill({
         product: productFile,
         seal: sealFile,
+        expiry: expiryFile,
       });
       applyGeminiAutofill(result, "seal");
     } finally {
       setGeminiBusy("idle");
     }
+  }
+
+  async function runGeminiExpiryFallbackIfNeeded(
+    productSnapshot: ListingDraftImageSnapshot,
+    expiryFile: File,
+  ) {
+    if (getValues("packageDate").trim()) {
+      return;
+    }
+    setGeminiBusy("product");
+    setGeminiHint(null);
+    try {
+      const result = await requestListingGeminiAutofill({
+        product: restoreDraftImageFile(productSnapshot),
+        expiry: expiryFile,
+      });
+      applyGeminiAutofill(result, "product");
+      setGeminiHint(
+        "Package date or text from the expiry photo was filled with Gemini (after OCR). Verify before publishing.",
+      );
+    } finally {
+      setGeminiBusy("idle");
+    }
+  }
+
+  async function clearEntireListingDesk() {
+    for (const k of requiredListingImageKinds) {
+      const slot = photosRef.current[k];
+      revokePreviewUrl(slot?.pendingPreviewUrl);
+      revokePreviewUrl(slot?.acceptedPreviewUrl);
+    }
+    setPhotos({});
+    reset(buildDefaultValues());
+    setOcrFilledPackageDate(false);
+    setGeminiHint(null);
+    setSealAiAssessment(null);
+    setBanner(null);
+    await clearListingDraft(businessId);
+    titleInputRef.current?.focus();
   }
 
   function selectFile(kind: RequiredListingImageKind, file: File) {
@@ -598,6 +684,11 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
           } catch {
             /* seal autofill is optional */
           }
+        }
+      } else if (kind === "expiry") {
+        const productAccepted = photosRef.current.product?.accepted;
+        if (productAccepted) {
+          void runGeminiExpiryFallbackIfNeeded(productAccepted, restoredFile);
         }
       }
     } catch (error) {
@@ -908,11 +999,20 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
 
   return (
     <form className="grid gap-5" onSubmit={submit}>
-      <div className="rounded-[0.85rem] border border-[#eaeaea] bg-[#fafafa] px-4 py-3 text-sm leading-6 text-[#6b6b6b]">
-        Three photos first, then the form. Cloud Vision reads the stamped date from
-        the package-date photo; Gemini can suggest title, category, and notes from
-        the product shot, and give a non-binding seal check when both product and
-        seal photos are in place. You always review before publish.
+      <div className="flex flex-col gap-3 rounded-[0.85rem] border border-[#eaeaea] bg-[#fafafa] px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
+        <p className="text-sm leading-6 text-[#6b6b6b]">
+          Three photos first, then the form. Vision OCR reads the package-date image; Gemini fills
+          listing fields and can recover the expiry date when OCR is unclear. Review everything before
+          publish.
+        </p>
+        <button
+          className="shrink-0 rounded-full border border-[#d4d4d4] bg-white px-4 py-2 text-sm font-medium text-[#1a1a1a] transition hover:border-[#bcbcbc]"
+          disabled={!isHydrated}
+          type="button"
+          onClick={() => void clearEntireListingDesk()}
+        >
+          Clear all photos &amp; fields
+        </button>
       </div>
 
       {geminiBusy !== "idle" ? (
@@ -1132,7 +1232,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             />
             {ocrFilledPackageDate ? (
               <p className="text-xs text-[#2f6b4d]">
-                Autofilled from Cloud Vision OCR on your package-date photo — verify before publish.
+                Package date autofilled (Google Vision OCR and/or Gemini) — verify before publish.
               </p>
             ) : null}
             {errors.packageDate ? (

@@ -1,10 +1,15 @@
 import type { ListingCategory } from "@/lib/listings/categories";
+import type { PackageDateKind } from "@/lib/listings/shared";
 
 export type GeminiProductAutofill = {
   title: string | null;
   category: ListingCategory | null;
   customCategory: string | null;
   description: string | null;
+  packageDate: string | null;
+  packageDateKind: PackageDateKind | null;
+  packageDateLabel: string | null;
+  rawTextFromExpiryPhoto: string | null;
 };
 
 export type GeminiSealAssessment = {

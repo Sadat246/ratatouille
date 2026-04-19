@@ -28,6 +28,7 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const product = formData.get("product");
   const seal = formData.get("seal");
+  const expiry = formData.get("expiry");
 
   if (!(product instanceof File) || product.size === 0) {
     return NextResponse.json(
@@ -37,10 +38,12 @@ export async function POST(request: Request) {
   }
 
   const sealFile = seal instanceof File && seal.size > 0 ? seal : undefined;
+  const expiryFile = expiry instanceof File && expiry.size > 0 ? expiry : undefined;
 
   const result = await runListingGeminiAutofill({
     product,
     seal: sealFile,
+    expiry: expiryFile,
   });
 
   return NextResponse.json(result);
