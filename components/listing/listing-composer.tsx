@@ -786,7 +786,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         </div>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3">
         <PhotoSlotCard
           description={slotCopy.product.description}
           error={photos.product?.error}
@@ -811,21 +811,19 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
           status={photos.seal?.status ?? "empty"}
           title={slotCopy.seal.title}
         />
-        <div className="sm:col-span-2">
-          <PhotoSlotCard
-            description={slotCopy.expiry.description}
-            error={photos.expiry?.error}
-            hasAcceptedPhoto={Boolean(photos.expiry?.accepted)}
-            kind="expiry"
-            ocr={photos.expiry?.accepted?.ocr}
-            onAccept={() => void acceptPhoto("expiry")}
-            onRetryUpload={() => void retryUpload("expiry")}
-            onSelectFile={(file) => selectFile("expiry", file)}
-            previewUrl={photos.expiry?.pendingPreviewUrl ?? photos.expiry?.acceptedPreviewUrl}
-            status={photos.expiry?.status ?? "empty"}
-            title={slotCopy.expiry.title}
-          />
-        </div>
+        <PhotoSlotCard
+          description={slotCopy.expiry.description}
+          error={photos.expiry?.error}
+          hasAcceptedPhoto={Boolean(photos.expiry?.accepted)}
+          kind="expiry"
+          ocr={photos.expiry?.accepted?.ocr}
+          onAccept={() => void acceptPhoto("expiry")}
+          onRetryUpload={() => void retryUpload("expiry")}
+          onSelectFile={(file) => selectFile("expiry", file)}
+          previewUrl={photos.expiry?.pendingPreviewUrl ?? photos.expiry?.acceptedPreviewUrl}
+          status={photos.expiry?.status ?? "empty"}
+          title={slotCopy.expiry.title}
+        />
       </div>
 
       <div className="grid gap-4 rounded-[1rem] border border-[#eaeaea] bg-white p-4">
