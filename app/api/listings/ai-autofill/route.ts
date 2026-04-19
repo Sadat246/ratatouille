@@ -6,7 +6,16 @@ import { getSellerMembership } from "@/lib/listings/queries";
 
 export const runtime = "nodejs";
 
+const FEATURE_DISABLED: boolean = true;
+
 export async function POST(request: Request) {
+  if (FEATURE_DISABLED) {
+    return NextResponse.json(
+      { error: "AI autofill is temporarily disabled." },
+      { status: 503 },
+    );
+  }
+
   const session = await getSession();
 
   if (!session?.user || session.user.role !== "business" || !session.user.onboardingCompletedAt) {
