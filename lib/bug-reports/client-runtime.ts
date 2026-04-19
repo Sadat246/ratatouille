@@ -79,8 +79,9 @@ function notifyRuntimeListeners(runtime: BugReportRuntime) {
   runtime.listeners.forEach((listener) => listener());
 }
 
-function makeIsoTimestamp(value = new Date()) {
-  return value.toISOString();
+function makeIsoTimestamp(value: Date | number | string = new Date()) {
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(d.getTime()) ? new Date(0).toISOString() : d.toISOString();
 }
 
 function getCurrentPath() {

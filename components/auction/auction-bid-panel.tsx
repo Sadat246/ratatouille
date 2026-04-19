@@ -101,8 +101,9 @@ export function AuctionBidPanel({
             {auctionOpen ? "Choose your move" : "Auction settled"}
           </h3>
           <p className="mt-2 text-sm leading-6 text-[#6d5245]">
-            The server decides every winner. This panel only sends bid and buyout
-            requests to the shared auction engine.
+            Every shopper bids against the same live price: the highest authorized
+            bid wins when the timer ends (or someone buys out). The server records
+            each bid, updates the leader, and notifies anyone who was outbid.
           </p>
         </div>
 

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { coerceDate, toIsoTimestamp } from "@/lib/datetime";
+
 export const bugReportActionKinds = [
   "page_view",
   "navigation",
@@ -177,10 +179,11 @@ function findMostSevereAction(actions: BugReportAction[]) {
 }
 
 export function createBugReportPublicId(
-  createdAt: Date,
+  createdAt: Date | string | number,
   randomSeed = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}${Math.random()}`,
 ) {
-  const date = createdAt.toISOString().slice(0, 10).replace(/-/g, "");
+  const base = coerceDate(createdAt) ?? new Date();
+  const date = base.toISOString().slice(0, 10).replace(/-/g, "");
   const token = randomSeed.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
 
   return `BR-${date}-${token || "BUGREPORT"}`;
@@ -257,7 +260,7 @@ export function buildBugReportMarkdown({
     `> ${summary}`,
     "",
     "## Snapshot",
-    `- Created at: ${createdAt.toISOString()}`,
+    `- Created at: ${toIsoTimestamp(createdAt)}`,
     `- Reporter role: ${reporterRole}`,
     `- Route: ${sanitizeInlineText(pagePath, 180)}`,
     `- URL: ${sanitizeInlineText(pageUrl, 240)}`,

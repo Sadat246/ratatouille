@@ -1,5 +1,6 @@
 import { format, formatDistanceToNowStrict } from "date-fns";
 
+import { coerceDate } from "@/lib/datetime";
 import { listingCategoryLabels } from "@/lib/listings/categories";
 
 type RecentListing = {
@@ -13,9 +14,9 @@ type RecentListing = {
   auctionStatus: string | null;
   auctionResult: string | null;
   auctionBidCount: number | null;
-  auctionEndsAt: Date | null;
+  auctionEndsAt: Date | string | null;
   packageDate: string | null;
-  updatedAt: Date;
+  updatedAt: Date | string;
 };
 
 type RecentListingsPanelProps = {
@@ -112,12 +113,21 @@ export function RecentListingsPanel({ listings }: RecentListingsPanelProps) {
               Package date {listing.packageDate ?? "Pending confirmation"}.
             </p>
             <p>
-              {listing.auctionEndsAt
-                ? `Auction ends ${format(listing.auctionEndsAt, "MMM d, h:mm a")}.`
-                : "Auction timing still needs attention."}
+              {(() => {
+                const ends = coerceDate(listing.auctionEndsAt);
+                return ends
+                  ? `Auction ends ${format(ends, "MMM d, h:mm a")}.`
+                  : "Auction timing still needs attention.";
+              })()}
             </p>
             <p className="text-[#8c7358]">
-              Updated {formatDistanceToNowStrict(listing.updatedAt, { addSuffix: true })}
+              Updated{" "}
+              {(() => {
+                const u = coerceDate(listing.updatedAt);
+                return u
+                  ? formatDistanceToNowStrict(u, { addSuffix: true })
+                  : "recently";
+              })()}
             </p>
           </div>
         </article>
