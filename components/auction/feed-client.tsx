@@ -177,7 +177,7 @@ export function FeedClient({ initialItems }: FeedClientProps) {
         onCategoryChange={handleCategoryChange}
       />
 
-      <main className="px-4 pb-32">
+      <section className="px-4 pb-32">
         <h1 className="sr-only">Nearby Deals</h1>
 
         {isEmpty ? (
@@ -267,7 +267,7 @@ export function FeedClient({ initialItems }: FeedClientProps) {
             )}
           </div>
         )}
-      </main>
+      </section>
 
       {showInstallBanner && <InstallPromptBanner />}
     </>

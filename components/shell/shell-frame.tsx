@@ -25,8 +25,8 @@ export function ShellFrame({
   children,
 }: ShellFrameProps) {
   return (
-    <main className="min-h-screen px-4 pb-24 pt-5 sm:px-6 sm:pb-12">
-      <div className="mx-auto flex max-w-md flex-col gap-4 sm:max-w-lg">
+    <main className="min-h-screen w-full overflow-x-clip px-4 pb-24 pt-5 sm:px-6 sm:pb-12">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4 sm:max-w-lg">
         <section className="rounded-[2rem] border border-white/70 bg-white/72 p-4 shadow-[0_22px_90px_rgba(55,34,18,0.12)] backdrop-blur">
           <div className="flex items-center justify-between gap-3">
             <Wordmark subtitle={badge} />
@@ -45,7 +45,7 @@ export function ShellFrame({
           </p>
         </section>
 
-        <div className="grid gap-4">{children}</div>
+        <div className="grid min-w-0 grid-cols-1 gap-4">{children}</div>
       </div>
 
       <BottomNav activeHref={activeHref} items={navItems} />
