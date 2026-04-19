@@ -13,32 +13,35 @@ import {
 
 let cachedVisionClient: ImageAnnotatorClient | null = null;
 
-function getVisionClient() {
+function isGoogleVisionConfigured() {
+  const clientEmail = getOptionalEnv("GOOGLE_CLOUD_CLIENT_EMAIL");
+  const privateKey = getOptionalMultilineEnv("GOOGLE_CLOUD_PRIVATE_KEY");
+
+  return Boolean(clientEmail && privateKey);
+}
+
+function getVisionClient(): ImageAnnotatorClient | null {
+  if (!isGoogleVisionConfigured()) {
+    return null;
+  }
+
   if (cachedVisionClient) {
     return cachedVisionClient;
   }
 
-  const clientEmail = getOptionalEnv("GOOGLE_CLOUD_CLIENT_EMAIL");
-  const privateKey = getOptionalMultilineEnv("GOOGLE_CLOUD_PRIVATE_KEY");
+  const clientEmail = getOptionalEnv("GOOGLE_CLOUD_CLIENT_EMAIL")!;
+  const privateKey = getOptionalMultilineEnv("GOOGLE_CLOUD_PRIVATE_KEY")!;
   const projectId =
     getOptionalEnv("GOOGLE_CLOUD_PROJECT_ID") ??
     getOptionalEnv("GOOGLE_CLOUD_PROJECT");
 
-  cachedVisionClient = clientEmail && privateKey
-    ? new ImageAnnotatorClient({
-        credentials: {
-          client_email: clientEmail,
-          private_key: privateKey,
-        },
-        projectId,
-      })
-    : new ImageAnnotatorClient(
-        projectId
-          ? {
-              projectId,
-            }
-          : undefined,
-      );
+  cachedVisionClient = new ImageAnnotatorClient({
+    credentials: {
+      client_email: clientEmail,
+      private_key: privateKey,
+    },
+    projectId,
+  });
 
   return cachedVisionClient;
 }
@@ -49,6 +52,18 @@ function normalizeOcrText(rawText: string) {
 
 export async function runListingOcr(file: File): Promise<ListingOcrResult> {
   const client = getVisionClient();
+
+  if (!client) {
+    return {
+      status: "unavailable",
+      rawText: "",
+      packageDate: "",
+      packageDateKind: "other",
+      packageDateLabel: "",
+      reason:
+        "OCR is not configured. Set GOOGLE_CLOUD_CLIENT_EMAIL, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_PROJECT_ID in .env.local (service account with Vision API access). See .env.example.",
+    };
+  }
 
   try {
     const [response] = await client.textDetection({
