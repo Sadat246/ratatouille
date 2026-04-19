@@ -32,7 +32,7 @@ type AuctionCardProps = {
 };
 
 const badgeToneClasses: Record<AuctionCardBadgeTone, string> = {
-  warm: "border-[#ffd4bc] bg-[#fff0e5] text-[#ad5422]",
+  warm: "border-[#cbe8d8] bg-[#effaf3] text-[#1e5a37]",
   green: "border-[#cbe8d8] bg-[#effaf3] text-[#216348]",
   amber: "border-[#ffe2a7] bg-[#fff6df] text-[#a45c11]",
   slate: "border-[#d7d9e0] bg-[#f5f6f9] text-[#566074]",
@@ -62,7 +62,7 @@ export function AuctionCard({
       <div className="grid gap-4 p-4">
         <div className="grid grid-cols-[1fr_auto] gap-3">
           <div className="min-w-0">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#aa5838]">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#1e5a37]">
               {eyebrow}
             </p>
             <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[#22130e]">
@@ -91,7 +91,7 @@ export function AuctionCard({
               className="aspect-[4/3] w-full rounded-[1.6rem] object-cover border border-[#f4ddcf]"
             />
           ) : (
-            <div className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#f4ddcf] bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]" />
+            <div className="aspect-[4/3] w-full rounded-[1.6rem] border border-[#d7ebdc] bg-[linear-gradient(140deg,#f3fbf5_0%,#cbe8d8_48%,#7ab89a_100%)]" />
           )}
           {categoryBadge ? (
             <span

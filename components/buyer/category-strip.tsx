@@ -157,7 +157,7 @@ export function CategoryStrip({
               <span
                 className={`flex h-16 w-16 items-center justify-center rounded-full transition-all ${
                   active
-                    ? "bg-[#f75d36] text-white shadow-[0_10px_24px_rgba(247,93,54,0.3)]"
+                    ? "bg-[#3d8d5c] text-white shadow-[0_10px_24px_rgba(61,141,92,0.3)]"
                     : "bg-[#f5f5f5] text-[#4a4a4a] group-hover:bg-[#ececec]"
                 }`}
               >

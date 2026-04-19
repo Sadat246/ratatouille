@@ -130,7 +130,7 @@ function BusinessAvatar({
 
   return (
     <span
-      className={`flex shrink-0 items-center justify-center rounded-[0.65rem] bg-[#f1e7da] font-semibold text-[#b54824] ${sizeClass}`}
+      className={`flex shrink-0 items-center justify-center rounded-[0.65rem] bg-[#dceadf] font-semibold text-[#1e5a37] ${sizeClass}`}
     >
       {initial}
     </span>
@@ -151,14 +151,14 @@ export function SidebarShell({
   const initial = (businessInitial ?? businessName.trim().charAt(0) ?? "S").toUpperCase();
 
   return (
-    <div className="min-h-screen w-full bg-[#f3f3f3] text-[#1a1a1a]">
+    <div className="min-h-screen w-full bg-[#eef3ef] text-[#1a1a1a]">
       <div className="flex min-h-screen w-full items-start">
-        <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col overflow-y-auto border-r border-[#eaeaea] bg-[#f7f7f7] px-4 py-5 lg:flex">
+        <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col overflow-y-auto border-r border-[#d9e6dd] bg-[#f2f7f3] px-4 py-5 lg:flex">
           <Link
             href="/sell"
             className="flex items-center gap-2 px-2 pb-5 text-[1.05rem] font-semibold tracking-tight text-[#1a1a1a]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-[0.6rem] bg-[#1a1a1a] text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[0.6rem] bg-[#3d8d5c] text-white">
               <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
@@ -204,13 +204,13 @@ export function SidebarShell({
                   aria-current={active ? "page" : undefined}
                   className={`flex items-center gap-3 rounded-[0.75rem] px-3 py-2.5 text-sm transition ${
                     active
-                      ? "bg-white font-semibold text-[#1a1a1a] shadow-[0_1px_2px_rgba(15,15,15,0.04)]"
-                      : "font-medium text-[#5a5a5a] hover:bg-white/70 hover:text-[#1a1a1a]"
+                      ? "bg-[#e6f1ea] font-semibold text-[#1e5a37] shadow-[0_1px_2px_rgba(30,90,55,0.05)]"
+                      : "font-medium text-[#5a5a5a] hover:bg-white/70 hover:text-[#1e5a37]"
                   }`}
                 >
                   <span
                     className={
-                      active ? "text-[#1a1a1a]" : "text-[#7a7a7a]"
+                      active ? "text-[#1e5a37]" : "text-[#7a7a7a]"
                     }
                   >
                     <SidebarIcon icon={item.icon} />
@@ -250,7 +250,7 @@ export function SidebarShell({
 
         <main className="flex min-w-0 flex-1 flex-col">
           {headerActions ? (
-            <header className="flex items-center justify-end gap-3 border-b border-[#eaeaea] bg-[#f7f7f7] px-5 py-3 lg:px-8">
+            <header className="flex items-center justify-end gap-3 border-b border-[#d9e6dd] bg-[#f2f7f3] px-5 py-3 lg:px-8">
               {headerActions}
             </header>
           ) : null}

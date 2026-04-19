@@ -15,7 +15,7 @@ function buildIcon(size: number) {
         alignItems: "center",
         justifyContent: "center",
         background:
-          "linear-gradient(145deg, #2d1814 0%, #8d321b 46%, #f75d36 100%)",
+          "linear-gradient(145deg, #0f2a1a 0%, #1e5a37 46%, #3d8d5c 100%)",
         borderRadius: Math.round(size * 0.26),
       }}
     >

@@ -34,8 +34,8 @@ const statusCopy: Record<PhotoSlotStatus, string> = {
 
 const statusBadgeTone: Record<PhotoSlotStatus, string> = {
   empty: "bg-[#f0f0f0] text-[#5a5a5a]",
-  review: "bg-[#e1edf3] text-[#365c8e]",
-  uploading: "bg-[#e1edf3] text-[#365c8e]",
+  review: "bg-[#e6f1ea] text-[#1e5a37]",
+  uploading: "bg-[#e6f1ea] text-[#1e5a37]",
   ready: "bg-[#e6f1ea] text-[#2f6b4d]",
   error: "bg-[#f5e3e0] text-[#a14431]",
 };

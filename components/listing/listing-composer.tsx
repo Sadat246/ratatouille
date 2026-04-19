@@ -1010,7 +1010,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </span>
             <input
               {...titleField}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
               placeholder="Greek yogurt four-pack"
               ref={(node) => {
                 titleField.ref(node);
@@ -1039,7 +1039,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
                   }
                 },
               })}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
             >
               <option value="">Choose a category</option>
               {listingCategoryOptions.map((option) => (
@@ -1058,7 +1058,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </span>
             <input
               {...register("customCategory")}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
               placeholder="Only if other"
             />
           </label>
@@ -1078,7 +1078,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
           </span>
           <textarea
             {...register("description")}
-            className="min-h-28 rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+            className="min-h-28 rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
             placeholder="Multipack still sealed. Keep refrigerated."
           />
         </label>
@@ -1091,7 +1091,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </span>
             <input
               {...register("reservePrice")}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
               inputMode="decimal"
               placeholder="4.00"
             />
@@ -1108,7 +1108,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </span>
             <input
               {...register("buyoutPrice")}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
               inputMode="decimal"
               placeholder="6.50"
             />
@@ -1127,7 +1127,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </span>
             <input
               {...register("packageDate")}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
               type="date"
             />
             {ocrFilledPackageDate ? (
@@ -1148,7 +1148,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </span>
             <input
               {...register("auctionEndsAtLocal")}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
               type="datetime-local"
             />
             {errors.auctionEndsAtLocal ? (
@@ -1182,7 +1182,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
                   }
                 },
               })}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
             >
               {packageDateKindValues.map((kind) => (
                 <option key={kind} value={kind}>
@@ -1200,7 +1200,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </span>
             <input
               {...register("packageDateLabel")}
-              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#3d8d5c]"
               placeholder="Best by"
             />
           </label>

@@ -70,7 +70,7 @@ export function ProductCard({
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(140deg,#fff5eb_0%,#ffe1c0_48%,#ffb87c_100%)]">
+          <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(140deg,#f3fbf5_0%,#cbe8d8_48%,#7ab89a_100%)]">
             <svg aria-hidden="true" viewBox="0 0 64 64" className="h-16 w-16 text-white/70" fill="currentColor">
               <path d="M17 48V16h14.5c8 0 14.2 4.1 14.2 11.7 0 6.2-3.8 10-10 11.6L47 48h-8.5l-9.3-8h-4.9v8Zm8.7-15h5.1c4.4 0 6.4-1.8 6.4-4.9 0-3.2-2-4.8-6.4-4.8h-5.1Z" />
             </svg>
@@ -78,7 +78,7 @@ export function ProductCard({
         )}
 
         {discountPct !== null && discountPct > 0 ? (
-          <span className="absolute left-2 top-2 rounded-md bg-[#f75d36] px-2 py-1 text-[0.7rem] font-bold text-white shadow">
+          <span className="absolute left-2 top-2 rounded-md bg-[#3d8d5c] px-2 py-1 text-[0.7rem] font-bold text-white shadow">
             -{discountPct}%
           </span>
         ) : null}
@@ -91,12 +91,12 @@ export function ProductCard({
             e.stopPropagation();
             setFavorited((v) => !v);
           }}
-          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#666] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-colors hover:text-[#f75d36]"
+          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#666] shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-colors hover:text-[#3d8d5c]"
         >
           <svg
             aria-hidden="true"
             viewBox="0 0 24 24"
-            className={`h-4 w-4 ${favorited ? "text-[#f75d36]" : ""}`}
+            className={`h-4 w-4 ${favorited ? "text-[#3d8d5c]" : ""}`}
             fill={favorited ? "currentColor" : "none"}
             stroke="currentColor"
             strokeWidth="1.8"
@@ -127,7 +127,7 @@ export function ProductCard({
             {formatCurrency(displayPrice)}
           </span>
           {hasDiscount ? (
-            <span className="text-xs font-medium text-[#f75d36] line-through decoration-[1.5px]">
+            <span className="text-xs font-medium text-[#3d8d5c] line-through decoration-[1.5px]">
               {formatCurrency(buyoutPriceCents)}
             </span>
           ) : null}
