@@ -9,6 +9,7 @@ import {
 } from "@/components/demo/seller-demo-tools";
 import { requireCompletedRole } from "@/lib/auth/onboarding";
 import { isDemoModeEnabled } from "@/lib/demo/config";
+import { toIsoTimestamp } from "@/lib/datetime";
 import { demoService } from "@/lib/demo/service";
 import { getSellerDeskData } from "@/lib/listings/queries";
 
@@ -21,8 +22,8 @@ function serializeAuction(
 
   return {
     ...auction,
-    scheduledEndAt: auction.scheduledEndAt.toISOString(),
-    endedAt: auction.endedAt?.toISOString() ?? null,
+    scheduledEndAt: toIsoTimestamp(auction.scheduledEndAt),
+    endedAt: auction.endedAt != null ? toIsoTimestamp(auction.endedAt) : null,
   };
 }
 

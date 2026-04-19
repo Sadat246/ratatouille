@@ -14,6 +14,7 @@ import {
   getSettlementAmounts,
   hasMockCardOnFile,
 } from "@/lib/auctions/pricing";
+import { coerceDate } from "@/lib/datetime";
 import { triggerAuctionPaymentIfCloseResult } from "@/lib/payments/auction-trigger";
 import { notifyAuctionMutation } from "@/lib/push/notify";
 
@@ -104,7 +105,28 @@ async function lockAuction(
     for update of a, l
   `);
 
-  return (result.rows[0] as LockedAuctionRow | undefined) ?? null;
+  const row = result.rows[0] as Record<string, unknown> | undefined;
+  if (!row) {
+    return null;
+  }
+
+  // The neon-serverless driver returns timestamps as ISO strings when we go
+  // through raw `tx.execute(sql\`...\`)`. Coerce them so downstream Drizzle
+  // updates that expect Date objects don't blow up with
+  // "value.toISOString is not a function".
+  const scheduledEndAt = coerceDate(row.scheduledEndAt);
+  if (!scheduledEndAt) {
+    return null;
+  }
+
+  return {
+    ...(row as LockedAuctionRow),
+    lastBidAt: coerceDate(row.lastBidAt),
+    scheduledStartAt: coerceDate(row.scheduledStartAt),
+    scheduledEndAt,
+    endedAt: coerceDate(row.endedAt),
+    listingExpiresAt: coerceDate(row.listingExpiresAt),
+  };
 }
 
 async function activateAuctionIfReady(

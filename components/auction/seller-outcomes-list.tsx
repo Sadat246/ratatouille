@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 
 import type { SellerOutcomeItem } from "@/lib/auctions/queries";
+import { coerceDate } from "@/lib/datetime";
 import { formatCurrency, formatPackageLabel } from "@/lib/auctions/display";
 
 type SellerOutcomesListProps = {
@@ -43,7 +44,10 @@ export function SellerOutcomesList({ items }: SellerOutcomesListProps) {
             </div>
 
             <span className="rounded-full bg-[#f7efe7] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#86573d]">
-              {item.endedAt ? format(item.endedAt, "MMM d, h:mm a") : "Ended"}
+              {(() => {
+                const ended = coerceDate(item.endedAt);
+                return ended ? format(ended, "MMM d, h:mm a") : "Ended";
+              })()}
             </span>
           </div>
 

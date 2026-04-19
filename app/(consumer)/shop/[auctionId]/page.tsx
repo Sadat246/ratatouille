@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { AuctionDetailClient } from "@/components/auction/auction-detail-client";
 import { ConsumerShell } from "@/components/auction/consumer-shell";
@@ -14,26 +14,31 @@ export default async function AuctionDetailPage({
   params: Promise<{ auctionId: string }>;
 }) {
   const session = await requireCompletedRole("consumer");
-  const { auctionId } = await params;
+  const { auctionId: segment } = await params;
 
-  const [profile] = await Promise.all([
-    db.query.consumerProfiles.findFirst({
-      columns: {
-        city: true,
-        state: true,
-        locationLabel: true,
-        latitude: true,
-        longitude: true,
-      },
-      where: (table, operators) => operators.eq(table.userId, session.user.id),
-    }),
-    refreshAuctionIfOverdue(auctionId),
-  ]);
+  const profile = await db.query.consumerProfiles.findFirst({
+    columns: {
+      city: true,
+      state: true,
+      locationLabel: true,
+      latitude: true,
+      longitude: true,
+    },
+    where: (table, operators) => operators.eq(table.userId, session.user.id),
+  });
 
-  const auction = await getAuctionDetail(auctionId, session.user.id);
+  const first = await getAuctionDetail(segment, session.user.id);
 
-  if (!auction) {
+  if (!first) {
     notFound();
+  }
+
+  await refreshAuctionIfOverdue(first.id);
+
+  const auction = (await getAuctionDetail(first.id, session.user.id)) ?? first;
+
+  if (segment !== auction.id) {
+    redirect(`/shop/${auction.id}`);
   }
 
   const consumerLat = profile?.latitude ?? null;

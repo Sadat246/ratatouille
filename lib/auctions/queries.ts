@@ -3,7 +3,15 @@ import "server-only";
 import { and, asc, desc, eq, inArray, or, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
-import { auctions, bids, businesses, listingImages, listings, settlements } from "@/db/schema";
+import {
+  auctions,
+  bids,
+  businesses,
+  fulfillments,
+  listingImages,
+  listings,
+  settlements,
+} from "@/db/schema";
 import { type ListingCategory, listingCategoryValues } from "@/lib/listings/categories";
 import { getNextBidAmountCents, hasMockCardOnFile } from "@/lib/auctions/pricing";
 
@@ -233,8 +241,12 @@ export type AuctionDetail = {
   };
 };
 
+/**
+ * Loads auction detail. `auctionOrListingId` may be either `auctions.id` or the parent
+ * `listings.id` (so `/shop/<listingId>` and `/shop/<auctionId>` both work).
+ */
 export async function getAuctionDetail(
-  auctionId: string,
+  auctionOrListingId: string,
   viewerUserId?: string,
 ): Promise<AuctionDetail | null> {
   const [row] = await db
@@ -272,12 +284,16 @@ export async function getAuctionDetail(
     .from(auctions)
     .innerJoin(listings, eq(listings.id, auctions.listingId))
     .innerJoin(businesses, eq(businesses.id, auctions.businessId))
-    .where(eq(auctions.id, auctionId))
+    .where(
+      or(eq(auctions.id, auctionOrListingId), eq(listings.id, auctionOrListingId)),
+    )
     .limit(1);
 
   if (!row) {
     return null;
   }
+
+  const resolvedAuctionId = row.id;
 
   const images = await db
     .select({
@@ -307,7 +323,7 @@ export async function getAuctionDetail(
         .from(bids)
         .where(
           and(
-            eq(bids.auctionId, auctionId),
+            eq(bids.auctionId, resolvedAuctionId),
             eq(bids.consumerUserId, viewerUserId),
           ),
         )
@@ -662,5 +678,70 @@ export async function getSellerOutcomes(
           paymentStatus: row.settlementPaymentStatus ?? "pending_authorization",
         }
       : null,
+  }));
+}
+
+export type SellerFulfillmentItem = {
+  id: string;
+  mode: string;
+  status: string;
+  deliveryProvider: string;
+  pickupCode: string | null;
+  deliveredAt: Date | null;
+  updatedAt: Date;
+  listing: {
+    id: string;
+    title: string;
+  };
+  settlement: {
+    id: string;
+    status: string;
+    paymentStatus: string;
+  };
+};
+
+export async function getSellerFulfillments(
+  businessId: string,
+  limit = 48,
+): Promise<SellerFulfillmentItem[]> {
+  const rows = await db
+    .select({
+      id: fulfillments.id,
+      mode: fulfillments.mode,
+      status: fulfillments.status,
+      deliveryProvider: fulfillments.deliveryProvider,
+      pickupCode: fulfillments.pickupCode,
+      deliveredAt: fulfillments.deliveredAt,
+      updatedAt: fulfillments.updatedAt,
+      listingId: listings.id,
+      listingTitle: listings.title,
+      settlementId: settlements.id,
+      settlementStatus: settlements.status,
+      settlementPaymentStatus: settlements.paymentStatus,
+    })
+    .from(fulfillments)
+    .innerJoin(settlements, eq(settlements.id, fulfillments.settlementId))
+    .innerJoin(listings, eq(listings.id, fulfillments.listingId))
+    .where(eq(settlements.businessId, businessId))
+    .orderBy(desc(fulfillments.updatedAt))
+    .limit(limit);
+
+  return rows.map((row) => ({
+    id: row.id,
+    mode: row.mode,
+    status: row.status,
+    deliveryProvider: row.deliveryProvider,
+    pickupCode: row.pickupCode,
+    deliveredAt: row.deliveredAt,
+    updatedAt: row.updatedAt,
+    listing: {
+      id: row.listingId,
+      title: row.listingTitle,
+    },
+    settlement: {
+      id: row.settlementId,
+      status: row.settlementStatus,
+      paymentStatus: row.settlementPaymentStatus,
+    },
   }));
 }
