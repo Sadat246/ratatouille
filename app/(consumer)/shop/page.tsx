@@ -1,21 +1,29 @@
-import { ConsumerShell } from "@/components/auction/consumer-shell";
-import { FeedClient } from "@/components/auction/feed-client";
+import { BuyerFeed } from "@/components/buyer/buyer-feed";
+import { BuyerShell } from "@/components/buyer/buyer-shell";
+import { PromoBanner } from "@/components/buyer/promo-banner";
 import { db } from "@/db/client";
 import { getAuctionFeed } from "@/lib/auctions/queries";
 import { AUCTION_SWEEP_BATCH_SIZE } from "@/lib/auctions/pricing";
 import { sweepOverdueAuctions } from "@/lib/auctions/service";
 import { requireCompletedRole } from "@/lib/auth/onboarding";
 
-export default async function ShopPage() {
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   const session = await requireCompletedRole("consumer");
-  const profile = await db.query.consumerProfiles.findFirst({
-    columns: {
-      city: true,
-      state: true,
-      locationLabel: true,
-    },
-    where: (table, operators) => operators.eq(table.userId, session.user.id),
-  });
+  const [{ q }, profile] = await Promise.all([
+    searchParams,
+    db.query.consumerProfiles.findFirst({
+      columns: {
+        city: true,
+        state: true,
+        locationLabel: true,
+      },
+      where: (table, operators) => operators.eq(table.userId, session.user.id),
+    }),
+  ]);
 
   await sweepOverdueAuctions(AUCTION_SWEEP_BATCH_SIZE);
 
@@ -27,7 +35,6 @@ export default async function ShopPage() {
     viewerUserId: session.user.id,
   });
 
-  // The server renders the first 12; hasMore is detected by the extra item
   const initialItems = allItems.slice(0, 12);
 
   const locationLabel = profile?.city
@@ -35,14 +42,11 @@ export default async function ShopPage() {
     : profile?.locationLabel || session.user.name || "Shop deals";
 
   return (
-    <ConsumerShell
-      activeHref="/shop"
-      badge="Live auctions"
-      title="Fresh lots, ending soon."
-      description="Active listings from sellers — sorted by urgency, filtered by what you want."
-      locationLabel={locationLabel}
-    >
-      <FeedClient initialItems={initialItems} />
-    </ConsumerShell>
+    <BuyerShell activeHref="/shop" locationLabel={locationLabel}>
+      <div className="flex flex-col gap-6">
+        <PromoBanner locationLabel={locationLabel} />
+        <BuyerFeed initialItems={initialItems} initialQuery={q ?? ""} />
+      </div>
+    </BuyerShell>
   );
 }
