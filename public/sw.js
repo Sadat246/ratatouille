@@ -12,14 +12,6 @@ self.addEventListener("message", (event) => {
   }
 });
 
-self.addEventListener("fetch", (event) => {
-  if (event.request.mode !== "navigate") {
-    return;
-  }
-
-  event.respondWith(fetch(event.request));
-});
-
 self.addEventListener("push", (event) => {
   const payload = event.data?.json?.() ?? {
     title: "Auction update",

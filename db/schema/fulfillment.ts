@@ -58,6 +58,7 @@ export const fulfillments = pgTable(
     recipientPhone: text("recipient_phone"),
     deliveryQuoteId: text("delivery_quote_id"),
     deliveryReferenceId: text("delivery_reference_id"),
+    deliveryTrackingUrl: text("delivery_tracking_url"),
     deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()

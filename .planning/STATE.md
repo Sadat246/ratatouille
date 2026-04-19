@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-04-18)
 
 **Core value:** Auctions actually clear at-risk inventory before expiry — bids land, winners pay, items get to buyers.
-**Current focus:** Phase 9 landed locally; the next project-level step is still the outstanding human walkthrough for Phase 8 plus the live UAT passes for Phases 6 and 7.
+**Current focus:** Phase 10 is now in progress locally; 10-01 landed with the desktop shopper shell and marketplace layout, 10-02 is next for the seller workstation, and Phases 6-8 still have live UAT/human walkthrough work outstanding.
 
 ## Current Position
 
-Phase: 9 of 9 (Error Logging & Bug Reports)
-Plan: 09-03 complete
-Status: Phase 9 complete locally; broader project still awaits live UAT/human walkthrough work from Phases 6-8
-Last activity: 2026-04-18 — Plans 09-01 through 09-03 landed: immutable bug-report persistence, global client telemetry, a floating preview-first widget, and the terminal `list`/`get` retrieval loop are all in place. The bug-report schema was migrated to the configured Neon database, and a synthetic report was used to smoke-test the CLI end to end before cleanup.
+Phase: 10 of 10 (Desktop App)
+Plan: 10-01 complete
+Status: Phase 10 in progress locally; the shopper desktop shell is landed and verified, seller workstation work is next, and prior live UAT/human walkthrough work from Phases 6-8 remains open
+Last activity: 2026-04-19 — Plan 10-01 landed: the shared shell now promotes large screens into a left navigation rail plus wider workspace, the shopper home uses a persistent filter rail with a denser marketplace grid, and shopper bids/orders/alerts pages now compose cleanly on desktop breakpoints. Lint and production build both passed.
 
-Progress: ██████████ 100%
+Progress: █████████▉ 97%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 31
+- Total plans completed: 32
 - Average duration: Partially tracked
 - Total execution time: 31 min recorded in Phase 1; later phases completed in the same session but did not capture per-plan timings
 
@@ -36,6 +36,7 @@ Progress: ██████████ 100%
 | 7. Fulfillment | 3 | Timing not captured | n/a |
 | 8. Notifications & Demo Polish | 2 | 22 min | 11 min |
 | 9. Error Logging & Bug Reports | 3 | Timing not captured | n/a |
+| 10. Desktop App | 1 | Timing not captured | n/a |
 
 **Recent Trend:**
 - Last 5 plans: Timing not captured at plan granularity
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - Phase 9 stores immutable bug-report rows with short public IDs, canonical Markdown, and separately stored screenshot payloads so the terminal retrieval loop stays readable
 - Phase 9 bootstraps client-side telemetry through `instrumentation-client`, capturing only metadata-level actions/outcomes and excluding raw field values or request bodies by default
 - Phase 9 intentionally exposes exactly two retrieval verbs — `list` and `get` — via a plain Node CLI instead of an in-app admin surface
+- Phase 10 remains browser-only and responsive; desktop means a large-screen layout system inside the existing Next.js app, not an Electron/Tauri wrapper
+- Phase 10 desktop starts from a shared shell model: mobile keeps the bottom nav, while desktop promotes shopper/seller pages into a left-rail workspace layout
 
 ### Deferred Issues
 
@@ -105,11 +108,15 @@ Recent decisions affecting current work:
 - **Phase 7 UAT:** add `UBER_DIRECT_CLIENT_ID`, `UBER_DIRECT_CLIENT_SECRET`, `UBER_DIRECT_CUSTOMER_ID`, and `UBER_DIRECT_WEBHOOK_SIGNING_KEY`, then walk the README fulfillment demo for both pickup and delivery. Confirm a real webhook can advance `delivery_requested` → `out_for_delivery`/`delivered` and that seller pickup verification marks the settlement completed.
 - **Phase 8 UAT:** set `DEMO_MODE_ENABLED=1`, configure the VAPID env vars, opt a seller and shopper browser into alerts, then walk the README Phase 8 runbook end to end. On iPhone/iPad, verify the shopper is using the installed Home Screen web app before expecting push delivery.
 - **Phase 9 QA:** perform one live browser click-through of the floating bug-report widget to confirm the preview panel clears the mobile bottom nav and the screenshot preview looks correct on a real device size.
+- **Phase 10 QA:** perform one real desktop browser walkthrough across the shopper pages at laptop/monitor width to confirm the navigation rail, marketplace grid, and install-prompt placement feel correct before executing 10-02.
 
 ### Roadmap Evolution
 
 - 2026-04-18 — Phase 9 added: Error Logging & Bug Reports (user action/outcome telemetry + floating bottom-right bug-report widget — support-chat style, screenshot + last-10-actions buffer + description; reports persisted as Markdown retrievable by LLM CLI)
 - 2026-04-18 — Phase 9 planned and executed: 09-01..09-03 shipped immutable bug-report persistence, the root-mounted widget, and the `list`/`get` CLI loop.
+- 2026-04-19 — Phase 10 added: Desktop App (create a desktop version of the web app)
+- 2026-04-19 — Phase 10 planned into two plans: 10-01 shared shopper desktop shell + marketplace layout, 10-02 seller workstation conversion.
+- 2026-04-19 — Plan 10-01 executed: shopper pages now use the responsive desktop shell, the home feed has a persistent filter rail plus denser grid, and the slice is build-verified.
 
 ### Blockers/Concerns
 
@@ -118,9 +125,10 @@ Recent decisions affecting current work:
 - Auction closing still relies on the single-process safety sweep plus request-triggered refreshes; a durable per-auction scheduler remains a future hardening path if deployment topology changes
 - Phase 8 implementation is ready, but the final demo claim still depends on a human walkthrough confirming push delivery in real browsers and the iOS Home Screen constraint
 - Phase 9 is locally verified through lint/test/build plus a synthetic Neon-backed CLI smoke path, but it still lacks a live browser click-through of the widget from this terminal session
+- Phase 10 shopper desktop work is lint/build verified, but the desktop claim still needs a human visual pass at real laptop/monitor breakpoints before sign-off
 
 ## Session Continuity
 
-Last session: 2026-04-18
-Stopped at: Phase 9 complete through Plans 09-01..09-03. Phase 6 still needs live Stripe MV UAT, Phase 7 still needs live Uber/Stripe UAT, and Phase 8 still needs the real seller/shopper push walkthrough before the broader demo can be called fully human-verified.
+Last session: 2026-04-19
+Stopped at: Phase 10 plan 10-01 complete. Next up is 10-02 for the seller workstation desktop conversion. Phase 6 still needs live Stripe MV UAT, Phase 7 still needs live Uber/Stripe UAT, and Phase 8 still needs the real seller/shopper push walkthrough before the broader demo can be called fully human-verified.
 Resume file: .planning/ROADMAP.md

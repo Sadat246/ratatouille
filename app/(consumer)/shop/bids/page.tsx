@@ -42,25 +42,39 @@ export default async function ShopBidsPage() {
       pageTitle="Everything you’ve swung at, cleanly sorted."
       pageDescription="Winning, outbid, and won are obvious in one tap — no buried account pages."
     >
-      <SectionCard title="Stats overview">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {overviewMetrics.map((metric) => (
-            <div
-              key={metric.label}
-              className="rounded-[0.85rem] border border-[#eaeaea] bg-white p-4"
-            >
-              <p className="text-sm text-[#6b6b6b]">{metric.label}</p>
-              <p className="mt-3 text-3xl font-semibold tracking-tight text-[#1a1a1a]">
-                {metric.value}
-              </p>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
+      <div className="grid gap-5 xl:grid-cols-[18rem_minmax(0,1fr)] xl:items-start">
+        <SectionCard
+          title="Position board"
+          tone="border-[#d2e8de] bg-[rgba(237,247,242,0.92)] text-[#143026]"
+        >
+          <div className="grid grid-cols-3 gap-3 xl:grid-cols-1">
+            {[
+              { label: "Winning now", value: String(winningCount).padStart(2, "0") },
+              { label: "Outbid now", value: String(outbidCount).padStart(2, "0") },
+              { label: "Already won", value: String(wonCount).padStart(2, "0") },
+            ].map((metric) => (
+              <div
+                key={metric.label}
+                className="rounded-[1.4rem] border border-[#cde1d7] bg-white/85 p-3"
+              >
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#58806f]">
+                  {metric.label}
+                </p>
+                <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#173228]">
+                  {metric.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
 
-      <SectionCard title="Your auction trail">
-        <MyBidsList items={items} />
-      </SectionCard>
-    </ShopperSidebarShell>
+        <SectionCard
+          title="Your auction trail"
+          tone="border-[#d8e6de] bg-[rgba(241,248,244,0.92)] text-[#183227]"
+        >
+          <MyBidsList items={items} />
+        </SectionCard>
+      </div>
+    </ConsumerShell>
   );
 }

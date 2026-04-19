@@ -7,6 +7,7 @@ export * from "./payments";
 export * from "./fulfillment";
 export * from "./push";
 export * from "./stripe-webhook-events";
+export * from "./uber-direct-webhook-events";
 
 import { bids, auctions } from "./auctions";
 import { businesses, businessMemberships } from "./businesses";
@@ -17,6 +18,7 @@ import { listingImages, listings } from "./listings";
 import { settlements } from "./payments";
 import { pushSubscriptions } from "./push";
 import { stripeWebhookEvents } from "./stripe-webhook-events";
+import { uberDirectWebhookEvents } from "./uber-direct-webhook-events";
 
 export const schema = {
   users,
@@ -34,6 +36,7 @@ export const schema = {
   fulfillments,
   pushSubscriptions,
   stripeWebhookEvents,
+  uberDirectWebhookEvents,
 };
 
 export type AppSchema = typeof schema;
