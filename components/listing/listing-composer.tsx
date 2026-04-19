@@ -769,17 +769,17 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
 
   return (
     <form className="grid gap-5" onSubmit={submit}>
-      <div className="rounded-[1.9rem] border border-[#d9cab9] bg-[#fff8ef] px-4 py-4 text-sm leading-7 text-[#5b4a3a]">
-        Three photos up top, form underneath, and no stepper. This desk keeps the
-        listing loop fast enough for a seller working between customers.
+      <div className="rounded-[0.85rem] border border-[#eaeaea] bg-[#fafafa] px-4 py-3 text-sm leading-6 text-[#6b6b6b]">
+        Three photos up top, form underneath. Designed to keep the listing loop
+        fast enough for a seller working between customers.
       </div>
 
       {banner ? (
         <div
-          className={`rounded-[1.7rem] border px-4 py-4 text-sm leading-7 ${
+          className={`rounded-[0.85rem] border px-4 py-3 text-sm leading-6 ${
             banner.tone === "success"
-              ? "border-[#c5dfce] bg-[#eef8f2] text-[#214a37]"
-              : "border-[#ebd0c8] bg-[#fff1ed] text-[#8b3b2f]"
+              ? "border-[#cfe5d6] bg-[#eef6f1] text-[#2f6b4d]"
+              : "border-[#f1d4cd] bg-[#fbeae5] text-[#a14431]"
           }`}
         >
           {banner.message}
@@ -828,13 +828,13 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 rounded-[2rem] border border-[#d8ccb9] bg-white/88 p-4 shadow-[0_18px_60px_rgba(54,38,25,0.05)]">
-        <div className="grid gap-3">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">Product title</span>
+      <div className="grid gap-4 rounded-[1rem] border border-[#eaeaea] bg-white p-4">
+        <div className="grid gap-2">
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Product title</span>
             <input
               {...titleField}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
               placeholder="Greek yogurt four-pack"
               ref={(node) => {
                 titleField.ref(node);
@@ -843,13 +843,13 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             />
           </label>
           {errors.title ? (
-            <p className="text-sm text-[#a03d30]">{errors.title.message}</p>
+            <p className="text-sm text-[#a14431]">{errors.title.message}</p>
           ) : null}
         </div>
 
         <div className="grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">Category</span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Category</span>
             <select
               {...register("category", {
                 onChange: (event) => {
@@ -859,7 +859,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
                   }
                 },
               })}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
             >
               <option value="">Choose a category</option>
               {listingCategoryOptions.map((option) => (
@@ -870,83 +870,81 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </select>
           </label>
 
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">
-              Custom category
-            </span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Custom category</span>
             <input
               {...register("customCategory")}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
               placeholder="Only if other"
             />
           </label>
         </div>
         {errors.category ? (
-          <p className="text-sm text-[#a03d30]">{errors.category.message}</p>
+          <p className="text-sm text-[#a14431]">{errors.category.message}</p>
         ) : null}
         {errors.customCategory ? (
-          <p className="text-sm text-[#a03d30]">{errors.customCategory.message}</p>
+          <p className="text-sm text-[#a14431]">{errors.customCategory.message}</p>
         ) : null}
 
-        <label className="grid gap-2">
-          <span className="text-sm font-semibold text-[#2d2419]">Notes</span>
+        <label className="grid gap-1.5">
+          <span className="text-sm font-medium text-[#1a1a1a]">Notes</span>
           <textarea
             {...register("description")}
-            className="min-h-28 rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+            className="min-h-28 rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
             placeholder="Multipack still sealed. Keep refrigerated."
           />
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">Reserve price</span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Reserve price</span>
             <input
               {...register("reservePrice")}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
               inputMode="decimal"
               placeholder="4.00"
             />
             {errors.reservePrice ? (
-              <p className="text-sm text-[#a03d30]">{errors.reservePrice.message}</p>
+              <p className="text-sm text-[#a14431]">{errors.reservePrice.message}</p>
             ) : null}
           </label>
 
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">Buyout price</span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Buyout price</span>
             <input
               {...register("buyoutPrice")}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
               inputMode="decimal"
               placeholder="6.50"
             />
             {errors.buyoutPrice ? (
-              <p className="text-sm text-[#a03d30]">{errors.buyoutPrice.message}</p>
+              <p className="text-sm text-[#a14431]">{errors.buyoutPrice.message}</p>
             ) : null}
           </label>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">Package date</span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Package date</span>
             <input
               {...register("packageDate")}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
               type="date"
             />
             {errors.packageDate ? (
-              <p className="text-sm text-[#a03d30]">{errors.packageDate.message}</p>
+              <p className="text-sm text-[#a14431]">{errors.packageDate.message}</p>
             ) : null}
           </label>
 
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">Auction ends</span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Auction ends</span>
             <input
               {...register("auctionEndsAtLocal")}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
               type="datetime-local"
             />
             {errors.auctionEndsAtLocal ? (
-              <p className="text-sm text-[#a03d30]">
+              <p className="text-sm text-[#a14431]">
                 {errors.auctionEndsAtLocal.message}
               </p>
             ) : null}
@@ -954,8 +952,8 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-[0.9fr_1.1fr]">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">Date label type</span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Date label type</span>
             <select
               {...register("packageDateKind", {
                 onChange: (event) => {
@@ -972,7 +970,7 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
                   }
                 },
               })}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
             >
               {packageDateKindValues.map((kind) => (
                 <option key={kind} value={kind}>
@@ -982,11 +980,11 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
             </select>
           </label>
 
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#2d2419]">Printed label text</span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium text-[#1a1a1a]">Printed label text</span>
             <input
               {...register("packageDateLabel")}
-              className="rounded-[1.2rem] border border-[#dccfbd] bg-[#fff8ef] px-4 py-3 text-sm text-[#2d2419] outline-none transition focus:border-[#d98c55]"
+              className="rounded-[0.65rem] border border-[#eaeaea] bg-white px-3.5 py-2.5 text-sm text-[#1a1a1a] outline-none transition focus:border-[#4a7ab8]"
               placeholder="Best by"
             />
           </label>
@@ -994,18 +992,18 @@ export function ListingComposer({ businessId, action }: ListingComposerProps) {
 
         <input type="hidden" {...register("ocrRawText")} />
 
-        <div className="rounded-[1.5rem] border border-[#e5d3bd] bg-[#fff8ef] px-4 py-4 text-sm leading-7 text-[#665240]">
-          Drafts auto-save in this browser with accepted photo blobs, so a seller can
-          leave mid-listing and come back without losing the desk state.
-        </div>
+        <p className="rounded-[0.65rem] border border-[#eaeaea] bg-[#fafafa] px-3.5 py-3 text-xs leading-5 text-[#7a7a7a]">
+          Drafts auto-save in this browser with accepted photo blobs, so a seller
+          can leave mid-listing and come back without losing the desk state.
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm leading-6 text-[#5f4b38]">
+        <p className="text-sm text-[#6b6b6b]">
           All three accepted photos must finish uploading before publish unlocks.
         </p>
         <button
-          className="inline-flex items-center justify-center rounded-full bg-[#f05f38] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#d95632] disabled:cursor-not-allowed disabled:bg-[#efb19e]"
+          className="inline-flex items-center justify-center rounded-full bg-[#1a1a1a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#000] disabled:cursor-not-allowed disabled:bg-[#bcbcbc]"
           disabled={!isHydrated || isPublishing}
           type="submit"
         >

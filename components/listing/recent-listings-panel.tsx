@@ -44,26 +44,26 @@ function getCategoryLabel(category: string) {
 function getStatusTone(status: string) {
   switch (status) {
     case "active":
-      return "bg-[#dcefe4] text-[#24543f]";
+      return "bg-[#e1edf3] text-[#365c8e]";
     case "scheduled":
-      return "bg-[#fceac8] text-[#755124]";
+      return "bg-[#f5efe1] text-[#7d6a3a]";
     case "draft":
-      return "bg-[#efe6dd] text-[#6b4c30]";
+      return "bg-[#f0f0f0] text-[#5a5a5a]";
     case "sold":
-      return "bg-[#d8efe3] text-[#20543f]";
+      return "bg-[#e6f1ea] text-[#2f6b4d]";
     case "cancelled":
-      return "bg-[#f5dfd7] text-[#7b3d28]";
+      return "bg-[#f5e3e0] text-[#a14431]";
     case "expired":
-      return "bg-[#e8edf1] text-[#43515e]";
+      return "bg-[#f0f0f0] text-[#5a5a5a]";
     default:
-      return "bg-[#e8edf1] text-[#43515e]";
+      return "bg-[#f0f0f0] text-[#5a5a5a]";
   }
 }
 
 export function RecentListingsPanel({ listings }: RecentListingsPanelProps) {
   if (!listings.length) {
     return (
-      <div className="rounded-[1.7rem] border border-dashed border-[#d7cab8] bg-white/70 px-4 py-5 text-sm leading-7 text-[#67584a]">
+      <div className="rounded-[0.85rem] border border-dashed border-[#eaeaea] bg-[#fafafa] px-4 py-5 text-sm leading-6 text-[#6b6b6b]">
         Your first listing will land here once the three-photo desk publishes it.
       </div>
     );
@@ -74,53 +74,53 @@ export function RecentListingsPanel({ listings }: RecentListingsPanelProps) {
       {listings.map((listing) => (
         <article
           key={listing.id}
-          className="rounded-[1.7rem] border border-[#decfbc] bg-white/88 p-4 shadow-[0_14px_40px_rgba(57,39,25,0.05)]"
+          className="rounded-[0.85rem] border border-[#eaeaea] bg-white p-4"
         >
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[#8d7052]">
+            <div className="min-w-0">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[#9a9a9a]">
                 {getCategoryLabel(listing.category)}
               </p>
-              <h3 className="mt-2 text-base font-semibold tracking-[-0.03em] text-[#2a2118]">
+              <h3 className="mt-1.5 truncate text-base font-semibold tracking-tight text-[#1a1a1a]">
                 {listing.title}
               </h3>
             </div>
             <span
-              className={`rounded-full px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.2em] ${getStatusTone(listing.status)}`}
+              className={`shrink-0 rounded-full px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] ${getStatusTone(listing.status)}`}
             >
               {listing.status}
             </span>
           </div>
 
-          <div className="mt-4 grid gap-2 text-sm text-[#5c4b3b]">
+          <div className="mt-4 grid gap-1.5 text-sm leading-6 text-[#5a5a5a]">
             <p>
-              Reserve {formatCurrency(listing.reservePriceCents)}. Buyout{" "}
-              {formatCurrency(listing.buyoutPriceCents)}.
+              Reserve {formatCurrency(listing.reservePriceCents)} · Buyout{" "}
+              {formatCurrency(listing.buyoutPriceCents)}
             </p>
             {listing.auctionStatus === "active" ? (
               <p>
-                Live at {formatCurrency(listing.currentBidAmountCents)} across{" "}
-                {listing.auctionBidCount ?? 0} bids.
+                Live at {formatCurrency(listing.currentBidAmountCents)} ·{" "}
+                {listing.auctionBidCount ?? 0} bids
               </p>
             ) : null}
             {listing.auctionResult === "winning_bid" || listing.auctionResult === "buyout" ? (
-              <p>Sold for {formatCurrency(listing.currentBidAmountCents)}.</p>
+              <p>Sold for {formatCurrency(listing.currentBidAmountCents)}</p>
             ) : null}
             {listing.auctionResult === "cancelled" ? (
-              <p>Auction cancelled before settlement.</p>
+              <p>Auction cancelled before settlement</p>
             ) : null}
-            <p>
-              Package date {listing.packageDate ?? "Pending confirmation"}.
+            <p className="text-[#7a7a7a]">
+              Package date {listing.packageDate ?? "Pending confirmation"}
             </p>
-            <p>
+            <p className="text-[#7a7a7a]">
               {(() => {
                 const ends = coerceDate(listing.auctionEndsAt);
                 return ends
-                  ? `Auction ends ${format(ends, "MMM d, h:mm a")}.`
-                  : "Auction timing still needs attention.";
+                  ? `Ends ${format(ends, "MMM d, h:mm a")}`
+                  : "Auction timing pending";
               })()}
             </p>
-            <p className="text-[#8c7358]">
+            <p className="text-xs text-[#9a9a9a]">
               Updated{" "}
               {(() => {
                 const u = coerceDate(listing.updatedAt);
