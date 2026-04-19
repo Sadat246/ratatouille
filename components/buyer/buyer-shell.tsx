@@ -5,13 +5,12 @@ import { BuyerHeader } from "@/components/buyer/buyer-header";
 
 type BuyerShellProps = {
   activeHref: string;
-  locationLabel: string;
+  locationLabel?: string;
   children: ReactNode;
 };
 
 export function BuyerShell({
   activeHref,
-  locationLabel,
   children,
 }: BuyerShellProps) {
   return (
@@ -19,11 +18,24 @@ export function BuyerShell({
       <Suspense fallback={null}>
         <BuyerHeader
           activeHref={activeHref}
-          locationLabel={locationLabel}
           signOutSlot={
             <SignOutButton
-              className="text-[0.72rem] font-medium text-[#6a6a6a] transition-colors hover:text-[#1a1a1a]"
-              label="Sign out"
+              ariaLabel="Sign out"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#e4e4e4] text-[#4a4a4a] transition-colors hover:border-[#3d8d5c] hover:text-[#3d8d5c]"
+              label={
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M15 12H4m0 0 4-4m-4 4 4 4M10 4h7a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-7" />
+                </svg>
+              }
             />
           }
         />
