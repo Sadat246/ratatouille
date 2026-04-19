@@ -43,11 +43,11 @@ export function FilterChipRow({
 
   return (
     <div
-      className="sticky top-0 z-20 -mx-4 border-b border-white/40 bg-[rgba(245,232,213,0.85)] px-4 py-2 backdrop-blur-md"
+      className="rounded-[1.6rem] border border-white/60 bg-[rgba(255,248,239,0.6)] px-4 py-3 backdrop-blur"
       role="toolbar"
       aria-label="Filter and sort"
     >
-      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+      <div className="flex flex-wrap gap-2">
         {/* Sort chips */}
         {SORT_OPTIONS.map((option) => (
           <button

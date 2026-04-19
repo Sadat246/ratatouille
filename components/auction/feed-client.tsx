@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AuctionCard } from "@/components/auction/auction-card";
 import { FeedCardSkeleton } from "@/components/auction/feed-card-skeleton";
 import { FilterChipRow } from "@/components/auction/filter-chip-row";
-import { InstallPromptBanner } from "@/components/pwa/install-prompt-banner";
 import { formatCurrency, formatLocationLabel, formatPackageLabel } from "@/lib/auctions/display";
 import type { AuctionFeedItem, SortBy } from "@/lib/auctions/queries";
 
@@ -27,10 +26,8 @@ export function FeedClient({ initialItems }: FeedClientProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState<SortBy>("ending_soon");
   const [categories, setCategories] = useState<string[]>([]);
-  const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const installSentinelRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -152,24 +149,10 @@ export function FeedClient({ initialItems }: FeedClientProps) {
     [],
   );
 
-  // Install banner sentinel — show after 3rd card
-  useEffect(() => {
-    const el = installSentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setShowInstallBanner(true);
-      },
-      { threshold: 0.5 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   const isEmpty = !isLoading && items.length === 0;
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <FilterChipRow
         sortBy={sortBy}
         onSortChange={handleSortChange}
@@ -177,11 +160,11 @@ export function FeedClient({ initialItems }: FeedClientProps) {
         onCategoryChange={handleCategoryChange}
       />
 
-      <section className="px-4 pb-32">
+      <section>
         <h1 className="sr-only">Nearby Deals</h1>
 
         {isEmpty ? (
-          <div className="flex flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+          <div className="flex flex-col items-center justify-center gap-4 px-6 py-20 text-center">
             <svg
               className="h-16 w-16 text-[#dfc9b6]"
               fill="none"
@@ -209,10 +192,11 @@ export function FeedClient({ initialItems }: FeedClientProps) {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4">
-            {items.map((auction, idx) => (
-              <div key={auction.id}>
+          <>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((auction) => (
                 <AuctionCard
+                  key={auction.id}
                   href={`/shop/${auction.id}`}
                   eyebrow={auction.business.name}
                   title={auction.listing.title}
@@ -249,27 +233,21 @@ export function FeedClient({ initialItems }: FeedClientProps) {
                       : undefined
                   }
                 />
-                {/* Install banner sentinel — after 3rd card */}
-                {idx === 2 && <div ref={installSentinelRef} className="h-px" />}
-              </div>
-            ))}
+              ))}
 
-            {/* Infinite scroll sentinel */}
-            {hasMore && <div ref={sentinelRef} className="h-1" />}
+              {isLoading && (
+                <>
+                  <FeedCardSkeleton />
+                  <FeedCardSkeleton />
+                  <FeedCardSkeleton />
+                </>
+              )}
+            </div>
 
-            {/* Loading skeletons */}
-            {isLoading && (
-              <>
-                <FeedCardSkeleton />
-                <FeedCardSkeleton />
-                <FeedCardSkeleton />
-              </>
-            )}
-          </div>
+            {hasMore && <div ref={sentinelRef} className="mt-4 h-1" />}
+          </>
         )}
       </section>
-
-      {showInstallBanner && <InstallPromptBanner />}
-    </>
+    </div>
   );
 }

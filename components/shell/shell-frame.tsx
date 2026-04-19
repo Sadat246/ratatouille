@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { Wordmark } from "@/components/brand/wordmark";
-import { BottomNav, type BottomNavItem } from "@/components/nav/bottom-nav";
+import { TopNav, type TopNavItem } from "@/components/nav/top-nav";
 
 type ShellFrameProps = {
   badge: string;
@@ -10,7 +10,7 @@ type ShellFrameProps = {
   heroClassName: string;
   heroAside: ReactNode;
   activeHref: string;
-  navItems: BottomNavItem[];
+  navItems: TopNavItem[];
   children: ReactNode;
 };
 
@@ -25,30 +25,31 @@ export function ShellFrame({
   children,
 }: ShellFrameProps) {
   return (
-    <main className="min-h-screen w-full overflow-x-clip px-4 pb-24 pt-5 sm:px-6 sm:pb-12">
-      <div className="mx-auto flex w-full max-w-md flex-col gap-4 sm:max-w-lg">
-        <section className="rounded-[2rem] border border-white/70 bg-white/72 p-4 shadow-[0_22px_90px_rgba(55,34,18,0.12)] backdrop-blur">
-          <div className="flex items-center justify-between gap-3">
-            <Wordmark subtitle={badge} />
+    <main className="min-h-screen w-full overflow-x-clip px-6 pb-16 pt-6 lg:px-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+        <header className="flex flex-wrap items-center justify-between gap-4 rounded-[2rem] border border-white/70 bg-white/72 p-4 shadow-[0_22px_90px_rgba(55,34,18,0.12)] backdrop-blur">
+          <Wordmark subtitle={badge} />
+          <TopNav activeHref={activeHref} items={navItems} />
+        </header>
+
+        <section
+          className={`overflow-hidden rounded-[2.7rem] px-8 pb-10 pt-10 ${heroClassName}`}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-6">
+            <div className="min-w-0 flex-1">
+              <h1 className="max-w-[18ch] text-[clamp(2.4rem,5vw,4rem)] leading-[0.94] font-semibold tracking-[-0.05em] text-balance">
+                {title}
+              </h1>
+              <p className="mt-5 max-w-[44rem] text-base leading-7 opacity-92">
+                {description}
+              </p>
+            </div>
             {heroAside}
           </div>
         </section>
 
-        <section
-          className={`overflow-hidden rounded-[2.7rem] px-5 pb-6 pt-6 ${heroClassName}`}
-        >
-          <h1 className="max-w-[13ch] text-[clamp(2.4rem,8vw,4rem)] leading-[0.94] font-semibold tracking-[-0.05em] text-balance">
-            {title}
-          </h1>
-          <p className="mt-5 max-w-[29rem] text-sm leading-7 opacity-92 sm:text-base">
-            {description}
-          </p>
-        </section>
-
-        <div className="grid min-w-0 grid-cols-1 gap-4">{children}</div>
+        <div className="min-w-0">{children}</div>
       </div>
-
-      <BottomNav activeHref={activeHref} items={navItems} />
     </main>
   );
 }
