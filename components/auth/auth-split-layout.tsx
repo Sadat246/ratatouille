@@ -34,7 +34,7 @@ export function AuthSplitLayout({
                 className="h-4 w-4"
                 fill="currentColor"
               >
-                <path d="M17 48V16h14.5c8 0 14.2 4.1 14.2 11.7 0 6.2-3.8 10-10 11.6L47 48h-8.5l-9.3-8h-4.9v8Zm8.7-15h5.1c4.4 0 6.4-1.8 6.4-4.9 0-3.2-2-4.8-6.4-4.8h-5.1Z" />
+                <path d="M10 54C10 30 30 10 54 10c0 28-20 44-44 44z" />
               </svg>
             </span>
             <span className="text-[0.98rem] font-semibold tracking-[-0.02em] text-[#1a1a1a]">

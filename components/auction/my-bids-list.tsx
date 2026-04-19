@@ -35,7 +35,7 @@ export function MyBidsList({ items }: MyBidsListProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => (
         <AuctionCard
           key={item.id}
