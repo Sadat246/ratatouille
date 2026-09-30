@@ -210,10 +210,10 @@ development.
 1. Complete a paid sale so a fulfillment row exists. Buyout works immediately;
    auction-winner fulfillment appears after the Stripe success webhook lands.
 2. Sign in as the buyer and open the Orders lane.
-3. On the order card, use `Pickup in store`. The card updates to show a 6-digit
+3. On the order card, use `Pickup in store`. The card updates to show an 8-character
    pickup code and its expiry.
 4. Sign in as the seller and open the Fulfillment lane.
-5. Enter the buyer's 6-digit code into `Verify pickup`.
+5. Enter the buyer's 8-character code into `Verify pickup`.
 6. Successful verification marks the handoff complete: the fulfillment moves to
    `picked_up`, and the linked settlement is closed out as completed.
 

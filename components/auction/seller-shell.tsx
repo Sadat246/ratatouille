@@ -20,6 +20,7 @@ type SellerShellProps = {
 const sellerNavItems: SidebarNavItem[] = [
   { href: "/sell", label: "Dashboard", icon: "dashboard" },
   { href: "/sell/auctions", label: "Live auctions", icon: "live" },
+  { href: "/sell/fulfillment", label: "Pickups", icon: "outcomes" },
   { href: "/sell/outcomes", label: "Outcomes", icon: "outcomes" },
 ];
 

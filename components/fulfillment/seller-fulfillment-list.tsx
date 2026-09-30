@@ -5,6 +5,7 @@ import { format } from "date-fns";
 
 import { formatPackageLabel } from "@/lib/auctions/display";
 import type { SellerFulfillmentItem } from "@/lib/fulfillment/queries";
+import { PILOT_PICKUP_ONLY } from "@/lib/fulfillment/status";
 
 import { FulfillmentStatusBadge } from "./fulfillment-status-badge";
 
@@ -109,7 +110,8 @@ function SellerFulfillmentCard({
         ) : null}
       </div>
 
-      {item.status === "ready_for_pickup" ? (
+      {item.status === "ready_for_pickup" ||
+      (PILOT_PICKUP_ONLY && item.status === "pending_choice") ? (
         <section className="mt-4 rounded-[1.7rem] border border-[#ead8c8] bg-[rgba(255,248,240,0.92)] p-4">
           <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#946549]">
             Verify pickup
@@ -118,7 +120,7 @@ function SellerFulfillmentCard({
             <input
               value={code}
               onChange={(event) => setCode(event.target.value)}
-              placeholder="482 619"
+              placeholder="K7P3 X9MQ"
               className="flex-1 rounded-[1.2rem] border border-[#e1ccb8] bg-white/88 px-4 py-3 text-base tracking-[0.16em] text-[#24150f] outline-none transition focus:border-[#d98353]"
             />
             <button
@@ -169,7 +171,7 @@ export function SellerFulfillmentList({
           No fulfillment work yet
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#476456]">
-          Paid orders will collect here as soon as buyers choose pickup or delivery.
+          Reserved items will show here once a student reserves one.
         </p>
       </section>
     );

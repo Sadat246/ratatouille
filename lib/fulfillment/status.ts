@@ -8,7 +8,11 @@ export function canChoosePickup(status: string): boolean {
   );
 }
 
+// Pilot: pickup only. Flip to false to re-enable delivery.
+export const PILOT_PICKUP_ONLY = true;
+
 export function canChooseDelivery(status: string): boolean {
+  if (PILOT_PICKUP_ONLY) return false;
   return (
     status === "pending_choice" ||
     status === "ready_for_pickup" ||

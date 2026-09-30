@@ -606,7 +606,7 @@ export async function buyoutAuction({
     if (!consumerProfile || !hasMockCardOnFile(consumerProfile)) {
       throw new AuctionServiceError(
         "MOCK_CARD_REQUIRED",
-        "Add a mock card before using buyout.",
+        "Tap 'Turn on reserving' first, then try again.",
         409,
       );
     }

@@ -212,7 +212,7 @@ export function ConsumerFulfillmentCard({
             {item.pickupCodeFormatted}
           </p>
           <p className="mt-3 text-sm leading-6 text-[#4d685b]">
-            Give these six digits to the store staff at handoff.
+            Show this code to the store staff at handoff.
             {item.pickupCodeExpiresAt
               ? ` Code expires ${format(item.pickupCodeExpiresAt, "MMM d, h:mm a")}.`
               : ""}
@@ -264,7 +264,7 @@ export function ConsumerFulfillmentCard({
             </h3>
             <p className="mt-2 text-sm leading-6 text-[#6d5747]">
               {item.business.pickupInstructions ||
-                "The staff will verify the six-digit code before handoff."}
+                "The staff will check your code before handoff."}
             </p>
             <button
               type="button"
@@ -276,6 +276,7 @@ export function ConsumerFulfillmentCard({
             </button>
           </section>
 
+          {item.canChooseDelivery ? (
           <section className="rounded-[1.7rem] border border-[#d8dcef] bg-[rgba(244,246,255,0.92)] p-4">
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#5e6395]">
               Get it delivered
@@ -374,6 +375,7 @@ export function ConsumerFulfillmentCard({
               </button>
             </div>
           </section>
+          ) : null}
         </div>
       ) : null}
 

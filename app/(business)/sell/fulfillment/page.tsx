@@ -2,11 +2,13 @@ import { format } from "date-fns";
 
 import { SectionCard } from "@/components/auction/section-card";
 import { SellerShell } from "@/components/auction/seller-shell";
+import { SellerFulfillmentList } from "@/components/fulfillment/seller-fulfillment-list";
 import type { SellerFulfillmentItem } from "@/lib/auctions/queries";
 import { getSellerFulfillments } from "@/lib/auctions/queries";
 import { formatPackageLabel } from "@/lib/auctions/display";
 import { coerceDate, toIsoTimestamp } from "@/lib/datetime";
 import { requireCompletedRole } from "@/lib/auth/onboarding";
+import { getSellerFulfillments as getSellerPickupItems } from "@/lib/fulfillment/queries";
 import { getSellerDeskData } from "@/lib/listings/queries";
 
 function pickUpByLabel(row: SellerFulfillmentItem) {
@@ -43,6 +45,9 @@ export default async function SellerFulfillmentPage() {
   }
 
   const items = await getSellerFulfillments(sellerDesk.businessId);
+  const openPickups = (await getSellerPickupItems(session.user.id)).filter(
+    (item) => item.status === "ready_for_pickup" || item.status === "pending_choice",
+  );
 
   return (
     <SellerShell
@@ -53,6 +58,10 @@ export default async function SellerFulfillmentPage() {
       heroClassName="bg-[linear-gradient(145deg,#1a2e26_0%,#3d5c4f_48%,#8fbc8f_100%)] text-white shadow-[0_35px_110px_rgba(26,46,38,0.22)]"
       businessName={sellerDesk.businessName}
     >
+      <SectionCard title="Verify a pickup">
+        <p className="mb-3 text-sm leading-6">Type the code from the student&apos;s phone.</p>
+        <SellerFulfillmentList initialItems={openPickups} />
+      </SectionCard>
       <SectionCard
         title={`Open fulfillments (${items.length})`}
         tone="border-[#c8ddd2] bg-[rgba(240,248,244,0.92)] text-[#142920]"

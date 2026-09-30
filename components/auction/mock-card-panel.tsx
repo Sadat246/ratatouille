@@ -96,11 +96,10 @@ export function MockCardPanel({
           <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[#1f1511]">
             {mockCard.enabled
               ? `${mockCard.brand ?? "Mock card"} •••• ${mockCard.last4 ?? "4242"}`
-              : "Add the mock card before bidding"}
+              : "Turn on reserving to continue"}
           </h3>
           <p className="mt-2 text-sm leading-6 text-[#6d5244]">
-            Phase 4 uses a mock card gate so the auction experience behaves like
-            a real checkout-qualified marketplace before Stripe arrives.
+            You pay the store in person at pickup. Nothing is charged in the app.
           </p>
         </div>
 
@@ -122,7 +121,7 @@ export function MockCardPanel({
           disabled={isPending || mockCard.enabled}
           className="inline-flex items-center justify-center rounded-full bg-[#1f7f55] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#91c3af]"
         >
-          Add mock Visa 4242
+          Turn on reserving
         </button>
         <button
           type="button"

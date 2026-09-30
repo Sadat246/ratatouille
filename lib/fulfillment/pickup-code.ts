@@ -1,15 +1,22 @@
 import "server-only";
 
-import { randomInt } from "node:crypto";
+import { randomBytes } from "node:crypto";
 
-export const PICKUP_CODE_LENGTH = 6;
+export const PICKUP_CODE_LENGTH = 8;
+// No 0/1/I/O so codes are easy to read aloud and type.
+export const PICKUP_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-export function generatePickupCodeCandidate(): string {
-  return String(randomInt(0, 1_000_000)).padStart(PICKUP_CODE_LENGTH, "0");
+export function generatePickupCode(): string {
+  const bytes = randomBytes(PICKUP_CODE_LENGTH);
+  let out = "";
+  for (let i = 0; i < PICKUP_CODE_LENGTH; i += 1) {
+    out += PICKUP_CODE_ALPHABET[bytes[i]! % PICKUP_CODE_ALPHABET.length]!;
+  }
+  return out;
 }
 
 export function normalizePickupCodeInput(code: string): string {
-  return code.replace(/\s+/g, "");
+  return code.replace(/[\s-]+/g, "").toUpperCase();
 }
 
 export function formatPickupCode(code: string | null): string | null {
@@ -22,7 +29,7 @@ export function formatPickupCode(code: string | null): string | null {
     return normalized;
   }
 
-  return `${normalized.slice(0, 3)} ${normalized.slice(3)}`;
+  return `${normalized.slice(0, 4)} ${normalized.slice(4)}`;
 }
 
 export function getPickupCodeExpiresAt(from: Date): Date {
