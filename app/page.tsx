@@ -78,6 +78,12 @@ export default async function Home() {
         </nav>
         <div className="flex items-center gap-2">
           <Link
+            href="/preview"
+            className="rounded-full border border-[#e5e5e5] px-4 py-2 text-sm font-semibold text-[#1a1a1a] transition hover:bg-[#f7f7f7]"
+          >
+            See what&apos;s listed →
+          </Link>
+          <Link
             href="/signin/business"
             className="rounded-full border border-[#e5e5e5] px-4 py-2 text-sm font-semibold text-[#1a1a1a] transition hover:bg-[#f7f7f7]"
           >

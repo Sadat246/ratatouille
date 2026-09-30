@@ -14,7 +14,9 @@ const bodyFont = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ratatouille.vercel.app"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://ratatouille-xi.vercel.app",
+  ),
   title: {
     default: "Ratatouille",
     template: "%s | Ratatouille",
