@@ -27,7 +27,7 @@ export function StripeCardSetup({ onCardAttached }: StripeCardSetupProps) {
   const [bootstrapError, setBootstrapError] = useState<string | null>(() =>
     publishableKey
       ? null
-      : "Stripe is not configured. Add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to .env.local.",
+      : "Use 'Turn on reserving' above first.",
   );
   const fetchStartedRef = useRef(false);
 

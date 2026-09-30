@@ -16,12 +16,15 @@ import type { FulfillmentDeliveryInput } from "@/lib/validation/fulfillment";
 
 import {
   formatPickupCode,
-  generatePickupCodeCandidate,
+  generatePickupCode,
   getPickupCodeExpiresAt,
   normalizePickupCodeInput,
 } from "./pickup-code";
 import { normalizePhoneNumber } from "./phone";
-import { mapUberDirectStatusToFulfillmentStatus } from "./status";
+import {
+  mapUberDirectStatusToFulfillmentStatus,
+  PILOT_PICKUP_ONLY,
+} from "./status";
 import type { UberDirectWebhookPayload } from "./uber-direct";
 import {
   createUberDirectDelivery,
@@ -141,7 +144,7 @@ async function ensureUniquePickupCode(
   const now = new Date();
 
   for (let attempt = 0; attempt < 10; attempt += 1) {
-    const code = generatePickupCodeCandidate();
+    const code = generatePickupCode();
     const existing = await tx.execute(sql<{ id: string }>`
       select id
       from fulfillments
@@ -161,6 +164,15 @@ async function ensureUniquePickupCode(
 
   throw new Error("Unable to generate a unique pickup code.");
 }
+
+// Columns the "Pick up in store" transition writes; shared with pilot verify.
+const PICKUP_MODE_COLUMNS = {
+  mode: "pickup",
+  deliveryProvider: "none",
+  deliveryQuoteId: null,
+  deliveryReferenceId: null,
+  deliveryTrackingUrl: null,
+} as const;
 
 function assertMutableSelectionStatus(status: string) {
   if (
@@ -546,12 +558,8 @@ export async function selectPickupForConsumer(
     await tx
       .update(fulfillments)
       .set({
-        mode: "pickup",
+        ...PICKUP_MODE_COLUMNS,
         status: "ready_for_pickup",
-        deliveryProvider: "none",
-        deliveryQuoteId: null,
-        deliveryReferenceId: null,
-        deliveryTrackingUrl: null,
         updatedAt: now,
       })
       .where(eq(fulfillments.id, row.id));
@@ -727,7 +735,9 @@ export async function verifyPickupForBusiness(
       );
     }
 
-    if (row.status !== "ready_for_pickup") {
+    // Pilot: the store verifying the code is the pickup choice.
+    const implicitPickup = PILOT_PICKUP_ONLY && row.status === "pending_choice";
+    if (row.status !== "ready_for_pickup" && !implicitPickup) {
       throw new FulfillmentServiceError(
         "PICKUP_NOT_READY",
         "This pickup is not ready to be verified.",
@@ -763,6 +773,7 @@ export async function verifyPickupForBusiness(
     await tx
       .update(fulfillments)
       .set({
+        ...(implicitPickup ? PICKUP_MODE_COLUMNS : {}),
         status: "picked_up",
         updatedAt: now,
       })

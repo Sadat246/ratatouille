@@ -1,21 +1,10 @@
 import "server-only";
 
-import { randomBytes } from "node:crypto";
-
 import { eq, sql } from "drizzle-orm";
 
 import { getInteractiveDb } from "@/db/interactive";
 import { fulfillments, listings, settlements } from "@/db/schema";
-
-function generatePickupCode(): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const bytes = randomBytes(8);
-  let out = "";
-  for (let i = 0; i < 8; i += 1) {
-    out += alphabet[bytes[i]! % alphabet.length]!;
-  }
-  return out;
-}
+import { generatePickupCode } from "@/lib/fulfillment/pickup-code";
 
 function computePickupCodeExpiresAt(params: {
   listingExpiresAt: Date | null;

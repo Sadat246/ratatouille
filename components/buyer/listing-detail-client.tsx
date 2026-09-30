@@ -351,9 +351,7 @@ export function ListingDetailClient({
                 <path d="M12 8v4l3 2" />
               </svg>
               <p>
-                Bidding is anonymous. The highest authorized bid when the timer
-                hits zero wins — or anyone can buy out instantly. Your card is
-                only charged when you win or buy out.
+                Reserve it now and pay the store when you pick it up. Nothing is charged in the app.
               </p>
             </div>
           </section>

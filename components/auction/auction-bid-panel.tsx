@@ -141,7 +141,7 @@ export function AuctionBidPanel({
         >
           {buyoutPriceCents === null
             ? "Buyout unavailable"
-            : `Buy now for ${formatCurrency(buyoutPriceCents)}`}
+            : `Reserve it for ${formatCurrency(buyoutPriceCents)}`}
         </button>
       </div>
 

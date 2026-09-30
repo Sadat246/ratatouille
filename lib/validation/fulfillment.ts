@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+import {
+  normalizePickupCodeInput,
+  PICKUP_CODE_ALPHABET,
+  PICKUP_CODE_LENGTH,
+} from "@/lib/fulfillment/pickup-code";
+
 const optionalText = z.string().trim().max(120).optional().or(z.literal(""));
 
 export const fulfillmentDeliveryInputSchema = z.object({
@@ -31,8 +37,13 @@ export const fulfillmentDeliveryInputSchema = z.object({
 export const fulfillmentPickupVerificationSchema = z.object({
   code: z
     .string()
-    .trim()
-    .regex(/^\d{3}\s?\d{3}$/, "Enter the 6-digit pickup code."),
+    .transform(normalizePickupCodeInput)
+    .refine(
+      (code) =>
+        code.length === PICKUP_CODE_LENGTH &&
+        [...code].every((char) => PICKUP_CODE_ALPHABET.includes(char)),
+      "Enter the 8-character pickup code.",
+    ),
 });
 
 export type FulfillmentDeliveryInput = z.infer<
